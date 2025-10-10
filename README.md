@@ -15,4 +15,5 @@ Un pictograma en el que se pueda escuchar el sonido y seleccionar la palabra cor
 
 
 TAREAS PENDIENTES:
-Objeto en el que esté relacionado el pictograma, el nombre y el sonido.
+La aplicacion tiene que ser una herramienta en la que por un lado las profesoras puedan realizar gestiones de las actividades, vocabulario y pictogramas.
+Por otro lado los alumnos puedan jugar con ello.
