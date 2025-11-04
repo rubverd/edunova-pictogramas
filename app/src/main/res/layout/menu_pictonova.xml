@@ -48,6 +48,7 @@
 
             <!-- Header -->
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/constraintLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 tools:layout_editor_absoluteX="2dp"
@@ -77,7 +78,7 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="409dp"
+                android:layout_width="0dp"
                 android:layout_height="599dp"
                 tools:layout_editor_absoluteX="1dp"
                 tools:layout_editor_absoluteY="83dp">
@@ -85,30 +86,32 @@
                 <LinearLayout
                     android:layout_width="407dp"
                     android:layout_height="597dp"
+                    android:layout_marginStart="1dp"
                     android:orientation="vertical"
-                    tools:layout_editor_absoluteX="1dp"
-                    tools:layout_editor_absoluteY="1dp">
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <Button
                         android:id="@+id/menu1"
-                        style="@style/Widget.AppCompat.Button.Small"
+
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="#5F2D2D"
-                        android:backgroundTint="#C75151"
+                        android:backgroundTint="#D35B5B"
                         android:backgroundTintMode="screen"
                         android:text="Sílabas"
                         app:icon="@android:drawable/ic_menu_sort_alphabetically"
                         app:rippleColor="#DB5353"
                         app:strokeColor="#C54949" />
+
                     <Button
                         android:id="@+id/menu2"
                         style="@style/Widget.AppCompat.Button.Small"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="#5F2D2D"
-                        android:backgroundTint="#C75151"
-                        android:backgroundTintMode="screen"
+
+                        android:backgroundTint="@color/rojoBoton"
+
                         android:text="Palabras"
                         app:icon="@android:drawable/ic_menu_sort_alphabetically"
                         app:rippleColor="#DB5353"
