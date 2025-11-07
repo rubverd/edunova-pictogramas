@@ -1,0 +1,44 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Grupo principal para centrar el contenido -->
+    <group android:translateX="-4" android:translateY="-8">
+
+        <!-- Burbuja de diálogo (contorno blanco) -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="5"
+            android:pathData="M24,20
+                             C18.477,20 14,24.477 14,30
+                             L14,60
+                             C14,65.523 18.477,70 24,70
+                             L60,70
+                             L70,85
+                             L70,70
+                             L94,70
+                             C99.523,70 104,65.523 104,60
+                             L104,30
+                             C104,24.477 99.523,20 94,20
+                             Z" />
+
+        <!-- Silueta de la cabeza (amarillo) -->
+        <path
+            android:fillColor="#FFC107"
+            android:pathData="M48,36
+                             C42,36 38,42 38,50
+                             C38,58 43,64 48,64
+                             L52,64
+                             C51,61 50.5,58 51,55
+                             C52,48 47,42 43,40
+                             C44,37 46,36 48,36Z" />
+
+        <!-- Icono del libro (blanco) -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M70,42 L88,42 L88,58 L70,58 Z M72,44 L86,44 L86,56 L72,56 Z M79,43 L79,57 M74,46 L78,48 L78,54 L74,52 Z M84,46 L80,48 L80,54 L84,52 Z" />
+    </group>
+</vector>
