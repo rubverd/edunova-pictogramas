@@ -86,9 +86,9 @@
                 android:textAlignment="center"
                 android:textSize="24sp"
                 android:textStyle="bold"
+                android:visibility="invisible"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout"
-                android:visibility="gone"/>
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <Button

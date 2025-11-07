@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:backgroundTint="@color/rojoBoton">
+    android:background="@color/rojoBoton"
+    android:backgroundTint="@color/rojoBoton"
+    android:foregroundTint="@color/rojoBoton">
 
     <LinearLayout
         android:layout_width="409dp"
@@ -19,6 +21,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/imageButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/rojoBoton"
+                android:visibility="gone"
+                app:srcCompat="@android:drawable/ic_menu_revert" />
 
             <TextView
                 android:id="@+id/textView4"
@@ -38,7 +49,8 @@
 
         <TableLayout
             android:layout_width="match_parent"
-            android:layout_height="572dp">
+            android:layout_height="572dp"
+            android:background="@color/white">
 
             <TableRow
                 android:layout_width="match_parent"
@@ -48,8 +60,8 @@
                     android:id="@+id/imageButton6"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:srcCompat="@tools:sample/avatars"
-                    android:contentDescription="Imagen modo palabras"/>
+                    android:contentDescription="Imagen modo palabras"
+                    tools:srcCompat="@tools:sample/avatars" />
 
                 <Button
                     android:id="@+id/button7"

@@ -2,58 +2,63 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
-    android:orientation="vertical">
+    android:backgroundTint="@color/rojoBoton"
+    android:orientation="vertical"
+    android:padding="24dp">
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="393dp"
         android:layout_height="wrap_content"
-        android:text="Bienvenido a Pictonova"
-        android:textSize="22sp"
-        android:textStyle="bold"
+        android:layout_marginBottom="20dp"
+        android:background="@color/rojoBoton"
+        android:backgroundTint="@color/rojoBoton"
         android:gravity="center"
-        android:layout_marginBottom="20dp"/>
+        android:text="Bienvenido a Pictonova"
+        android:textColor="#EDEDED"
+        android:textSize="22sp"
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/inputEmail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="372dp"
+        android:layout_height="59dp"
+        android:layout_marginBottom="12dp"
         android:hint="Correo electrónico"
-        android:inputType="textEmailAddress"
-        android:layout_marginBottom="12dp"/>
+        android:inputType="textEmailAddress" />
 
     <EditText
         android:id="@+id/inputPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="371dp"
+        android:layout_height="56dp"
+        android:layout_marginBottom="20dp"
         android:hint="Contraseña"
-        android:inputType="textPassword"
-        android:layout_marginBottom="20dp"/>
+        android:inputType="textPassword" />
 
     <Button
         android:id="@+id/buttonLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Iniciar Sesión"/>
+        android:backgroundTint="@color/rojoBoton"
+        android:text="Iniciar Sesión" />
 
     <TextView
         android:id="@+id/textEstado"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:text=""
+        android:layout_marginTop="20dp"
         android:gravity="center"
-        android:layout_marginTop="20dp"/>
+        android:text=""
+        android:textSize="16sp" />
+
     <TextView
         android:id="@+id/textViewGoToRegister"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="289dp"
+        android:layout_height="54dp"
         android:layout_marginTop="24dp"
-        android:text="¿No tienes una cuenta? Regístrate aquí"
-        android:textStyle="bold"
         android:clickable="true"
         android:focusable="true"
         android:padding="8dp"
-        />
+        android:text="¿No tienes una cuenta? Regístrate aquí"
+        android:textStyle="bold" />
 
 </LinearLayout>
