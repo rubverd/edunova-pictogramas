@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "409935480195",
+    "firebase_url": "https://apppictonova-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "apppictonova",
     "storage_bucket": "apppictonova.firebasestorage.app"
   },
