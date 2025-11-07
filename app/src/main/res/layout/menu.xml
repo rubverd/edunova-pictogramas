@@ -28,7 +28,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:backgroundTint="@color/rojoBoton"
-                android:visibility="gone"
+                android:visibility="invisible"
                 app:srcCompat="@android:drawable/ic_menu_revert" />
 
             <TextView
