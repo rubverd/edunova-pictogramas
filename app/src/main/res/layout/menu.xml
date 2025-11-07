@@ -23,7 +23,7 @@
             android:orientation="horizontal">
 
             <ImageButton
-                android:id="@+id/imageButton"
+                android:id="@+id/returnButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -65,7 +65,7 @@
 
                 <Button
                     android:id="@+id/button7"
-                    android:layout_width="260dp"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:backgroundTint="@color/rojoBoton"
                     android:text="Palabras" />

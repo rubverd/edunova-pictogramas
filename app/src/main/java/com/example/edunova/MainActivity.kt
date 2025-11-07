@@ -86,6 +86,10 @@ class MainActivity : AppCompatActivity() {
                     // ¡Inicio de sesión exitoso!
                     Log.d("Auth", "signInWithEmail:success")
                     val user = auth.currentUser // Obtienes el usuario autenticado
+                    val intent = Intent(this, MenuActivity::class.java)
+
+
+                    startActivity(intent)
 
                     // Ahora que el usuario está autenticado, puedes buscar sus datos en Firestore
                     // usando su ID único (user.uid), que es más seguro que el email.

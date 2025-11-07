@@ -29,6 +29,30 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" /> -->
         </activity>
+        <activity
+            android:name=".MenuActivity"
+            android:exported="false">
+            <!-- Opcional: Para añadir una flecha de "Atrás" en la barra superior -->
+            <!-- <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" /> -->
+        </activity>
+        <activity
+            android:name=".JuegoPalabras"
+            android:exported="false">
+            <!-- Opcional: Para añadir una flecha de "Atrás" en la barra superior -->
+            <!-- <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" /> -->
+        </activity>
+        <activity
+            android:name=".SonidoActivity"
+            android:exported="false">
+            <!-- Opcional: Para añadir una flecha de "Atrás" en la barra superior -->
+            <!-- <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" /> -->
+        </activity>
     </application>
 
 </manifest>

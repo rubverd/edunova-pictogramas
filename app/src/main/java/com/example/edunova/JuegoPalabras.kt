@@ -1,23 +1,28 @@
 package com.example.edunova
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import org.w3c.dom.Text
+import com.example.edunova.databinding.ActivityMainBinding
+import com.example.edunova.databinding.JuegoPalabrasBinding
 import java.util.Locale
 
 
 class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var tts: TextToSpeech
-
+    private lateinit var binding: JuegoPalabrasBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.juego_palabras)
+
+        binding = JuegoPalabrasBinding.inflate(layoutInflater)
 
         // Inicializamos TextToSpeech
         tts = TextToSpeech(this, this)
@@ -26,6 +31,15 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         botonHablar.setOnClickListener {
             reproducirTexto("Hola, este es un ejemplo de texto a voz en Kotlin.")
         }
+        val botonVolver = findViewById< ImageButton>(R.id.returnButton)
+        botonVolver.setOnClickListener {
+            // Crea un Intent para ir de MainActivity a RegisterActivity
+            val intent = Intent(this, MenuActivity::class.java)
+
+            // Inicia la nueva actividad
+            startActivity(intent)
+        }
+
     }
 
     // Se llama automáticamente cuando TTS está listo
