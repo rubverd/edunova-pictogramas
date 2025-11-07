@@ -22,15 +22,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <ImageButton
-                android:id="@+id/imageButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:backgroundTint="@color/rojoBoton"
-                android:visibility="invisible"
-                app:srcCompat="@android:drawable/ic_menu_revert" />
-
             <TextView
                 android:id="@+id/textView4"
                 android:layout_width="wrap_content"
@@ -50,25 +41,35 @@
         <TableLayout
             android:layout_width="match_parent"
             android:layout_height="572dp"
-            android:background="@color/white">
+            android:background="@color/white"
+            android:stretchColumns="1">
 
             <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"> <!-- Centra verticalmente el contenido de la fila -->
 
                 <ImageButton
                     android:id="@+id/imageButton6"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_margin="8dp"
+                    android:adjustViewBounds="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Imagen modo palabras"
-                    tools:srcCompat="@tools:sample/avatars" />
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_person" /> <!-- RECOMENDACIÓN: Usa una imagen real aquí -->
 
                 <Button
                     android:id="@+id/button7"
-                    android:layout_width="260dp"
-                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="16dp"
                     android:backgroundTint="@color/rojoBoton"
-                    android:text="Palabras" />
+                    android:text="Palabras"
+                    android:textSize="20sp" />
             </TableRow>
 
             <TableRow
