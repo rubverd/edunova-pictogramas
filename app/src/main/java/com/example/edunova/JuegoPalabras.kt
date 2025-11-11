@@ -13,6 +13,8 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.edunova.databinding.ActivityMainBinding
 import com.example.edunova.databinding.JuegoPalabrasBinding
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.Locale
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -30,19 +32,19 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         // Inicializamos TextToSpeech
         tts = TextToSpeech(this, this)
 
-        val botonHablar = findViewById<Button>(R.id.fabPlaySound)
+        val botonHablar = findViewById<FloatingActionButton>(R.id.fabPlaySound)
         botonHablar.setOnClickListener {
             reproducirTexto("Hola, este es un ejemplo de texto a voz en Kotlin.")
         }
 
-        //val botonVolver = findViewById< ImageButton>(R.id.returnButton)
-        //botonVolver.setOnClickListener {
+        val botonVolver = findViewById<MaterialToolbar>(R.id.toolbar)
+        botonVolver.setOnClickListener {
             // Crea un Intent para ir de MainActivity a RegisterActivity
-        //    val intent = Intent(this, HomeActivity::class.java)
+            val intent = Intent(this, HomeActivity::class.java)
 
             // Inicia la nueva actividad
-        //    startActivity(intent)
-        //}
+            startActivity(intent)
+        }
 
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

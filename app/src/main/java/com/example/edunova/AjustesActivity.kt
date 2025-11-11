@@ -3,7 +3,7 @@ package com.edunova.pictogramas // Asegúrate de que este sea tu paquete
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import com.edunova.pictogramas.databinding.ActivityAjustesBinding // Importa la clase de ViewBinding
+import com.example.edunova.databinding.ActivityAjustesBinding // Importa la clase de ViewBinding
 
 class AjustesActivity : AppCompatActivity() {
 
