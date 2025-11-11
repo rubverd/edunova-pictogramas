@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -20,26 +21,37 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var binding: JuegoPalabrasBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.juego_palabras)
+        setContentView(R.layout.activity_learn)
 
         binding = JuegoPalabrasBinding.inflate(layoutInflater)
 
         // Inicializamos TextToSpeech
         tts = TextToSpeech(this, this)
 
-        val botonHablar = findViewById<Button>(R.id.botonSonido)
+        val botonHablar = findViewById<Button>(R.id.fabPlaySound)
         botonHablar.setOnClickListener {
             reproducirTexto("Hola, este es un ejemplo de texto a voz en Kotlin.")
         }
-        val botonVolver = findViewById< ImageButton>(R.id.returnButton)
-        botonVolver.setOnClickListener {
+
+        //val botonVolver = findViewById< ImageButton>(R.id.returnButton)
+        //botonVolver.setOnClickListener {
             // Crea un Intent para ir de MainActivity a RegisterActivity
-            val intent = Intent(this, HomeActivity::class.java)
+        //    val intent = Intent(this, HomeActivity::class.java)
 
             // Inicia la nueva actividad
-            startActivity(intent)
-        }
+        //    startActivity(intent)
+        //}
 
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Comprueba si se ha pulsado el botón "Atrás" de la ActionBar.
+        // Su id es siempre 'android.R.id.home'.
+        if (item.itemId == android.R.id.home) {
+            // Finaliza la actividad actual y vuelve a la anterior en la pila.
+            finish()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     // Se llama automáticamente cuando TTS está listo
@@ -75,9 +87,9 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
     //hacer referencia a la batería de palabras
     fun cambiarTextoBotones(texto1: String, texto2: String, texto3: String,textoCorrecto:String){
         // Vinculamos el botón con su ID en el XML
-        val miBoton1: Button = findViewById(R.id.button3)
-        val miBoton2: Button = findViewById(R.id.button4)
-        val miBoton3: Button = findViewById(R.id.button5)
+        val miBoton1: Button = findViewById(R.id.buttonOption1)
+        val miBoton2: Button = findViewById(R.id.buttonOption2)
+        val miBoton3: Button = findViewById(R.id.buttonOption3)
 
         // Cambiar el texto directamente
         miBoton1.text = texto1
@@ -110,6 +122,7 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
     //TODO: Ahora mismo no se usa el atributo de boton pero se podría llegar a usar para hacer
     //seguimiento de los resultados del usuario más adelante
+    //TODO: mostrar de alguna forma en la Ui que el resultado a sido correcto usando estos metodos
     fun respuestaCorrecta(boton: Button ){
         val text: TextView= findViewById(R.id.ResultadoJuego)
         text.visibility = View.VISIBLE
