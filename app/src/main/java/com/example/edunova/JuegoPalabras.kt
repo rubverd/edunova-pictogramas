@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
@@ -13,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.edunova.databinding.ActivityMainBinding
 import com.example.edunova.databinding.JuegoPalabrasBinding
 import java.util.Locale
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
@@ -131,6 +133,27 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         text.alpha = 0f
         text.animate().alpha(1f).setDuration(300).start()
 
+    }
+
+    //Para cargar de otras dependencias cambiar el documentPath
+    fun cargaBDImagenes(){
+        val db = FirebaseFirestore.getInstance()
+        db.collection("imagenes")
+            .document("silabas")
+            .collection("silabas")
+            .get()
+            .addOnSuccessListener { resultadoTextView ->
+                for (document in resultadoTextView) {
+                    val nombre = document.getString("nombre")
+                    val url = document.getString("url")
+
+                    Log.d("Firestore", "Image: $nombre -> $url")
+
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "Error al obtener imágenes", e)
+            }
     }
     fun respuestaIncorrecta(boton: Button){
         val text: TextView= findViewById(R.id.ResultadoJuego)

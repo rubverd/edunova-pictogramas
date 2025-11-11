@@ -40,6 +40,23 @@ class MainActivity : AppCompatActivity() {
         val buttonLogin = findViewById<Button>(R.id.buttonLogin)
         val textEstado = findViewById<TextView>(R.id.textEstado)
 
+//        db.collection("imagenes")
+//            .document("silabas")
+//            .collection("silabas")
+//            .get()
+//            .addOnSuccessListener { resultadoTextView ->
+//                for (document in resultadoTextView) {
+//                    val nombre = document.getString("nombre")
+//                    val url = document.getString("url")
+//
+//                    Log.d("Firestore", "Image: $nombre -> $url")
+//
+//                }
+//            }
+//            .addOnFailureListener { e ->
+//                Log.e("Firestore", "Error al obtener imágenes", e)
+//            }
+
         binding.buttonLogin.setOnClickListener {
             val email = inputEmail.text.toString().trim()
             val password = inputPassword.text.toString().trim()
