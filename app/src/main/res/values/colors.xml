@@ -3,4 +3,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="rojoBoton">#D35B5B</color>
+    <color name="BrightPink">#E35F72</color>
+    <color name="CherryBlossomPink">#E7A6AE</color>
+    <color name="CadentGray">#8E9DB3</color>
+    <color name="Mustard">#FADA4B</color>
 </resources>
