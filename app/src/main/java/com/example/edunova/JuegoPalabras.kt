@@ -34,7 +34,7 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         val botonVolver = findViewById< ImageButton>(R.id.returnButton)
         botonVolver.setOnClickListener {
             // Crea un Intent para ir de MainActivity a RegisterActivity
-            val intent = Intent(this, MenuActivity::class.java)
+            val intent = Intent(this, HomeActivity::class.java)
 
             // Inicia la nueva actividad
             startActivity(intent)

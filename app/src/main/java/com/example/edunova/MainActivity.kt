@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
                     // ¡Inicio de sesión exitoso!
                     Log.d("Auth", "signInWithEmail:success")
                     val user = auth.currentUser // Obtienes el usuario autenticado
-                    val intent = Intent(this, MenuActivity::class.java)
+                    val intent = Intent(this, HomeActivity::class.java)
 
 
                     startActivity(intent)
