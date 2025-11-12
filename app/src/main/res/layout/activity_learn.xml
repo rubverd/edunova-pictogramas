@@ -106,24 +106,37 @@
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Guideline para separar la imagen de los botones -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonConfirm"
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_bottom_anchor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.95" /> <!-- El "suelo" está al 95% de la altura -->
+
+
+    <!-- BOTÓN DE CONFIRMAR - AHORA ANCLADO A LA GUIDELINE -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonConfirm"
+        style="?attr/materialButtonOutlinedStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
         android:enabled="false"
         android:text="CONFIRMAR"
+        android:textColor="@color/rojoBoton"
         android:textSize="16sp"
-        app:backgroundTint="#D32F2F"
         app:cornerRadius="16dp"
         app:icon="@drawable/ic_check"
         app:iconGravity="textStart"
         app:iconPadding="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:iconTint="@color/black"
+        app:strokeColor="@color/black"
+        app:strokeWidth="2dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/guideline_bottom_anchor" />
 
 
-    <!-- GRUPO DE BOTONES DE OPCIÓN - OCUPA LA ZONA RESTANTE -->
+    <!-- GRUPO DE BOTONES DE OPCIÓN - SIN CAMBIOS (se mueve automáticamente) -->
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/toggleGroupOptions"
         android:layout_width="match_parent"
@@ -136,9 +149,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:selectionRequired="true"
+        app:backgroundTint="@color/Mustard"
         app:singleSelection="true">
 
-        <!-- Los 3 botones de opción no cambian su contenido, solo su posición relativa -->
+        <!-- ... Tus 3 botones de opción ... -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonOption1"
             style="?attr/materialButtonOutlinedStyle"
@@ -149,10 +163,10 @@
             android:text="Opción A"
             android:textColor="#212121"
             android:textSize="18sp"
+            app:backgroundTint="@color/option_button_background_color"
             app:cornerRadius="16dp"
-            app:strokeWidth="2dp"
             app:strokeColor="@color/option_button_stroke_color"
-            app:backgroundTint="@color/option_button_background_color"/>
+            app:strokeWidth="2dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonOption2"
@@ -165,10 +179,10 @@
             android:text="Opción B"
             android:textColor="#212121"
             android:textSize="18sp"
+            app:backgroundTint="@color/option_button_background_color"
             app:cornerRadius="16dp"
-            app:strokeWidth="2dp"
             app:strokeColor="@color/option_button_stroke_color"
-            app:backgroundTint="@color/option_button_background_color"/>
+            app:strokeWidth="2dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonOption3"
@@ -181,10 +195,10 @@
             android:text="Opción C"
             android:textColor="#212121"
             android:textSize="18sp"
+            app:backgroundTint="@color/option_button_background_color"
             app:cornerRadius="16dp"
-            app:strokeWidth="2dp"
             app:strokeColor="@color/option_button_stroke_color"
-            app:backgroundTint="@color/option_button_background_color"/>
+            app:strokeWidth="2dp" />
 
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
