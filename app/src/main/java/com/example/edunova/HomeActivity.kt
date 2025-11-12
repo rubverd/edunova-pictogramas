@@ -53,7 +53,8 @@ class HomeActivity : AppCompatActivity() {
         // Listeners para los botones de la barra inferior
         binding.buttonSettings.setOnClickListener {
             // TODO: Reemplazar con: startActivity(Intent(this, SettingsActivity::class.java))
-            showToast("Ajustes")
+            startActivity(Intent(this, SettingsActivity::class.java))
+            //showToast("Ajustes")
         }
 
         binding.buttonLogout.setOnClickListener {

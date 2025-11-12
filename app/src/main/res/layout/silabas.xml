@@ -66,32 +66,115 @@
                 android:gravity="center">
 
                 <!-- Cada TextView representa una consonante -->
-                <TextView android:text="B" style="@style/LetraConsonante"/>
-                <TextView android:text="C" style="@style/LetraConsonante"/>
-                <TextView android:text="D" style="@style/LetraConsonante"/>
-                <TextView android:text="F" style="@style/LetraConsonante"/>
-                <TextView android:text="G" style="@style/LetraConsonante"/>
+                <TextView
+                    android:id="@+id/B"
+                    style="@style/LetraConsonante"
+                    android:text="B" />
 
-                <TextView android:text="H" style="@style/LetraConsonante"/>
-                <TextView android:text="J" style="@style/LetraConsonante"/>
-                <TextView android:text="K" style="@style/LetraConsonante"/>
-                <TextView android:text="L" style="@style/LetraConsonante"/>
-                <TextView android:text="M" style="@style/LetraConsonante"/>
+                <TextView
+                    android:id="@+id/C"
+                    style="@style/LetraConsonante"
+                    android:text="C" />
 
-                <TextView android:text="N" style="@style/LetraConsonante"/>
-                <TextView android:text="Ñ" style="@style/LetraConsonante"/>
-                <TextView android:text="P" style="@style/LetraConsonante"/>
-                <TextView android:text="Q" style="@style/LetraConsonante"/>
-                <TextView android:text="R" style="@style/LetraConsonante"/>
+                <TextView
+                    android:id="@+id/D"
+                    style="@style/LetraConsonante"
+                    android:text="D" />
 
-                <TextView android:text="S" style="@style/LetraConsonante"/>
-                <TextView android:text="T" style="@style/LetraConsonante"/>
-                <TextView android:text="V" style="@style/LetraConsonante"/>
-                <TextView android:text="W" style="@style/LetraConsonante"/>
-                <TextView android:text="X" style="@style/LetraConsonante"/>
+                <TextView
+                    android:id="@+id/F"
+                    style="@style/LetraConsonante"
+                    android:text="F" />
 
-                <TextView android:text="Y" style="@style/LetraConsonante"/>
-                <TextView android:text="Z" style="@style/LetraConsonante"/>
+                <TextView
+                    android:id="@+id/G"
+                    style="@style/LetraConsonante"
+                    android:text="G" />
+
+                <TextView
+                    android:id="@+id/H"
+                    style="@style/LetraConsonante"
+                    android:text="H" />
+
+                <TextView
+                    android:id="@+id/J"
+                    style="@style/LetraConsonante"
+                    android:text="J" />
+
+                <TextView
+                    android:id="@+id/K"
+                    style="@style/LetraConsonante"
+                    android:text="K" />
+
+                <TextView
+                    android:id="@+id/L"
+                    style="@style/LetraConsonante"
+                    android:text="L" />
+
+                <TextView
+                    android:id="@+id/M"
+                    style="@style/LetraConsonante"
+                    android:text="M" />
+
+                <TextView
+                    android:id="@+id/N"
+                    style="@style/LetraConsonante"
+                    android:text="N" />
+
+                <TextView
+                    android:id="@+id/Ñ"
+                    style="@style/LetraConsonante"
+                    android:text="Ñ" />
+
+                <TextView
+                    android:id="@+id/P"
+                    style="@style/LetraConsonante"
+                    android:text="P" />
+
+                <TextView
+                    android:id="@+id/Q"
+                    style="@style/LetraConsonante"
+                    android:text="Q" />
+
+                <TextView
+                    android:id="@+id/R"
+                    style="@style/LetraConsonante"
+                    android:text="R" />
+
+                <TextView
+                    android:id="@+id/S"
+                    style="@style/LetraConsonante"
+                    android:text="S" />
+
+                <TextView
+                    android:id="@+id/T"
+                    style="@style/LetraConsonante"
+                    android:text="T" />
+
+                <TextView
+                    android:id="@+id/V"
+                    style="@style/LetraConsonante"
+                    android:text="V" />
+
+                <TextView
+                    android:id="@+id/W"
+                    style="@style/LetraConsonante"
+                    android:text="W" />
+
+                <TextView
+                    android:id="@+id/X"
+                    style="@style/LetraConsonante"
+                    android:text="X" />
+
+                <TextView
+                    android:id="@+id/Y"
+                    style="@style/LetraConsonante"
+                    android:text="Y" />
+
+                <TextView
+                    android:id="@+id/Z"
+                    style="@style/LetraConsonante"
+                    android:text="Z" />
             </GridLayout>
 
             <!-- TextView grande debajo del grid -->
