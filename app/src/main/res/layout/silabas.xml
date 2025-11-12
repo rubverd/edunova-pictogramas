@@ -122,7 +122,7 @@
                     android:text="N" />
 
                 <TextView
-                    android:id="@+id/Ñ"
+                    android:id="@+id/N_ene"
                     style="@style/LetraConsonante"
                     android:text="Ñ" />
 
@@ -137,7 +137,7 @@
                     android:text="Q" />
 
                 <TextView
-                    android:id="@+id/R"
+                    android:id="@+id/letraR"
                     style="@style/LetraConsonante"
                     android:text="R" />
 
