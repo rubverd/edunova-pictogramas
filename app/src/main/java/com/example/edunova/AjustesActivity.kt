@@ -1,4 +1,4 @@
-package com.edunova.pictogramas // Asegúrate de que este sea tu paquete
+package com.example.edunova // Asegúrate de que este sea tu paquete
 
 import android.os.Bundle
 import android.view.MenuItem

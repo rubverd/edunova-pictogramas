@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Estado: cuando el botón está seleccionado (checked) -->
+    <item android:color="#FFF9C4" android:state_checked="true" /> <!-- Un amarillo muy pálido -->
+
+    <!-- Estado: por defecto (no seleccionado) -->
+    <item android:color="@color/CherryBlossomPink" /> <!-- Fondo transparente o blanco -->
+</selector>

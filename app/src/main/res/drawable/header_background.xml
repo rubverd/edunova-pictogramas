@@ -3,7 +3,7 @@
     android:shape="rectangle">
 
     <!-- Color de fondo del header. Usamos tu rojo principal. -->
-    <solid android:color="#8E9DB3" />
+    <solid android:color="#E35F72" />
 
     <!-- Redondeamos solo las esquinas inferiores para un look moderno. -->
     <corners

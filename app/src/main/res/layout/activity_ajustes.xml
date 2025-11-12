@@ -10,7 +10,7 @@
     <!-- 1. BARRA DE HERRAMIENTAS (Toolbar) -->
     <!-- Esencial para la navegación y el título. Permite volver atrás. -->
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar_ajustes"
+        android:id="@+id/toolbarAjustes"
         android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/rojoBoton"
@@ -25,7 +25,7 @@
     <!-- 2. CONTENEDOR DE LAS OPCIONES DE AJUSTES -->
     <!-- Usamos un LinearLayout para apilar las opciones verticalmente. -->
     <LinearLayout
-        android:id="@+id/settings_container"
+        android:id="@+id/settingsContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@color/CherryBlossomPink"
@@ -34,7 +34,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar_ajustes">
+        app:layout_constraintTop_toBottomOf="@id/toolbarAjustes">
 
         <!-- ===== AJUSTE 1: VOLUMEN DE SONIDO ===== -->
         <LinearLayout
@@ -61,7 +61,7 @@
                 android:textSize="18sp" />
 
             <SeekBar
-                android:id="@+id/seekbar_volume"
+                android:id="@+id/seekbarVolume"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -107,7 +107,7 @@
                     android:textSize="18sp" />
 
                 <TextView
-                    android:id="@+id/textview_current_language"
+                    android:id="@+id/textviewCurrentLanguage"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Español"
@@ -116,7 +116,7 @@
 
             <!-- Un Spinner es ideal para seleccionar entre varias opciones -->
             <Spinner
-                android:id="@+id/spinner_language"
+                android:id="@+id/spinnerLanguage"
                 android:layout_width="wrap_content"
                 android:layout_height="65dp" />
         </LinearLayout>
