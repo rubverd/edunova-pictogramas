@@ -41,17 +41,6 @@ class SilabasActivity : AppCompatActivity() {
 
 
 
-        // Aquí puedes añadir la lógica para cuando el usuario pulse una letra.
-        // Por ejemplo, para la letra 'B':
-        binding.B.setOnClickListener {
-            // Actualiza el TextView grande o realiza otra acción.
-            binding.bigTextView.text = "B"
-        }
-
-        // Para la letra 'C':
-        binding.C.setOnClickListener {
-            binding.bigTextView.text = "C"
-        }
 
 
     }

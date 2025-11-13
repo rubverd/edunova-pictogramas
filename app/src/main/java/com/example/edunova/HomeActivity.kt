@@ -37,6 +37,9 @@ class HomeActivity : AppCompatActivity() {
 
         binding.cardGuess.setOnClickListener {
             // TODO: Reemplazar con: startActivity(Intent(this, GuessActivity::class.java))
+            startActivity(Intent(this, SilabasActivity::class.java))
+            startActivity(intent)
+
             showToast("Modo: Adivinar")
         }
 

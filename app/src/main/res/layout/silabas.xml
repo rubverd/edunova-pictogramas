@@ -49,9 +49,10 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/beige"
+            android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:padding="16dp"
-            android:gravity="center_horizontal">
+            android:padding="16dp">
 
             <!-- Grid de consonantes -->
             <GridLayout
@@ -60,10 +61,10 @@
                 android:layout_height="wrap_content"
                 android:alignmentMode="alignMargins"
                 android:columnCount="5"
+                android:gravity="center"
                 android:rowCount="5"
                 android:rowOrderPreserved="false"
-                android:useDefaultMargins="true"
-                android:gravity="center">
+                android:useDefaultMargins="true">
 
                 <!-- Cada TextView representa una consonante -->
                 <TextView
@@ -178,17 +179,70 @@
             </GridLayout>
 
             <!-- TextView grande debajo del grid -->
-            <TextView
-                android:id="@+id/bigTextView"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Texto Grande"
-                android:textSize="36sp"
-                android:textStyle="bold"
-                android:textColor="#E35F72"
-                android:padding="16dp"
-                android:layout_marginTop="20dp"/>
+                android:layout_marginTop="20dp"
+                android:background="@color/CherryBlossomPink"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/TextoSilabas"
+                    android:layout_width="292dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:text="Texto Grande"
+                    android:textColor="@color/white"
+                    android:textSize="36sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fabPlaySoundSilabas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:contentDescription="Reproducir sonido de la sílaba"
+                    app:backgroundTint="@color/Mustard"
+                    app:srcCompat="@drawable/ic_volume_up"
+                    app:tint="@android:color/white" />
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/respuesta_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/respuesta"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    android:hint="Escribe tu respuesta"
+                    android:inputType="text" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonOption3"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
+                android:text="Confirmar"
+                android:textColor="#212121"
+                android:textSize="18sp"
+                app:backgroundTint="@color/option_button_background_color"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_check"
+                app:strokeColor="@color/option_button_stroke_color"
+                app:strokeWidth="2dp" />
         </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
