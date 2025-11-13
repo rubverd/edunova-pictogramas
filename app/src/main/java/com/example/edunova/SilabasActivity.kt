@@ -39,6 +39,54 @@ class SilabasActivity : AppCompatActivity() {
         }
 
 
+            val silabas = listOf(
+                "ba", "be", "bi", "bo", "bu", "ca", "ce", "ci", "co", "cu",
+                "da", "de", "di", "do", "du", "fa", "fe", "fi", "fo", "fu",
+                "ga", "ge", "gi", "go", "gu", "gui", "gue", "ha", "he", "hi", "ho", "hu",
+                "ja", "je", "ji", "jo", "ju", "ka", "ke", "ki", "ko", "ku",
+                "la", "le", "li", "lo", "lu", "ma", "me", "mi", "mo", "mu",
+                "na", "ne", "ni", "no", "nu", "pa", "pe", "pi", "po", "pu",
+                "que", "qui", "ra", "re", "ri", "ro", "ru", "sa", "se", "si", "so", "su",
+                "ta", "te", "ti", "to", "tu", "va", "ve", "vi", "vo", "vu",
+                "wa", "we", "wi", "wo", "wu", "xa", "xe", "xi", "xo", "xu",
+                "ya", "ye", "yi", "yo", "yu", "za", "ze", "zi", "zo", "zu"
+            )
+
+            // Agrupar las sílabas por su letra inicial
+            val silabasAgrupadas: Map<Char, List<String>> = silabas.groupBy { it.first() }
+
+            // --- Ejemplo de cómo acceder a las listas ---
+            val silabasConB = silabasAgrupadas['b'] // -> [ba, be, bi, bo, bu]
+            val silabasConC = silabasAgrupadas['c'] // -> [ca, ce, ci, co, cu]
+            val silabasConD = silabasAgrupadas['d'] // -> [da, de, di, do, du]
+            val silabasConF = silabasAgrupadas['f'] // -> [fa, fe, fi, fo, fu]
+            val silabasConG = silabasAgrupadas['g'] // -> [ga, ge, gi, go, gu, gui, gue]
+            val silabasConH = silabasAgrupadas['h'] // -> [ha, he, hi, ho, hu]
+            val silabasConJ = silabasAgrupadas['j'] // -> [ja, je, ji, jo, ju]
+            val silabasConK = silabasAgrupadas['k'] // -> [ka, ke, ki, ko, ku]
+            val silabasConL = silabasAgrupadas['l'] // -> [la, le, li, lo, lu]
+            val silabasConM = silabasAgrupadas['m'] // -> [ma, me, mi, mo, mu]
+            val silabasConN = silabasAgrupadas['n'] // -> [na, ne, ni, no, nu]
+            val silabasConP = silabasAgrupadas['p'] // -> [pa, pe, pi, po, pu]
+            val silabasConQ = silabasAgrupadas['q'] // -> [que, qui]
+            val silabasConR = silabasAgrupadas['r'] // -> [ra, re, ri, ro, ru]
+            val silabasConS = silabasAgrupadas['s'] // -> [sa, se, si, so, su]
+            val silabasConT = silabasAgrupadas['t'] // -> [ta, te, ti, to, tu]
+            val silabasConV = silabasAgrupadas['v'] // -> [va, ve, vi, vo, vu]
+            val silabasConW = silabasAgrupadas['w'] // -> [wa, we, wi, wo, wu]
+            val silabasConX = silabasAgrupadas['x'] // -> [xa, xe, xi, xo, xu]
+            val silabasConY = silabasAgrupadas['y'] // -> [ya, ye, yi, yo, yu]
+            val silabasConZ = silabasAgrupadas['z'] // -> [za, ze, zi, zo, zu]
+
+
+        // Puedes iterar sobre todo el mapa para ver todos los grupos
+            println("\n--- Todos los grupos ---")
+            silabasAgrupadas.forEach { (letra, lista) ->
+                println("Letra '$letra': $lista")
+            }
+
+
+
 
 
 
