@@ -45,7 +45,7 @@ class SilabasActivity : AppCompatActivity() {
                 "ga", "ge", "gi", "go", "gu", "gui", "gue", "ha", "he", "hi", "ho", "hu",
                 "ja", "je", "ji", "jo", "ju", "ka", "ke", "ki", "ko", "ku",
                 "la", "le", "li", "lo", "lu", "ma", "me", "mi", "mo", "mu",
-                "na", "ne", "ni", "no", "nu", "pa", "pe", "pi", "po", "pu",
+                "na", "ne", "ni", "no", "nu", "ña", "ñe", "ñi", "ño", "ñu", "pa", "pe", "pi", "po", "pu",
                 "que", "qui", "ra", "re", "ri", "ro", "ru", "sa", "se", "si", "so", "su",
                 "ta", "te", "ti", "to", "tu", "va", "ve", "vi", "vo", "vu",
                 "wa", "we", "wi", "wo", "wu", "xa", "xe", "xi", "xo", "xu",
@@ -67,6 +67,7 @@ class SilabasActivity : AppCompatActivity() {
             val silabasConL = silabasAgrupadas['l'] // -> [la, le, li, lo, lu]
             val silabasConM = silabasAgrupadas['m'] // -> [ma, me, mi, mo, mu]
             val silabasConN = silabasAgrupadas['n'] // -> [na, ne, ni, no, nu]
+            val silabasConNN = silabasAgrupadas['ñ']
             val silabasConP = silabasAgrupadas['p'] // -> [pa, pe, pi, po, pu]
             val silabasConQ = silabasAgrupadas['q'] // -> [que, qui]
             val silabasConR = silabasAgrupadas['r'] // -> [ra, re, ri, ro, ru]
