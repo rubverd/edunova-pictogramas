@@ -1,99 +1,145 @@
-package com.example.edunova // Asegúrate de que este es tu paquete correcto
+package com.example.edunova
 
-
-import android.graphics.Color
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.example.edunova.databinding.SilabasBinding // ¡Importante! El nombre cambia a SilabasBinding
+import androidx.lifecycle.lifecycleScope // Importar lifecycleScope
+import com.example.edunova.databinding.SilabasBinding
+import kotlinx.coroutines.Dispatchers // Importar Dispatchers
+import kotlinx.coroutines.launch // Importar launch
+import kotlinx.coroutines.withContext // Importar withContext
+import java.util.Locale
 
-class SilabasActivity : AppCompatActivity() {
+class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
-    // Declara la variable para ViewBinding, que se genera a partir de 'silabas.xml'.
     private lateinit var binding: SilabasBinding
     private lateinit var letterMap: Map<Char, TextView>
+    private lateinit var tts: TextToSpeech
+
+    // Esta parte está bien con by lazy, ya que la carga es diferida.
+    private val gruposDeSilabasOrdenados: List<List<String>> by lazy {
+        val silabas = listOf(
+            "ba", "be", "bi", "bo", "bu", "ca", "ce", "ci", "co", "cu",
+            "da", "de", "di", "do", "du", "fa", "fe", "fi", "fo", "fu",
+            "ga", "ge", "gi", "go", "gu", "gui", "gue", "ha", "he", "hi", "ho", "hu",
+            "ja", "je", "ji", "jo", "ju", "ka", "ke", "ki", "ko", "ku",
+            "la", "le", "li", "lo", "lu", "ma", "me", "mi", "mo", "mu",
+            "na", "ne", "ni", "no", "nu", "ña", "ñe", "ñi", "ño", "ñu", "pa", "pe", "pi", "po", "pu",
+            "que", "qui", "ra", "re", "ri", "ro", "ru", "sa", "se", "si", "so", "su",
+            "ta", "te", "ti", "to", "tu", "va", "ve", "vi", "vo", "vu",
+            "wa", "we", "wi", "wo", "wu", "xa", "xe", "xi", "xo", "xu",
+            "ya", "ye", "yi", "yo", "yu", "za", "ze", "zi", "zo", "zu"
+        )
+        silabas.groupBy { it.first() }.toSortedMap().values.toList()
+    }
+    private var silabaActual: String? = null
+    private var indiceGrupoActual: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // 1. Infla el layout 'silabas.xml' usando su clase de binding generada.
         binding = SilabasBinding.inflate(layoutInflater)
-
-        // 2. Establece la vista de la actividad.
         setContentView(binding.root)
 
-        // 3. Configura el OnClickListener para el botón de retorno.
+        // Inicializa el motor TTS aquí, pero el juego comenzará después en onInit
+        tts = TextToSpeech(this, this)
+
+        // Las inicializaciones rápidas se quedan aquí
+        initializeLetterMap()
+
         binding.returnButton.setOnClickListener {
-            // Cierra la actividad actual (SilabasActivity) y regresa a la pantalla anterior.
             finish()
         }
 
-
-
-        fun cambiarColor(letra: Char, colorResId: Int) {
-            // 1. Busca el TextView en el mapa usando el caracter
-            val textView = letterMap[letra]
-            // 2. Si se encuentra, cambia su color
-            textView?.setTextColor(ContextCompat.getColor(this, colorResId))
+        binding.buttonOption3.setOnClickListener {
+            val respuestaUsuario = binding.respuesta.text.toString().trim()
+            if (silabaActual != null) {
+                verificarRespuesta(respuestaUsuario)
+            }
+            avanzarAlSiguienteGrupo()
         }
 
+        binding.fabPlaySoundSilabas.setOnClickListener {
+            reproducirSonido(binding.TextoSilabas.text.toString())
+        }
+    }
 
-            val silabas = listOf(
-                "ba", "be", "bi", "bo", "bu", "ca", "ce", "ci", "co", "cu",
-                "da", "de", "di", "do", "du", "fa", "fe", "fi", "fo", "fu",
-                "ga", "ge", "gi", "go", "gu", "gui", "gue", "ha", "he", "hi", "ho", "hu",
-                "ja", "je", "ji", "jo", "ju", "ka", "ke", "ki", "ko", "ku",
-                "la", "le", "li", "lo", "lu", "ma", "me", "mi", "mo", "mu",
-                "na", "ne", "ni", "no", "nu", "ña", "ñe", "ñi", "ño", "ñu", "pa", "pe", "pi", "po", "pu",
-                "que", "qui", "ra", "re", "ri", "ro", "ru", "sa", "se", "si", "so", "su",
-                "ta", "te", "ti", "to", "tu", "va", "ve", "vi", "vo", "vu",
-                "wa", "we", "wi", "wo", "wu", "xa", "xe", "xi", "xo", "xu",
-                "ya", "ye", "yi", "yo", "yu", "za", "ze", "zi", "zo", "zu"
-            )
-
-            // Agrupar las sílabas por su letra inicial
-            val silabasAgrupadas: Map<Char, List<String>> = silabas.groupBy { it.first() }
-
-            // --- Ejemplo de cómo acceder a las listas ---
-            val silabasConB = silabasAgrupadas['b'] // -> [ba, be, bi, bo, bu]
-            val silabasConC = silabasAgrupadas['c'] // -> [ca, ce, ci, co, cu]
-            val silabasConD = silabasAgrupadas['d'] // -> [da, de, di, do, du]
-            val silabasConF = silabasAgrupadas['f'] // -> [fa, fe, fi, fo, fu]
-            val silabasConG = silabasAgrupadas['g'] // -> [ga, ge, gi, go, gu, gui, gue]
-            val silabasConH = silabasAgrupadas['h'] // -> [ha, he, hi, ho, hu]
-            val silabasConJ = silabasAgrupadas['j'] // -> [ja, je, ji, jo, ju]
-            val silabasConK = silabasAgrupadas['k'] // -> [ka, ke, ki, ko, ku]
-            val silabasConL = silabasAgrupadas['l'] // -> [la, le, li, lo, lu]
-            val silabasConM = silabasAgrupadas['m'] // -> [ma, me, mi, mo, mu]
-            val silabasConN = silabasAgrupadas['n'] // -> [na, ne, ni, no, nu]
-            val silabasConNN = silabasAgrupadas['ñ']
-            val silabasConP = silabasAgrupadas['p'] // -> [pa, pe, pi, po, pu]
-            val silabasConQ = silabasAgrupadas['q'] // -> [que, qui]
-            val silabasConR = silabasAgrupadas['r'] // -> [ra, re, ri, ro, ru]
-            val silabasConS = silabasAgrupadas['s'] // -> [sa, se, si, so, su]
-            val silabasConT = silabasAgrupadas['t'] // -> [ta, te, ti, to, tu]
-            val silabasConV = silabasAgrupadas['v'] // -> [va, ve, vi, vo, vu]
-            val silabasConW = silabasAgrupadas['w'] // -> [wa, we, wi, wo, wu]
-            val silabasConX = silabasAgrupadas['x'] // -> [xa, xe, xi, xo, xu]
-            val silabasConY = silabasAgrupadas['y'] // -> [ya, ye, yi, yo, yu]
-            val silabasConZ = silabasAgrupadas['z'] // -> [za, ze, zi, zo, zu]
-
-
-        // Puedes iterar sobre todo el mapa para ver todos los grupos
-            println("\n--- Todos los grupos ---")
-            silabasAgrupadas.forEach { (letra, lista) ->
-                println("Letra '$letra': $lista")
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            val result = tts.setLanguage(Locale("es", "ES"))
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Toast.makeText(this, "El idioma español no está soportado.", Toast.LENGTH_SHORT).show()
             }
 
+            // ¡PUNTO CLAVE! Inicia el juego aquí, después de que TTS esté listo.
+            // Esto asegura que la inicialización de TTS no bloquee el inicio.
+            iniciarRecorrido()
 
-
-
-
-
-
+        } else {
+            Toast.makeText(this, "Error al inicializar el motor de voz.", Toast.LENGTH_SHORT).show()
+            // Opcional: podrías deshabilitar las funciones de sonido si TTS falla
+        }
     }
-    // Función auxiliar para inicializar el mapa
+
+    // ... (El resto de tus funciones como reproducirSonido, avanzarAlSiguienteGrupo, etc., se quedan igual)
+
+
+    private fun reproducirSonido(texto: String) {
+        // La condición "::tts.isInitialized" ya asegura que TTS no se usará antes de estar listo.
+        // La comprobación del idioma se hace de forma más segura.
+        if (::tts.isInitialized && texto.isNotBlank()) {
+            // Comprobamos si el idioma actual del motor de voz es español.
+            // tts.voice.locale es la forma correcta y segura de hacerlo.
+            if (tts.voice.locale.toLanguageTag().startsWith("es")) {
+                tts.speak(texto, TextToSpeech.QUEUE_FLUSH, null, null)
+            } else {
+                // Opcional: Informar al usuario que el sonido no se puede reproducir
+                // si el idioma no es el correcto. Esto puede ayudar a depurar.
+                // Toast.makeText(this, "El motor de voz no está en español.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+
+    private fun iniciarRecorrido() {
+        indiceGrupoActual = -1
+        // Asegúrate de que el botón esté habilitado al iniciar/reiniciar
+        binding.buttonOption3.isEnabled = true
+        avanzarAlSiguienteGrupo()
+    }
+
+    private fun avanzarAlSiguienteGrupo() {
+        indiceGrupoActual++
+        if (indiceGrupoActual >= gruposDeSilabasOrdenados.size) {
+            Toast.makeText(this, "¡Has completado todas las sílabas!", Toast.LENGTH_LONG).show()
+            binding.TextoSilabas.text = "¡Fin!"
+            binding.buttonOption3.isEnabled = false
+            return
+        }
+        val grupoActual = gruposDeSilabasOrdenados[indiceGrupoActual]
+        silabaActual = grupoActual.randomOrNull()
+        binding.TextoSilabas.text = silabaActual ?: "Error"
+    }
+
+    private fun verificarRespuesta(respuesta: String) {
+        if (respuesta.equals(silabaActual, ignoreCase = true)) {
+            Toast.makeText(this, "¡Correcto!", Toast.LENGTH_SHORT).show()
+
+            val primeraSilabaDelGrupo = gruposDeSilabasOrdenados[indiceGrupoActual].firstOrNull()
+            val letra = primeraSilabaDelGrupo?.firstOrNull()
+
+            if (letra != null) {
+                val textViewDeLetra = letterMap[letra.uppercaseChar()]
+                textViewDeLetra?.backgroundTintList = ContextCompat.getColorStateList(this, R.color.verde_correcto)
+            }
+        } else {
+            Toast.makeText(this, "Incorrecto. La sílaba era '$silabaActual'", Toast.LENGTH_SHORT).show()
+        }
+        binding.respuesta.text?.clear()
+    }
+
     private fun initializeLetterMap() {
         letterMap = mapOf(
             'B' to binding.B,
@@ -118,7 +164,15 @@ class SilabasActivity : AppCompatActivity() {
             'X' to binding.X,
             'Y' to binding.Y,
             'Z' to binding.Z
-            // Añade el resto de TextViews aquí
         )
+    }
+
+    override fun onDestroy() {
+        // No olvides liberar los recursos de TTS cuando la actividad se destruya
+        if (::tts.isInitialized) {
+            tts.stop()
+            tts.shutdown()
+        }
+        super.onDestroy()
     }
 }
