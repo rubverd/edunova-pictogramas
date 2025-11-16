@@ -1,123 +1,91 @@
 package com.example.edunova
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.util.Patterns
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.util.Log
-import android.content.ContentValues.TAG
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore // Para obtener la instancia de la base de datos
-import com.google.firebase.auth.auth
-import com.example.edunova.databinding.ActivityMainBinding
 import android.content.Intent
-
-
+import android.os.Bundle
+import android.util.Log
+import android.util.Patterns
+import android.view.View
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import com.example.edunova.databinding.ActivityMainBinding
+import com.example.edunova.db.FirebaseConnection // Importamos tu repositorio
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var db: FirebaseFirestore
-    private lateinit var resultadoTextView: TextView
-    private lateinit var auth: FirebaseAuth
-
     private lateinit var binding: ActivityMainBinding
+
+    // 1. Sustituimos las instancias directas de Firebase por tu repositorio
+    private lateinit var repository: FirebaseConnection
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // 2. Inicializamos el repositorio
+        repository = FirebaseConnection()
 
-        db = FirebaseFirestore.getInstance()
-
-        auth = Firebase.auth
-
-        val inputEmail = findViewById<EditText>(R.id.inputEmail)
-        val inputPassword = findViewById<EditText>(R.id.inputPassword)
-        val buttonLogin = findViewById<Button>(R.id.buttonLogin)
-        val textEstado = findViewById<TextView>(R.id.textEstado)
-
-//        db.collection("imagenes")
-//            .document("silabas")
-//            .collection("silabas")
-//            .get()
-//            .addOnSuccessListener { resultadoTextView ->
-//                for (document in resultadoTextView) {
-//                    val nombre = document.getString("nombre")
-//                    val url = document.getString("url")
-//
-//                    Log.d("Firestore", "Image: $nombre -> $url")
-//
-//                }
-//            }
-//            .addOnFailureListener { e ->
-//                Log.e("Firestore", "Error al obtener imágenes", e)
-//            }
-
+        // Configuración del botón Login
         binding.buttonLogin.setOnClickListener {
-            val email = inputEmail.text.toString().trim()
-            val password = inputPassword.text.toString().trim()
+            // Usamos binding para obtener los textos, es más limpio
+            val email = binding.inputEmail.text.toString().trim()
+            val password = binding.inputPassword.text.toString().trim()
 
+            // Validaciones básicas de UI
             when {
                 email.isEmpty() || password.isEmpty() ->
-                    textEstado.text = "Completa todos los campos."
+                    binding.textEstado.text = "Completa todos los campos."
 
                 !Patterns.EMAIL_ADDRESS.matcher(email).matches() ->
-                    textEstado.text = "Correo no válido."
+                    binding.textEstado.text = "Correo no válido."
 
                 password.length < 6 ->
-                    textEstado.text = "La contraseña debe tener al menos 6 caracteres."
+                    binding.textEstado.text = "La contraseña debe tener al menos 6 caracteres."
 
-                else ->
-                    iniciarSesion(email, password)
+                else -> {
+                    // Si todo es correcto, llamamos al método de login
+                    binding.textEstado.text = "" // Limpiar errores previos
+                    performLogin(email, password)
+                }
             }
         }
 
-
-        // 3. Configura el listener para el TextView que funciona como enlace
+        // Configuración del enlace a Registro
         binding.textViewGoToRegister.setOnClickListener {
-            // Crea un Intent para ir de MainActivity a RegisterActivity
             val intent = Intent(this, RegisterActivity::class.java)
-
-            // Inicia la nueva actividad
             startActivity(intent)
         }
     }
 
+    // 3. Método privado que usa tu FirebaseConnection
+    private fun performLogin(email: String, password: String) {
+        // Opcional: Mostrar un ProgressBar si lo tienes en el layout
+        // binding.progressBar.visibility = View.VISIBLE
+        // binding.buttonLogin.isEnabled = false
 
-    private fun iniciarSesion(email: String, password: String) {
-        Log.d("DEBUG_AUTH", "--- Iniciando intento de login ---")
-        Log.d("DEBUG_AUTH", "Email Limpio (después de trim): '$email'")
-        Log.d("DEBUG_AUTH", "Contraseña enviada: '$password'")
+        Log.d("MainActivity", "Intentando login con: $email")
 
-        // 3. Imprime las longitudes. ¡Esto es CRUCIAL!
-        Log.d("DEBUG_AUTH", "Longitud Email Original: ${email.length}")
-        Log.d("DEBUG_AUTH", "Longitud Contraseña: ${password.length}")
+        // Llamada asíncrona al repositorio
+        repository.loginUser(email, password) { success, message ->
 
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    // ¡Inicio de sesión exitoso!
-                    Log.d("Auth", "signInWithEmail:success")
-                    val user = auth.currentUser // Obtienes el usuario autenticado
-                    val intent = Intent(this, HomeActivity::class.java)
+            // Opcional: Ocultar ProgressBar
+            // binding.progressBar.visibility = View.GONE
+            // binding.buttonLogin.isEnabled = true
 
+            if (success) {
+                Log.d("MainActivity", "Login exitoso")
 
-                    startActivity(intent)
-
-                    // Ahora que el usuario está autenticado, puedes buscar sus datos en Firestore
-                    // usando su ID único (user.uid), que es más seguro que el email.
-
-
-                } else {
-                    // Si el inicio de sesión falla, se muestra un mensaje al usuario.
-                    Log.w("Auth", "signInWithEmail:failure", task.exception)
-                    // Aquí podrías mostrar un Toast o un error en la UI
-                }
+                // Aquí es donde, en el siguiente paso, comprobaremos si es PROFE o ALUMNO.
+                // De momento, lo dejamos como estaba, yendo a HomeActivity.
+                val intent = Intent(this, HomeActivity::class.java)
+                startActivity(intent)
+                finish() // Cerramos el login para que no pueda volver atrás con "Atrás"
+            } else {
+                // Error en el login
+                Log.e("MainActivity", "Error login: $message")
+                binding.textEstado.text = "Error: $message"
+                Toast.makeText(this, "Error de autenticación", Toast.LENGTH_SHORT).show()
             }
+        }
     }
-
 }
