@@ -6,9 +6,8 @@ import android.os.Bundle
 import android.widget.Toast
 import com.example.edunova.databinding.ActivityHomeBinding
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
-import com.example.edunova.db.FirebaseConnection
+import android.util.Log
 
 class HomeActivity : AppCompatActivity() {
 
@@ -23,8 +22,39 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Configurar los listeners para cada tarjeta de modo de juego
+        // 1. Recuperar el rol del Intent
+        val userRole = intent.getStringExtra("USER_ROLE")
+
+        // 2. Configurar la interfaz según el rol
+        setupRoleUI(userRole)
+
         setupClickListeners()
+    }
+
+    private fun setupRoleUI(role: String?) {
+        // 1. IMPRIMIR EL ROL RECIBIDO
+        Log.d("HomeActivity", "--- DEBUG ROL ---")
+        Log.d("HomeActivity", "Rol recibido del Intent: '$role'")
+
+        if (role == "teacher") {
+            // 2. CONFIRMACIÓN DE PROFESOR
+            Log.d("HomeActivity", ">> Configurando vista de PROFESOR")
+
+            binding.btnAdminPanel.visibility = android.view.View.VISIBLE
+            binding.badgeTeacher.visibility = android.view.View.VISIBLE
+
+            binding.btnAdminPanel.setOnClickListener {
+                Log.d("HomeActivity", "Click en botón Admin -> Yendo a ProfesorActivity")
+                val intent = Intent(this, ProfesorActivity::class.java)
+                startActivity(intent)
+            }
+        } else {
+            // 3. CONFIRMACIÓN DE ALUMNO
+            Log.d("HomeActivity", ">> Configurando vista de ALUMNO")
+
+            binding.btnAdminPanel.visibility = android.view.View.GONE
+            binding.badgeTeacher.visibility = android.view.View.GONE
+        }
     }
 
     private fun setupClickListeners() {

@@ -59,29 +59,26 @@ class MainActivity : AppCompatActivity() {
 
     // 3. Método privado que usa tu FirebaseConnection
     private fun performLogin(email: String, password: String) {
-        // Opcional: Mostrar un ProgressBar si lo tienes en el layout
-        // binding.progressBar.visibility = View.VISIBLE
-        // binding.buttonLogin.isEnabled = false
+        // Opcional: Mostrar loading...
 
-        Log.d("MainActivity", "Intentando login con: $email")
-
-        // Llamada asíncrona al repositorio
         repository.loginUser(email, password) { success, message ->
-
-            // Opcional: Ocultar ProgressBar
-            // binding.progressBar.visibility = View.GONE
-            // binding.buttonLogin.isEnabled = true
-
             if (success) {
-                Log.d("MainActivity", "Login exitoso")
+                // 1. Obtenemos el usuario actual de Firebase Auth
+                val currentUser = repository.getCurrentUser()
 
-                // Aquí es donde, en el siguiente paso, comprobaremos si es PROFE o ALUMNO.
-                // De momento, lo dejamos como estaba, yendo a HomeActivity.
-                val intent = Intent(this, HomeActivity::class.java)
-                startActivity(intent)
-                finish() // Cerramos el login para que no pueda volver atrás con "Atrás"
+                if (currentUser != null) {
+                    // 2. Consultamos a Firestore para saber su ROL
+                    repository.getUserRole(currentUser.uid) { role ->
+                        Log.d("MainActivity", "Rol detectado: $role")
+
+                        // 3. Vamos al Home pasando el rol
+                        val intent = Intent(this, HomeActivity::class.java)
+                        intent.putExtra("USER_ROLE", role) // "teacher" o "student"
+                        startActivity(intent)
+                        finish()
+                    }
+                }
             } else {
-                // Error en el login
                 Log.e("MainActivity", "Error login: $message")
                 binding.textEstado.text = "Error: $message"
                 Toast.makeText(this, "Error de autenticación", Toast.LENGTH_SHORT).show()

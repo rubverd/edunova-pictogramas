@@ -68,7 +68,7 @@ class FirebaseConnection {
      * Guarda la información. Corregido el tipo de HashMap.
      */
     fun getUserRole(uid: String, onResult: (role: String?) -> Unit) {
-        db.collection("users").document(uid).get()
+        db.collection("usuarios").document(uid).get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
                     val role = document.getString("role")
@@ -114,7 +114,7 @@ class FirebaseConnection {
 
     // Obtener alumnos para un profesor
     fun getStudentsForTeacher(teacherUid: String, onResult: (List<Pair<String, String>>) -> Unit) {
-        db.collection("users")
+        db.collection("usuarios")
             .whereEqualTo("assignedTeacherId", teacherUid)
             .whereEqualTo("role", "student")
             .get()
