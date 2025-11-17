@@ -14,7 +14,6 @@
         android:layout_height="wrap_content"
         android:padding="24dp">
 
-        <!-- Título de la pantalla -->
         <TextView
             android:id="@+id/textViewTitle"
             android:layout_width="350dp"
@@ -28,13 +27,12 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Campo para el Nombre Completo -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textFieldLayoutName"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="24dp"
             android:hint="Nombre completo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -48,7 +46,41 @@
                 android:inputType="textPersonName|textCapWords" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Campo para el Email -->
+        <TextView
+            android:id="@+id/tvLabelRol"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Soy..."
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textFieldLayoutName" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupRole"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvLabelRol">
+
+            <RadioButton
+                android:id="@+id/rbStudent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:text="Alumno" />
+
+            <RadioButton
+                android:id="@+id/rbTeacher"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Profesor" />
+        </RadioGroup>
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textFieldLayoutEmail"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -58,7 +90,7 @@
             android:hint="Correo electrónico"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textFieldLayoutName"
+            app:layout_constraintTop_toBottomOf="@id/radioGroupRole"
             app:startIconDrawable="@drawable/ic_email">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -68,7 +100,6 @@
                 android:inputType="textEmailAddress" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Campo para la Contraseña -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textFieldLayoutPassword"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -89,7 +120,42 @@
                 android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Botón de Registro -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textFieldLayoutSchool"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Colegio / Instituto"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textFieldLayoutPassword">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextSchool"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapWords" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textFieldLayoutClass"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Clase (Ej: 1º ESO A)"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textFieldLayoutSchool">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextClass"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapCharacters" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <Button
             android:id="@+id/buttonRegister"
             android:layout_width="0dp"
@@ -101,10 +167,8 @@
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textFieldLayoutPassword" />
+            app:layout_constraintTop_toBottomOf="@id/textFieldLayoutClass" />
 
-
-        <!-- ProgressBar para indicar carga -->
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"
@@ -125,6 +189,7 @@
             android:focusable="true"
             android:padding="8dp"
             android:text="¿Ya tienes una cuenta? Inicia sesión"
+            android:textAlignment="center"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

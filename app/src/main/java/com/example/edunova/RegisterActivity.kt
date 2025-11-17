@@ -1,20 +1,19 @@
 package com.example.edunova
 
+import android.content.Intent
+import android.util.Log
 import android.os.Bundle
 import android.util.Patterns
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-// Imports de Firebase eliminados
 import com.example.edunova.databinding.ActivityRegisterBinding
-import com.example.edunova.db.FirebaseConnection // <-- 1. Importa la nueva clase
+import com.example.edunova.db.FirebaseConnection
 
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterBinding
-    // private lateinit var auth: FirebaseAuth // <-- 2. Eliminado
-    // private lateinit var db: FirebaseFirestore // <-- 2. Eliminado
-    private lateinit var repository: FirebaseConnection // <-- 3. Añade la variable del repositorio
+    private lateinit var repository: FirebaseConnection
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,8 +21,10 @@ class RegisterActivity : AppCompatActivity() {
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        repository = FirebaseConnection()
 
-        repository = FirebaseConnection() // <-- 5. Inicializa el repositorio
+        // 1. Iniciamos la lógica para ocultar/mostrar el campo de clase según el rol
+        setupRoleSelection()
 
         binding.buttonRegister.setOnClickListener {
             if (validateFields()) {
@@ -35,72 +36,119 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    private fun validateFields(): Boolean {
+    private fun setupRoleSelection() {
+        // Escuchamos cambios en el RadioGroup
+        binding.radioGroupRole.setOnCheckedChangeListener { _, checkedId ->
+            if (checkedId == binding.rbTeacher.id) {
+                // Si es PROFESOR: Ocultamos la clase (Gone)
+                binding.textFieldLayoutClass.visibility = View.GONE
+            } else {
+                // Si es ALUMNO: Mostramos la clase (Visible)
+                binding.textFieldLayoutClass.visibility = View.VISIBLE
+            }
+        }
+    }
 
+    private fun validateFields(): Boolean {
+        // Limpiar errores previos
         binding.textFieldLayoutName.error = null
         binding.textFieldLayoutEmail.error = null
         binding.textFieldLayoutPassword.error = null
+        binding.textFieldLayoutSchool.error = null
+        binding.textFieldLayoutClass.error = null
 
         val name = binding.editTextName.text.toString().trim()
         val email = binding.editTextEmail.text.toString().trim()
         val password = binding.editTextPassword.text.toString().trim()
+        val school = binding.editTextSchool.text.toString().trim()
+        val classroom = binding.editTextClass.text.toString().trim()
 
+        var isValid = true
+
+        // Validaciones estándar
         if (name.isEmpty()) {
             binding.textFieldLayoutName.error = "El nombre es obligatorio"
-            return false
+            isValid = false
         }
         if (email.isEmpty()) {
             binding.textFieldLayoutEmail.error = "El correo es obligatorio"
-            return false
-        }
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            isValid = false
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             binding.textFieldLayoutEmail.error = "Correo no válido"
-            return false
+            isValid = false
         }
         if (password.isEmpty()) {
             binding.textFieldLayoutPassword.error = "La contraseña es obligatoria"
-            return false
+            isValid = false
+        } else if (password.length < 6) {
+            binding.textFieldLayoutPassword.error = "Mínimo 6 caracteres"
+            isValid = false
         }
-        if (password.length < 6) {
-            binding.textFieldLayoutPassword.error = "La contraseña debe tener al menos 6 caracteres"
-            return false
+
+        // NUEVAS validaciones
+        if (school.isEmpty()) {
+            binding.textFieldLayoutSchool.error = "El colegio es obligatorio"
+            isValid = false
         }
-        return true
+
+        // Solo validamos la clase si está marcado "Alumno"
+        if (binding.rbStudent.isChecked && classroom.isEmpty()) {
+            binding.textFieldLayoutClass.error = "La clase es obligatoria para alumnos"
+            isValid = false
+        }
+
+        return isValid
     }
 
-    // <-- 6. El método registerUser() ahora es mucho más simple
     private fun registerUser() {
-        // Muestra la ProgressBar y oculta el botón
         binding.progressBar.visibility = View.VISIBLE
         binding.buttonRegister.visibility = View.INVISIBLE
 
+        val name = binding.editTextName.text.toString().trim()
         val email = binding.editTextEmail.text.toString().trim()
         val password = binding.editTextPassword.text.toString().trim()
-        val name = binding.editTextName.text.toString().trim()
+        val school = binding.editTextSchool.text.toString().trim()
+        val classroom = binding.editTextClass.text.toString().trim()
 
-        // Llama al repositorio y espera la respuesta en el callback
-        repository.registerUser(name, email, password) { success, message ->
-            // Este código se ejecutará cuando el repositorio termine.
+        // 1. Preparamos los datos extra
+        val additionalData = HashMap<String, Any>()
 
-            // Oculta la ProgressBar y muestra el botón de nuevo
+        additionalData["school"] = school // El colegio va para todos
+
+        if (binding.rbTeacher.isChecked) {
+            // Caso PROFESOR
+            additionalData["role"] = "teacher"
+        } else {
+            // Caso ALUMNO
+            additionalData["role"] = "student"
+            additionalData["classroom"] = classroom
+            // Opcional: additionalData["assignedTeacherId"] = ""
+        }
+
+        // 2. Llamamos al repositorio pasando el mapa de datos
+        Log.d("Registro", "Iniciando llamada al repositorio...") // <--- CHIVATO 1
+
+        repository.registerUser(name, email, password, additionalData) { success, message ->
+
+            Log.d("Registro", "Callback recibido. Success: $success, Mensaje: $message") // <--- CHIVATO 2
+
+            // Ocultar carga
             binding.progressBar.visibility = View.GONE
             binding.buttonRegister.visibility = View.VISIBLE
 
             if (success) {
-                // Registro exitoso
-                Toast.makeText(this, "Registro completado con éxito.", Toast.LENGTH_LONG).show()
+                Log.d("Registro", "Intentando abrir MainActivity...") // <--- CHIVATO 3
+                Toast.makeText(this, "Registro completado.", Toast.LENGTH_LONG).show()
 
-                // TODO: Navegar a la pantalla principal (HomeActivity)
-                // val intent = Intent(this, HomeActivity::class.java)
-                // startActivity(intent)
-                // finishAffinity()
+                try {
+                    val intent = Intent(this, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    Log.e("Registro", "Error al cambiar de pantalla", e) // <--- Si falla aquí, lo veremos
+                }
             } else {
-                // Si el registro falla, muestra el mensaje de error del repositorio
-                Toast.makeText(
-                    baseContext,
-                    "Fallo en el registro: $message",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(baseContext, "Error: $message", Toast.LENGTH_LONG).show()
             }
         }
     }

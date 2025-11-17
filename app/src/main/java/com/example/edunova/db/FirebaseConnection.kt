@@ -3,45 +3,34 @@ package com.example.edunova.db
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
-// Nota: Se elimina FirebaseStorage ya que no se usa de momento
 
-/**
- * Repositorio general para manejar las operaciones de Firebase.
- * Esta clase centraliza toda la funcionalidad de la base de datos
- * (Posteriormente se separarán funcionalidades)
- */
 class FirebaseConnection {
 
     // Instancias de Firebase
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    /**
-     * Devuelve la instancia de Firestore
-     */
     fun getFirestoreInstance(): FirebaseFirestore {
         return db
     }
 
-    // --- MÉTODOS DE AUTENTICACIÓN ---
-
     /**
-     * Intenta registrar un nuevo usuario en Firebase Auth y guardar sus datos en Firestore.
+     * Registra un usuario y guarda datos adicionales.
      */
     fun registerUser(
         name: String,
         email: String,
         pass: String,
+        additionalData: Map<String, Any>, // Recibe el mapa genérico
         onComplete: (success: Boolean, message: String?) -> Unit
     ) {
-        // 1. Crear el usuario en Firebase Authentication
         auth.createUserWithEmailAndPassword(email, pass)
             .addOnCompleteListener { authTask ->
                 if (authTask.isSuccessful) {
-                    // 2. Si Auth fue exitoso, guardar info adicional en Firestore
                     val firebaseUser = auth.currentUser
                     if (firebaseUser != null) {
-                        saveUserInfoToFirestore(firebaseUser.uid, name, email, onComplete)
+                        // Llamamos a guardar info pasando el mapa correctamente
+                        saveUserInfoToFirestore(firebaseUser.uid, name, email, additionalData, onComplete)
                     } else {
                         onComplete(false, "No se pudo obtener el UID del usuario.")
                     }
@@ -52,7 +41,7 @@ class FirebaseConnection {
     }
 
     /**
-     * Intenta iniciar sesión con un usuario existente.
+     * Login de usuario
      */
     fun loginUser(
         email: String,
@@ -69,41 +58,77 @@ class FirebaseConnection {
             }
     }
 
-    /**
-     * Obtiene el usuario actualmente logueado
-     */
     fun getCurrentUser(): FirebaseUser? {
         return auth.currentUser
     }
 
-    // --- MÉTODOS DE FIRESTORE (DATOS DE USUARIO) ---
+    // --- MÉTODOS DE FIRESTORE ---
 
     /**
-     * Guarda la información adicional del usuario en la colección "usuarios".
-     * Esta función es privada porque solo debe ser llamada desde este repositorio.
+     * Guarda la información. Corregido el tipo de HashMap.
      */
+    fun getUserRole(uid: String, onResult: (role: String?) -> Unit) {
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val role = document.getString("role")
+                    onResult(role)
+                } else {
+                    onResult(null)
+                }
+            }
+            .addOnFailureListener {
+                onResult(null)
+            }
+    }
+
+    // Método privado para guardar info
     private fun saveUserInfoToFirestore(
         uid: String,
         name: String,
         email: String,
+        additionalData: Map<String, Any>,
         onComplete: (success: Boolean, message: String?) -> Unit
     ) {
-        val userInfo = hashMapOf(
-            "name" to name,
+        // CORRECCIÓN CLAVE: Especificamos <String, Any> explícitamente
+        val userInfo = hashMapOf<String, Any>(
+            "uid" to uid,
+            "displayName" to name,
             "email" to email,
             "createdAt" to System.currentTimeMillis()
         )
 
+        // Ahora sí funciona el putAll porque los tipos coinciden
+        userInfo.putAll(additionalData)
+
+        // Guardamos en la colección "usuarios" (unificado con el resto de la app)
         db.collection("usuarios").document(uid)
             .set(userInfo)
             .addOnSuccessListener {
                 onComplete(true, null)
             }
             .addOnFailureListener { e ->
-                onComplete(false, "Error al guardar la información del usuario: ${e.message}")
+                onComplete(false, "Error al guardar datos: ${e.message}")
             }
     }
 
-    // --- (Aquí puedes añadir más métodos para imágenes, ejercicios, etc. más adelante) ---
-
+    // Obtener alumnos para un profesor
+    fun getStudentsForTeacher(teacherUid: String, onResult: (List<Pair<String, String>>) -> Unit) {
+        db.collection("users")
+            .whereEqualTo("assignedTeacherId", teacherUid)
+            .whereEqualTo("role", "student")
+            .get()
+            .addOnSuccessListener { documents ->
+                val studentList = mutableListOf<Pair<String, String>>()
+                for (document in documents) {
+                    val uid = document.id
+                    val name = document.getString("displayName") ?: "Sin nombre"
+                    studentList.add(Pair(uid, name))
+                }
+                onResult(studentList)
+            }
+            .addOnFailureListener {
+                onResult(emptyList())
+            }
+    }
 }
