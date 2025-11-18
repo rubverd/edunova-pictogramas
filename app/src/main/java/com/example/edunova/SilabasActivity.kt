@@ -4,14 +4,15 @@ import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope // Importar lifecycleScope
 import com.example.edunova.databinding.SilabasBinding
-import kotlinx.coroutines.Dispatchers // Importar Dispatchers
-import kotlinx.coroutines.launch // Importar launch
-import kotlinx.coroutines.withContext // Importar withContext
 import java.util.Locale
+import android.content.Intent
+import android.widget.Button
+
+
 
 class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
@@ -113,9 +114,11 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun avanzarAlSiguienteGrupo() {
         indiceGrupoActual++
         if (indiceGrupoActual >= gruposDeSilabasOrdenados.size) {
-            Toast.makeText(this, "¡Has completado todas las sílabas!", Toast.LENGTH_LONG).show()
+            //Toast.makeText(this, "¡Has completado todas las sílabas!", Toast.LENGTH_LONG).show()
             binding.TextoSilabas.text = "¡Fin!"
             binding.buttonOption3.isEnabled = false
+
+            mostrarDialogoCompletado()
             return
         }
         val grupoActual = gruposDeSilabasOrdenados[indiceGrupoActual]
@@ -175,4 +178,53 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
         super.onDestroy()
     }
+
+    private fun mostrarDialogoCompletado() {
+        // 1. Inflar la vista personalizada
+        val dialogView = layoutInflater.inflate(R.layout.dialog_completado, null)
+
+        // 2. Localizar los botones DENTRO de esa vista inflada
+        val botonRepetir = dialogView.findViewById<Button>(R.id.boton_repetir)
+        val botonVolverMenu = dialogView.findViewById<Button>(R.id.boton_volver_menu)
+
+        // 3. Crear el diálogo usando el constructor
+        val alertDialog = AlertDialog.Builder(this)
+            .setView(dialogView)  // Establece la vista personalizada
+            .setCancelable(false) // Impide que se cierre al tocar fuera
+            .create()             // Crea el objeto AlertDialog
+
+        // 4. (Opcional) Aplicar fondo personalizado
+        alertDialog.window?.setBackgroundDrawableResource(R.drawable.dialog_background)
+
+        // 5. Asignar las acciones a los botones
+        botonRepetir.setOnClickListener {
+            alertDialog.dismiss() // Cierra el diálogo
+            reiniciarActividad()   // Llama a la función para reiniciar
+        }
+
+        botonVolverMenu.setOnClickListener {
+            alertDialog.dismiss() // Cierra el diálogo
+            val intent = Intent(this, HomeActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+            finish() // Cierra SilabasActivity
+        }
+
+        // 6. Mostrar el diálogo
+        alertDialog.show()
+    }
+
+
+
+
+    private fun reiniciarActividad() {
+        // 1. Reiniciar los colores de fondo de todas las letras
+        letterMap.values.forEach { textView ->
+            textView.backgroundTintList = ContextCompat.getColorStateList(this, R.color.CherryBlossomPink)
+        }
+
+        // 2. Reiniciar el recorrido desde el principio
+        iniciarRecorrido()
+    }
+
 }
