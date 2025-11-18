@@ -61,6 +61,8 @@ dependencies {
 
     implementation("com.google.firebase:firebase-auth") // <-- Dependencia de Auth
 
+    // Import de la librería de Glide
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 
     // TODO: Add the dependencies for Firebase products you want to use
     // When using the BoM, don't specify versions in Firebase dependencies

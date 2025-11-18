@@ -1,0 +1,137 @@
+package com.example.edunova
+
+import android.os.Bundle
+import android.view.View
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.Toast
+import android.widget.ImageButton
+import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
+import com.example.edunova.db.FirebaseConnection
+import com.google.android.material.slider.Slider
+import com.google.android.material.textfield.TextInputEditText
+
+class AddPictogramActivity : AppCompatActivity() {
+
+    // --- 1. DECLARACIÓN DE VARIABLES (IMPORTANTE: Deben estar aquí fuera) ---
+    private lateinit var ivPreview: ImageView // <--- ESTA ES LA QUE TE FALTA O ESTÁ MAL COLOCADA
+    private lateinit var etImageUrl: TextInputEditText
+    private lateinit var etWord: TextInputEditText
+    private lateinit var etSyllables: TextInputEditText
+    private lateinit var etCategory: TextInputEditText
+    private lateinit var sliderDifficulty: Slider
+    private lateinit var progressBar: ProgressBar
+    private lateinit var btnSave: Button
+
+    private val repository = FirebaseConnection()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_add_pictogram)
+
+        // --- 2. INICIALIZACIÓN (Conectar variables con el XML) ---
+        ivPreview = findViewById(R.id.ivPreview) // <--- AQUÍ LA INICIALIZAMOS
+        etImageUrl = findViewById(R.id.etImageUrl)
+        etWord = findViewById(R.id.etWord)
+        etSyllables = findViewById(R.id.etSyllables)
+        etCategory = findViewById(R.id.etCategory)
+        sliderDifficulty = findViewById(R.id.sliderDifficulty)
+        progressBar = findViewById(R.id.progressBar)
+        btnSave = findViewById(R.id.btnSave)
+
+        val btnPreviewImage = findViewById<Button>(R.id.btnPreviewImage)
+
+        val btnBack = findViewById<ImageButton>(R.id.returnButton) // Busca el ID correcto
+        btnBack.setOnClickListener {
+            finish() // Cierra la actividad
+        }
+        // --- 3. LISTENERS (Botones) ---
+
+        // Botón "Ver" (Previsualizar imagen)
+        btnPreviewImage.setOnClickListener {
+            val url = etImageUrl.text.toString().trim()
+
+            if (url.isNotEmpty()) {
+                // Usamos Glide para cargar la URL en el ImageView
+                // Como 'ivPreview' está declarada arriba, aquí la reconoce sin problemas
+                Glide.with(this)
+                    .load(url)
+                    .placeholder(android.R.drawable.ic_menu_upload)
+                    .error(android.R.drawable.ic_delete)
+                    .into(ivPreview)
+            } else {
+                Toast.makeText(this, "Introduce una URL primero", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Botón "Guardar"
+        btnSave.setOnClickListener {
+            if (validateFields()) {
+                saveDataToFirestore()
+            }
+        }
+    }
+
+    // --- 4. LÓGICA DE VALIDACIÓN Y GUARDADO ---
+
+    private fun validateFields(): Boolean {
+        if (etImageUrl.text.isNullOrEmpty()) {
+            etImageUrl.error = "Falta la URL de la imagen"
+            return false
+        }
+        if (etWord.text.isNullOrEmpty()) {
+            etWord.error = "Falta la palabra"
+            return false
+        }
+        if (etSyllables.text.isNullOrEmpty()) {
+            etSyllables.error = "Faltan las sílabas"
+            return false
+        }
+        return true
+    }
+
+    private fun saveDataToFirestore() {
+        setLoading(true)
+
+        val urlImagen = etImageUrl.text.toString().trim()
+        val palabra = etWord.text.toString().trim()
+        val categoria = etCategory.text.toString().trim()
+        val dificultad = sliderDifficulty.value.toInt()
+
+        // Convertimos "pa-ta-ta" a lista ["pa", "ta", "ta"]
+        val rawSyllables = etSyllables.text.toString().trim()
+        val listaSilabas = rawSyllables.split("-").map { it.trim() }
+
+        // Mapa de datos para Firestore
+        val pictogramData = hashMapOf(
+            "palabra" to palabra,
+            "categoria" to categoria,
+            "dificultad" to dificultad,
+            "silabas" to listaSilabas,
+            "urlImagen" to urlImagen,
+            "updatedAt" to System.currentTimeMillis()
+        )
+
+        repository.savePictogram(pictogramData) { success ->
+            setLoading(false)
+            if (success) {
+                Toast.makeText(this, "Pictograma añadido correctamente", Toast.LENGTH_SHORT).show()
+                finish() // Cierra la pantalla y vuelve al menú
+            } else {
+                Toast.makeText(this, "Error al guardar", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun setLoading(isLoading: Boolean) {
+        if (isLoading) {
+            progressBar.visibility = View.VISIBLE
+            btnSave.isEnabled = false
+        } else {
+            progressBar.visibility = View.GONE
+            btnSave.isEnabled = true
+        }
+    }
+}

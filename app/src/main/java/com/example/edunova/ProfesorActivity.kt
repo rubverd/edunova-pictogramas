@@ -1,5 +1,6 @@
 package com.example.edunova
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
@@ -11,29 +12,30 @@ class ProfesorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profesor)
 
-        // 1. Configurar el botón "Mis Alumnos"
+        // 1. Ver lista de Alumnos
         val btnStudents = findViewById<Button>(R.id.btnViewStudents)
         btnStudents.setOnClickListener {
-            // Aquí pondremos la lógica para abrir la lista de alumnos
-            Toast.makeText(this, "Próximamente: Lista de Alumnos", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, ListStudentsActivity::class.java)
+            startActivity(intent)
         }
 
-        // 2. Configurar el botón "Añadir Pictograma"
+        // 2. Añadir Pictograma (Formulario)
         val btnAddWord = findViewById<Button>(R.id.btnAddWord)
         btnAddWord.setOnClickListener {
-            Toast.makeText(this, "Próximamente: Añadir Palabra", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, AddPictogramActivity::class.java)
+            startActivity(intent)
         }
 
-        // 3. Configurar el botón "Gestionar Niveles"
+        // 3. Crear Nivel (Pendiente)
         val btnLevels = findViewById<Button>(R.id.btnCreateLevel)
         btnLevels.setOnClickListener {
             Toast.makeText(this, "Próximamente: Crear Nivel", Toast.LENGTH_SHORT).show()
         }
 
-        // 4. Configurar el botón "Volver"
+        // 4. Volver
         val btnBack = findViewById<Button>(R.id.btnBack)
         btnBack.setOnClickListener {
-            finish() // Cierra esta actividad y vuelve a la anterior (HomeActivity)
+            finish()
         }
     }
 }

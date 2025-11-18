@@ -34,7 +34,9 @@
             android:name=".ProfesorActivity"
             android:exported="false">
         </activity>
-
+        <activity
+            android:name=".AddPictogramActivity"
+            android:exported="false" />
         <activity
             android:name=".HomeActivity"
             android:exported="false">
@@ -43,6 +45,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" /> -->
         </activity>
+
+        <activity
+            android:name=".ListStudentsActivity"
+            android:exported="false" />
+
         <activity
             android:name=".AjustesActivity"
             android:exported="false">
