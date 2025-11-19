@@ -21,6 +21,8 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var tts: TextToSpeech
 
     // Esta parte está bien con by lazy, ya que la carga es diferida.
+// En SilabasActivity.kt
+
     private val gruposDeSilabasOrdenados: List<List<String>> by lazy {
         val silabas = listOf(
             "ba", "be", "bi", "bo", "bu", "ca", "ce", "ci", "co", "cu",
@@ -34,8 +36,19 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             "wa", "we", "wi", "wo", "wu", "xa", "xe", "xi", "xo", "xu",
             "ya", "ye", "yi", "yo", "yu", "za", "ze", "zi", "zo", "zu"
         )
-        silabas.groupBy { it.first() }.toSortedMap().values.toList()
+
+        // --- LÓGICA DE ORDENAMIENTO CORREGIDA ---
+        // 1. Obtener un Collator para el idioma español.
+        val collator = java.text.Collator.getInstance(Locale("es", "ES"))
+        collator.strength = java.text.Collator.PRIMARY // Ignora mayúsculas/minúsculas y acentos si fuera necesario
+
+        // 2. Ordenar la lista de sílabas usando el Collator.
+        val silabasOrdenadas = silabas.sortedWith(compareBy(collator) { it })
+
+        // 3. Agrupar por la primera letra y devolver la lista de grupos.
+        silabasOrdenadas.groupBy { it.first() }.values.toList()
     }
+
     private var silabaActual: String? = null
     private var indiceGrupoActual: Int = -1
 
@@ -113,35 +126,42 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun avanzarAlSiguienteGrupo() {
         indiceGrupoActual++
-        if (indiceGrupoActual >= gruposDeSilabasOrdenados.size) {
-            //Toast.makeText(this, "¡Has completado todas las sílabas!", Toast.LENGTH_LONG).show()
-            binding.TextoSilabas.text = "¡Fin!"
-            binding.buttonOption3.isEnabled = false
-
-            mostrarDialogoCompletado()
-            return
+        // La comprobación del final del juego ya no es necesaria aquí.
+        // Solo avanzamos si no hemos llegado al final.
+        if (indiceGrupoActual < gruposDeSilabasOrdenados.size) {
+            val grupoActual = gruposDeSilabasOrdenados[indiceGrupoActual]
+            silabaActual = grupoActual.randomOrNull()
+            binding.TextoSilabas.text = silabaActual ?: "Error"
         }
-        val grupoActual = gruposDeSilabasOrdenados[indiceGrupoActual]
-        silabaActual = grupoActual.randomOrNull()
-        binding.TextoSilabas.text = silabaActual ?: "Error"
     }
+
 
     private fun verificarRespuesta(respuesta: String) {
         if (respuesta.equals(silabaActual, ignoreCase = true)) {
             Toast.makeText(this, "¡Correcto!", Toast.LENGTH_SHORT).show()
 
+            // --- Marcar la letra como correcta (tu código actual está bien) ---
             val primeraSilabaDelGrupo = gruposDeSilabasOrdenados[indiceGrupoActual].firstOrNull()
             val letra = primeraSilabaDelGrupo?.firstOrNull()
-
             if (letra != null) {
                 val textViewDeLetra = letterMap[letra.uppercaseChar()]
                 textViewDeLetra?.backgroundTintList = ContextCompat.getColorStateList(this, R.color.verde_correcto)
             }
+
+
+            if (indiceGrupoActual >= gruposDeSilabasOrdenados.size - 1) {
+                // Si es el último grupo, mostramos el diálogo de inmediato
+                binding.TextoSilabas.text = "¡Fin!"
+                binding.buttonOption3.isEnabled = false // Desactivamos el botón de avanzar
+                mostrarDialogoCompletado()
+            }
+
         } else {
             Toast.makeText(this, "Incorrecto. La sílaba era '$silabaActual'", Toast.LENGTH_SHORT).show()
         }
         binding.respuesta.text?.clear()
     }
+
 
     private fun initializeLetterMap() {
         letterMap = mapOf(
