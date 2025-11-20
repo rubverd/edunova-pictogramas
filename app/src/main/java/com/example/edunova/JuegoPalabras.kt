@@ -19,14 +19,21 @@ import com.example.edunova.databinding.ActivityLearnBinding
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.result.launch
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.semantics.text
+import androidx.lifecycle.lifecycleScope
 import coil.load
 
 import com.example.edunova.databinding.ActivityMainBinding
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.firestore.FieldPath
 import java.util.Locale
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+
 import kotlin.io.path.exists
 
 
@@ -35,7 +42,8 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var tts: TextToSpeech
     private lateinit var binding: ActivityLearnBinding
 
-    private var glideExecuted = false
+    private var palabraCorrectaActual: String? = null
+    private var aciertos = 0
 
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
@@ -48,18 +56,31 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         // Inicializamos TextToSpeech
         tts = TextToSpeech(this, this)
 
+        configurarListeners()
+        cargarPictograma("id_Manzana")
 
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Comprueba si se ha pulsado el botón "Atrás" de la ActionBar.
-        // Su id es siempre 'android.R.id.home'.
-        if (item.itemId == android.R.id.home) {
-            // Finaliza la actividad actual y vuelve a la anterior en la pila.
-            finish()
-            return true
+    private fun configurarListeners() {
+        // Listener para el grupo de opciones
+        binding.toggleGroupOptions.addOnButtonCheckedListener { group, checkedId, isChecked ->
+            if (isChecked) {
+                // Si se selecciona un botón, se muestra el de confirmar
+                binding.buttonConfirm.visibility = View.VISIBLE
+            }
         }
-        return super.onOptionsItemSelected(item)
+
+        // Listener para el botón de confirmar
+        binding.buttonConfirm.setOnClickListener {
+            Log.d("DEBUG_JUEGO", "¡CLICK! El botón Confirmar ha sido pulsado.")
+            comprobarRespuesta() // La función que evalúa si es correcto o no
+        }
+
+        val botonVolver = findViewById<MaterialToolbar>(R.id.toolbar)
+        botonVolver.setOnClickListener {
+            // Crea un Intent para ir de MainActivity a RegisterActivity
+            finish()
+        }
     }
 
     // Se llama automáticamente cuando TTS está listo
@@ -173,39 +194,189 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun cargarPictograma(pictogramaId: String) {
         // Accedemos a la colección 'pictogramas' y obtenemos el documento específico
-        db.collection("palabras").document(pictogramaId).get()
-            .addOnSuccessListener { document ->
-                if (document != null && document.exists()) {
-                    // El documento fue encontrado
-                    Log.d("Firebase", "Datos del documento: ${document.data}")
+        lifecycleScope.launch {
+            try {
+                // --- PARTE 1: OBTENER LA INFORMACIÓN DEL PICTOGRAMA CORRECTO ---
+                val documentSnapshot = db.collection("palabras").document(pictogramaId).get().await()
 
-                    // 3. Obtenemos la URL del campo "imageUrl"
-                    // Usamos .getString() para evitar errores si el campo no es un String.
-                    val imageUrl = document.getString("urlImagen")
-
-                    if (!imageUrl.isNullOrEmpty()) {
-                        // ¡Aquí ocurre la magia!
-                        // 4. Usamos Glide para cargar la URL en nuestro ImageView
-                        binding.imageViewPictogram.load(imageUrl)
-
-                    } else {
-                        // El campo imageUrl está vacío o no existe
-                        Toast.makeText(this, "La URL de la imagen no fue encontrada.", Toast.LENGTH_SHORT).show()
-                        Log.w("Firebase", "El campo 'imageUrl' está vacío o es nulo.")
-                    }
-
-                } else {
-                    // El documento no existe
-                    Log.w("Firebase", "No se encontró un documento con el ID: $pictogramaId")
-                    Toast.makeText(this, "No se encontró el pictograma.", Toast.LENGTH_SHORT).show()
+                if (documentSnapshot == null || !documentSnapshot.exists()) {
+                    Log.e("Juego", "No se encontró el documento del pictograma con ID: $pictogramaId")
+                    Toast.makeText(this@JuegoPalabras, "Error al cargar pictograma.", Toast.LENGTH_SHORT).show()
+                    return@launch // Salimos de la corrutina si no hay documento
                 }
+
+                val imageUrl = documentSnapshot.getString("urlImagen")
+                val palabraCorrecta = documentSnapshot.getString("palabra")
+
+                if (imageUrl.isNullOrEmpty() || palabraCorrecta.isNullOrEmpty()) {
+                    Log.e("Juego", "El documento $pictogramaId no tiene urlImagen o palabra.")
+                    Toast.makeText(this@JuegoPalabras, "Datos del pictograma incompletos.", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+                palabraCorrectaActual = palabraCorrecta
+
+                Log.d("DEBUG_JUEGO", "Palabra correcta guardada en 'palabraCorrectaActual': ${palabraCorrectaActual}")
+
+                // Cargar la imagen
+                binding.imageViewPictogram.load(imageUrl)
+
+                // --- PARTE 2: ASIGNAR LA PALABRA CORRECTA A UN BOTÓN ALEATORIO ---
+                val botones = mutableListOf(binding.buttonOption1, binding.buttonOption2, binding.buttonOption3)
+                val botonCorrecto = botones.random()
+                botonCorrecto.text = palabraCorrecta
+
+                val botonHablar = findViewById<FloatingActionButton>(R.id.fabPlaySound)
+                botonHablar.setOnClickListener {
+                    reproducirTexto(palabraCorrecta)
+                }
+
+                // Quitamos el botón ya usado de la lista. Ahora 'botones' solo contiene los 2 botones restantes.
+                botones.remove(botonCorrecto)
+
+                // --- PARTE 3: OBTENER PALABRAS INCORRECTAS Y ASIGNARLAS ---
+                val palabrasIncorrectas = getPalabrasAleatoriasIncorrectas(palabraCorrecta, 2)
+
+                if (palabrasIncorrectas.size < 2) {
+                    Log.e("Juego", "No se pudieron obtener suficientes palabras incorrectas.")
+                    // Aquí podrías tener una lista de palabras de respaldo por si falla Firebase
+                    botones.forEach { it.text = "Error" }
+                    return@launch
+                }
+
+                // Asignamos las palabras incorrectas a los dos botones restantes
+                botones[0].text = palabrasIncorrectas[0]
+                botones[1].text = palabrasIncorrectas[1]
+
+            } catch (e: Exception) {
+                Log.e("Juego", "Ocurrió una excepción al cargar el pictograma", e)
+                Toast.makeText(this@JuegoPalabras, "Error de conexión.", Toast.LENGTH_SHORT).show()
             }
-            .addOnFailureListener { exception ->
-                // Ocurrió un error al intentar obtener el documento
-                Log.e("Firebase", "Error al obtener el documento", exception)
-                Toast.makeText(this, "Error al cargar los datos.", Toast.LENGTH_SHORT).show()
-            }
+        }
     }
+
+    /**
+    * Obtiene una lista de palabras aleatorias de la colección "palabras",
+    * asegurándose de que no incluye la palabra correcta.
+    *
+    * @param palabraAExcluir La palabra correcta que no debe ser incluida en los resultados.
+    * @param cantidad La cantidad de palabras aleatorias que se necesitan.
+    * @return Una lista de Strings con las palabras incorrectas.
+    */
+    private suspend fun getPalabrasAleatoriasIncorrectas(palabraAExcluir: String, cantidad: Int): List<String> {
+        val palabrasCollection = db.collection("palabras")
+        val randomId = db.collection("some_collection").document().id // Punto de partida aleatorio
+
+        try {
+            // Hacemos una consulta pidiendo documentos que no sean la palabra correcta,
+            // empezando desde un punto aleatorio.
+            // Nota: Firestore no permite combinar `whereNotEqualTo` con `whereGreaterThanOrEqualTo` en campos diferentes.
+            // La estrategia es pedir más y filtrar después.
+            val snapshot = palabrasCollection
+                .whereGreaterThanOrEqualTo(FieldPath.documentId(), randomId)
+                .limit((cantidad + 5).toLong()) // Pedimos más para tener margen al filtrar
+                .get()
+                .await()
+
+            // Mapeamos los resultados a una lista de Strings (palabras) y filtramos la que no queremos
+            val palabrasObtenidas = snapshot.documents
+                .mapNotNull { it.getString("palabra") }
+                .filter { it != palabraAExcluir }
+                .distinct() // Nos aseguramos de que no haya duplicados
+
+            if (palabrasObtenidas.size >= cantidad) {
+                return palabrasObtenidas.take(cantidad) // Devolvemos la cantidad exacta que necesitamos
+            }
+
+            // Si no obtuvimos suficientes, hacemos una segunda consulta desde el principio
+            val snapshot2 = palabrasCollection
+                .limit((cantidad + 5).toLong())
+                .get()
+                .await()
+
+            val palabrasObtenidas2 = snapshot2.documents
+                .mapNotNull { it.getString("palabra") }
+                .filter { it != palabraAExcluir }
+                .distinct()
+
+            // Combinamos ambas listas, nos aseguramos de no tener duplicados, y tomamos la cantidad necesaria
+            return (palabrasObtenidas + palabrasObtenidas2).distinct().take(cantidad)
+
+        } catch (e: Exception) {
+            Log.e("Juego", "Error al obtener palabras aleatorias incorrectas", e)
+            return emptyList()
+        }
+    }
+
+    private fun comprobarRespuesta() {
+        // --- 1. OBTENER LA RESPUESTA DEL USUARIO ---
+        // Obtenemos el ID del botón que está seleccionado dentro del ToggleGroup.
+        val idBotonSeleccionado = binding.toggleGroupOptions.checkedButtonId
+
+        // Salvaguarda: Si por alguna razón no hay ningún botón seleccionado o no tenemos
+        // la palabra correcta guardada, no hacemos nada y salimos de la función.
+        if (idBotonSeleccionado == View.NO_ID || palabraCorrectaActual == null) {
+            Log.e("Juego", "ComprobarRespuesta fue llamado sin una opción seleccionada o sin palabra correcta.")
+            return
+        }
+
+        // Obtenemos la referencia al botón concreto usando su ID.
+        val botonSeleccionado = findViewById<Button>(idBotonSeleccionado)
+        val respuestaUsuario = botonSeleccionado.text.toString()
+
+        // --- 2. DESHABILITAR CONTROLES ---
+        // Congelamos la pantalla para que el usuario no pueda cambiar su respuesta
+        // o pulsar confirmar de nuevo mientras se muestra el resultado.
+        binding.buttonConfirm.isEnabled = false
+        // Deshabilitar todos los botones del grupo para que no se puedan pulsar.
+        // Una forma sencilla es deshabilitar el grupo entero.
+        (0 until binding.toggleGroupOptions.childCount).forEach {
+            val button = binding.toggleGroupOptions.getChildAt(it)
+            button.isEnabled = false
+        }
+
+        // --- 3. COMPARAR Y DAR FEEDBACK ---
+        val esRespuestaCorrecta = (respuestaUsuario == palabraCorrectaActual)
+
+        if (esRespuestaCorrecta) {
+            // --- RESPUESTA CORRECTA ---
+            Log.d("Juego", "Respuesta CORRECTA: $respuestaUsuario")
+            aciertos++ // Incrementamos el contador de aciertos
+
+            // Feedback visual: Ponemos el botón seleccionado en verde.
+            botonSeleccionado.setBackgroundColor(Color.parseColor("#4CAF50")) // Verde
+
+            // Feedback con mensaje
+            Toast.makeText(this, "¡Correcto!", Toast.LENGTH_SHORT).show()
+
+        } else {
+            // --- RESPUESTA INCORRECTA ---
+            Log.w("Juego", "Respuesta INCORRECTA. Usuario: '$respuestaUsuario', Correcta: '$palabraCorrectaActual'")
+
+            // Feedback visual: Ponemos el botón seleccionado en rojo.
+            botonSeleccionado.setBackgroundColor(Color.parseColor("#F44336")) // Rojo
+
+            // Buscamos y resaltamos el botón que SÍ tenía la respuesta correcta.
+            val botonCorrecto = find { it.text == palabraCorrectaActual }
+            botonCorrecto?.setBackgroundColor(Color.parseColor("#4CAF50")) // Verde
+
+            // Feedback con mensaje
+            Toast.makeText(this, "La respuesta correcta era: $palabraCorrectaActual", Toast.LENGTH_LONG).show()
+        }
+
+    }
+
+    private fun find(predicate: (Button) -> Boolean): Button? {
+        for (i in 0 until binding.toggleGroupOptions.childCount) {
+            val button = binding.toggleGroupOptions.getChildAt(i) as Button
+            if (predicate(button)) {
+                return button
+            }
+        }
+        return null
+    }
+
+    /*
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
 
@@ -278,14 +449,12 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
             val botonVolver = findViewById<MaterialToolbar>(R.id.toolbar)
             botonVolver.setOnClickListener {
                 // Crea un Intent para ir de MainActivity a RegisterActivity
-                val intent = Intent(this, HomeActivity::class.java)
-
-                // Inicia la nueva actividad
-                startActivity(intent)
+                finish()
             }
 
         }
     }
+     */
 }
 
 
