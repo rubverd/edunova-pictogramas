@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -20,6 +22,15 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:host="example.com" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".RegisterActivity"
@@ -37,6 +48,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" /> -->
         </activity>
+
         <activity
             android:name=".AjustesActivity"
             android:exported="false">
@@ -52,10 +64,6 @@
             <!-- <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" /> -->
-        </activity>
-        <activity
-            android:name=".SilabasActivity"
-            android:exported="false">
         </activity>
         <activity
             android:name=".JuegoPalabras"

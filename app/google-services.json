@@ -13,7 +13,16 @@
           "package_name": "com.example.edunova"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "409935480195-ssbk46imv20pivt2l3bg35lskda7gpdf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.edunova",
+            "certificate_hash": "a045aac4c9cd1e5d2aa73d0d6c61f38db341b33d"
+          }
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBPC3M887pJCr0RY4oOCwb5BLj3Ojj3d2E"

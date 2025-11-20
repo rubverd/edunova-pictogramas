@@ -87,8 +87,7 @@
                 android:id="@+id/imageViewPictogram"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                tools:srcCompat="@tools:sample/avatars" />
+                android:scaleType="centerCrop" />
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fabPlaySound"
                 android:layout_width="wrap_content"

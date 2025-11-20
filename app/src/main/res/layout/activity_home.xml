@@ -202,9 +202,9 @@
                 android:padding="16dp">
 
                 <ImageView
+                    android:id="@+id/imageViewReto"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
-                    android:src="@drawable/ic_circle"
                     app:tint="#E33C55" />
 
                 <TextView
