@@ -17,62 +17,47 @@
             android:theme="@style/Theme.Edunova">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".RegisterActivity"
-            android:exported="false">
-            <!-- Opcional: Para añadir una flecha de "Atrás" en la barra superior -->
-            <!-- <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" /> -->
-        </activity>
+            android:exported="false" />
         <activity
             android:name=".HomeActivity"
-            android:exported="false">
-            <!-- Opcional: Para añadir una flecha de "Atrás" en la barra superior -->
-            <!-- <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" /> -->
-        </activity>
+            android:exported="false" />
+
         <activity
-            android:name=".AjustesActivity"
-            android:exported="false">
-            <!-- Opcional: Para añadir una flecha de "Atrás" en la barra superior -->
-            <!-- <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" /> -->
-        </activity>
+            android:name=".ProfesorActivity"
+            android:exported="false" />
         <activity
-            android:name=".MenuActivity"
-            android:exported="false">
-            <!-- Opcional: Para añadir una flecha de "Atrás" en la barra superior -->
-            <!-- <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" /> -->
-        </activity>
+            android:name=".ListStudentsActivity"
+            android:exported="false" />
         <activity
-            android:name=".SilabasActivity"
-            android:exported="false">
-        </activity>
+            android:name=".AddPictogramActivity"
+            android:exported="false" />
+
         <activity
             android:name=".JuegoPalabras"
-            android:exported="false">
-            <!-- Opcional: Para añadir una flecha de "Atrás" en la barra superior -->
-            <!-- <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" /> -->
-        </activity>
+            android:exported="false"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
+        <activity
+            android:name=".SilabasActivity"
+            android:exported="false" />
         <activity
             android:name=".SonidoActivity"
-            android:exported="false">
-            <!-- Opcional: Para añadir una flecha de "Atrás" en la barra superior -->
-            <!-- <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" /> -->
-        </activity>
+            android:exported="false" />
+        <activity
+            android:name=".MenuActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".AjustesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
