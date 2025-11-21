@@ -14,36 +14,24 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <!-- Barra superior -->
-        <LinearLayout
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:background="@color/rojoBoton"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content"
+            android:background="#E35F72"
+            app:elevation="0dp"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <ImageButton
-                android:id="@+id/returnButton"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:backgroundTint="@color/rojoBoton"
-                android:contentDescription="boton atras"
-                android:visibility="visible"
-                app:srcCompat="@android:drawable/ic_menu_revert" />
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:title="Completa las sílabas"
+                app:titleTextColor="@color/white"
+                app:navigationIcon="@drawable/ic_arrow_back"
+                app:navigationIconTint="@color/white" />
 
-            <TextView
-                android:id="@+id/textView4"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:background="@color/rojoBoton"
-                android:text="PICTONOVOA"
-                android:textAlignment="center"
-                android:textAllCaps="true"
-                android:textColor="#FFFFFF"
-                android:textSize="28sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+        </com.google.android.material.appbar.AppBarLayout>
 
         <!-- Contenido principal -->
         <LinearLayout

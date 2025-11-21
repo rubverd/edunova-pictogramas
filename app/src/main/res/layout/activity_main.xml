@@ -7,14 +7,13 @@
     android:padding="24dp">
 
     <TextView
-        android:layout_width="393dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        android:background="@color/rojoBoton"
         android:backgroundTint="@color/rojoBoton"
         android:gravity="center"
         android:text="Bienvenido a Pictonova"
-        android:textColor="#EDEDED"
+        android:textColor="@color/rojoBoton"
         android:textSize="22sp"
         android:textStyle="bold" />
 
