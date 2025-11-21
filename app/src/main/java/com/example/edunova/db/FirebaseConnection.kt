@@ -3,7 +3,6 @@ package com.example.edunova.db
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
-// Importamos tu clase Student desde la carpeta correcta
 import com.example.edunova.clases.Student
 
 class FirebaseConnection {
@@ -54,7 +53,7 @@ class FirebaseConnection {
             }
     }
 
-    // --- GESTIÓN DE USUARIOS (Firestore) ---
+    // --- GESTIÓN DE USUARIOS ---
 
     private fun saveUserInfoToFirestore(
         uid: String,
@@ -71,7 +70,6 @@ class FirebaseConnection {
         )
         userInfo.putAll(additionalData)
 
-        // Guardamos en la colección "usuarios"
         db.collection("usuarios").document(uid)
             .set(userInfo)
             .addOnSuccessListener { onComplete(true, null) }
@@ -90,6 +88,18 @@ class FirebaseConnection {
             .addOnFailureListener { onResult(null) }
     }
 
+    // --- NUEVO: Obtener el Centro (School) del Profesor ---
+    fun getTeacherSchool(uid: String, onResult: (String?) -> Unit) {
+        db.collection("usuarios").document(uid).get()
+            .addOnSuccessListener { document ->
+                // Devuelve el campo "school" o null si no existe
+                onResult(document.getString("school"))
+            }
+            .addOnFailureListener {
+                onResult(null)
+            }
+    }
+
     // --- GESTIÓN DE ALUMNOS ---
 
     fun getStudentsBySchool(schoolName: String, onResult: (List<Student>) -> Unit) {
@@ -98,7 +108,6 @@ class FirebaseConnection {
             .whereEqualTo("role", "student")
             .get()
             .addOnSuccessListener { documents ->
-                // Convierte los documentos a objetos Student
                 val studentList = documents.toObjects(Student::class.java)
                 onResult(studentList)
             }
@@ -109,9 +118,9 @@ class FirebaseConnection {
 
     // --- GESTIÓN DE PICTOGRAMAS ---
 
-    // Solo guardamos los datos (la URL ya viene como texto)
     fun savePictogram(pictogramData: Map<String, Any>, onComplete: (Boolean) -> Unit) {
-        db.collection("pictogramas")
+        // CAMBIO IMPORTANTE: "palabras" para coincidir con tu base de datos real
+        db.collection("palabras")
             .add(pictogramData)
             .addOnSuccessListener { onComplete(true) }
             .addOnFailureListener { onComplete(false) }
