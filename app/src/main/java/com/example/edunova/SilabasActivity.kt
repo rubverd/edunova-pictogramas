@@ -4,14 +4,15 @@ import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope // Importar lifecycleScope
 import com.example.edunova.databinding.SilabasBinding
-import kotlinx.coroutines.Dispatchers // Importar Dispatchers
-import kotlinx.coroutines.launch // Importar launch
-import kotlinx.coroutines.withContext // Importar withContext
 import java.util.Locale
+import android.content.Intent
+import android.widget.Button
+
+
 
 class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
@@ -20,6 +21,8 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var tts: TextToSpeech
 
     // Esta parte está bien con by lazy, ya que la carga es diferida.
+// En SilabasActivity.kt
+
     private val gruposDeSilabasOrdenados: List<List<String>> by lazy {
         val silabas = listOf(
             "ba", "be", "bi", "bo", "bu", "ca", "ce", "ci", "co", "cu",
@@ -33,8 +36,19 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             "wa", "we", "wi", "wo", "wu", "xa", "xe", "xi", "xo", "xu",
             "ya", "ye", "yi", "yo", "yu", "za", "ze", "zi", "zo", "zu"
         )
-        silabas.groupBy { it.first() }.toSortedMap().values.toList()
+
+        // --- LÓGICA DE ORDENAMIENTO CORREGIDA ---
+        // 1. Obtener un Collator para el idioma español.
+        val collator = java.text.Collator.getInstance(Locale("es", "ES"))
+        collator.strength = java.text.Collator.PRIMARY // Ignora mayúsculas/minúsculas y acentos si fuera necesario
+
+        // 2. Ordenar la lista de sílabas usando el Collator.
+        val silabasOrdenadas = silabas.sortedWith(compareBy(collator) { it })
+
+        // 3. Agrupar por la primera letra y devolver la lista de grupos.
+        silabasOrdenadas.groupBy { it.first() }.values.toList()
     }
+
     private var silabaActual: String? = null
     private var indiceGrupoActual: Int = -1
 
@@ -112,33 +126,42 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun avanzarAlSiguienteGrupo() {
         indiceGrupoActual++
-        if (indiceGrupoActual >= gruposDeSilabasOrdenados.size) {
-            Toast.makeText(this, "¡Has completado todas las sílabas!", Toast.LENGTH_LONG).show()
-            binding.TextoSilabas.text = "¡Fin!"
-            binding.buttonOption3.isEnabled = false
-            return
+        // La comprobación del final del juego ya no es necesaria aquí.
+        // Solo avanzamos si no hemos llegado al final.
+        if (indiceGrupoActual < gruposDeSilabasOrdenados.size) {
+            val grupoActual = gruposDeSilabasOrdenados[indiceGrupoActual]
+            silabaActual = grupoActual.randomOrNull()
+            binding.TextoSilabas.text = silabaActual ?: "Error"
         }
-        val grupoActual = gruposDeSilabasOrdenados[indiceGrupoActual]
-        silabaActual = grupoActual.randomOrNull()
-        binding.TextoSilabas.text = silabaActual ?: "Error"
     }
+
 
     private fun verificarRespuesta(respuesta: String) {
         if (respuesta.equals(silabaActual, ignoreCase = true)) {
             Toast.makeText(this, "¡Correcto!", Toast.LENGTH_SHORT).show()
 
+            // --- Marcar la letra como correcta (tu código actual está bien) ---
             val primeraSilabaDelGrupo = gruposDeSilabasOrdenados[indiceGrupoActual].firstOrNull()
             val letra = primeraSilabaDelGrupo?.firstOrNull()
-
             if (letra != null) {
                 val textViewDeLetra = letterMap[letra.uppercaseChar()]
                 textViewDeLetra?.backgroundTintList = ContextCompat.getColorStateList(this, R.color.verde_correcto)
             }
+
+
+            if (indiceGrupoActual >= gruposDeSilabasOrdenados.size - 1) {
+                // Si es el último grupo, mostramos el diálogo de inmediato
+                binding.TextoSilabas.text = "¡Fin!"
+                binding.buttonOption3.isEnabled = false // Desactivamos el botón de avanzar
+                mostrarDialogoCompletado()
+            }
+
         } else {
             Toast.makeText(this, "Incorrecto. La sílaba era '$silabaActual'", Toast.LENGTH_SHORT).show()
         }
         binding.respuesta.text?.clear()
     }
+
 
     private fun initializeLetterMap() {
         letterMap = mapOf(
@@ -175,4 +198,53 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
         super.onDestroy()
     }
+
+    private fun mostrarDialogoCompletado() {
+        // 1. Inflar la vista personalizada
+        val dialogView = layoutInflater.inflate(R.layout.dialog_completado, null)
+
+        // 2. Localizar los botones DENTRO de esa vista inflada
+        val botonRepetir = dialogView.findViewById<Button>(R.id.boton_repetir)
+        val botonVolverMenu = dialogView.findViewById<Button>(R.id.boton_volver_menu)
+
+        // 3. Crear el diálogo usando el constructor
+        val alertDialog = AlertDialog.Builder(this)
+            .setView(dialogView)  // Establece la vista personalizada
+            .setCancelable(false) // Impide que se cierre al tocar fuera
+            .create()             // Crea el objeto AlertDialog
+
+        // 4. (Opcional) Aplicar fondo personalizado
+        alertDialog.window?.setBackgroundDrawableResource(R.drawable.dialog_background)
+
+        // 5. Asignar las acciones a los botones
+        botonRepetir.setOnClickListener {
+            alertDialog.dismiss() // Cierra el diálogo
+            reiniciarActividad()   // Llama a la función para reiniciar
+        }
+
+        botonVolverMenu.setOnClickListener {
+            alertDialog.dismiss() // Cierra el diálogo
+            val intent = Intent(this, HomeActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+            finish() // Cierra SilabasActivity
+        }
+
+        // 6. Mostrar el diálogo
+        alertDialog.show()
+    }
+
+
+
+
+    private fun reiniciarActividad() {
+        // 1. Reiniciar los colores de fondo de todas las letras
+        letterMap.values.forEach { textView ->
+            textView.backgroundTintList = ContextCompat.getColorStateList(this, R.color.CherryBlossomPink)
+        }
+
+        // 2. Reiniciar el recorrido desde el principio
+        iniciarRecorrido()
+    }
+
 }
