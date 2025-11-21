@@ -11,7 +11,7 @@ import com.example.edunova.databinding.SilabasBinding
 import java.util.Locale
 import android.content.Intent
 import android.widget.Button
-
+import com.google.android.material.appbar.MaterialToolbar
 
 
 class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
@@ -63,7 +63,9 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         // Las inicializaciones rápidas se quedan aquí
         initializeLetterMap()
 
-        binding.returnButton.setOnClickListener {
+        val botonVolver = findViewById<MaterialToolbar>(R.id.toolbar)
+        botonVolver.setOnClickListener {
+            // Crea un Intent para ir de MainActivity a RegisterActivity
             finish()
         }
 

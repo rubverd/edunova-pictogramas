@@ -135,6 +135,25 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/guideline_bottom_anchor" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonNext"
+        style="?attr/materialButtonOutlinedStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:textColor="@color/black"
+        android:backgroundTint="@color/rojoBoton"
+        android:textSize="16sp"
+        app:cornerRadius="16dp"
+        android:visibility="invisible"
+        app:icon="@drawable/ic_next"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        app:iconTint="@color/black"
+        app:strokeColor="@color/black"
+        app:strokeWidth="2dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/guideline_bottom_anchor" />
 
     <!-- GRUPO DE BOTONES DE OPCIÓN - SIN CAMBIOS (se mueve automáticamente) -->
     <com.google.android.material.button.MaterialButtonToggleGroup

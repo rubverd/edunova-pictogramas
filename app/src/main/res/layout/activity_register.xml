@@ -19,12 +19,11 @@
             android:id="@+id/textViewTitle"
             android:layout_width="350dp"
             android:layout_height="40dp"
-            android:background="@color/rojoBoton"
             android:backgroundTint="@color/rojoBoton"
             android:text="Crear una Cuenta"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.Material3.HeadlineLarge"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/rojoBoton"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

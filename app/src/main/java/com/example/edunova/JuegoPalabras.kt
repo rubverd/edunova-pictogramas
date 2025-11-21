@@ -112,43 +112,7 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         super.onDestroy()
     }
 
-    //Función que podremos usar más tarde para cambiar el texto de los botónes al necesario para
-    //hacer referencia a la batería de palabras
-    fun cambiarTextoBotones(texto1: String, texto2: String, texto3: String,textoCorrecto:String){
-        // Vinculamos el botón con su ID en el XML
-        val miBoton1: Button = findViewById(R.id.buttonOption1)
-        val miBoton2: Button = findViewById(R.id.buttonOption2)
-        val miBoton3: Button = findViewById(R.id.buttonOption3)
 
-        // Cambiar el texto directamente
-        miBoton1.text = texto1
-        miBoton2.text = texto1
-        miBoton3.text = texto1
-        //Llamar a un metodo que devuelva el resultado correcto cuando se puls el bóton
-        //seguramente haya que usar otra vista y ocultarla
-        if(texto1==textoCorrecto) {
-            //correcto
-            miBoton1.setOnClickListener {respuestaCorrecta(miBoton1)}
-            //devolver resultado incorrecto
-            miBoton2.setOnClickListener{respuestaIncorrecta(miBoton2)}
-            miBoton3.setOnClickListener{respuestaIncorrecta(miBoton3)}
-        }
-        if(texto2==textoCorrecto) {
-            //correcto
-            miBoton2.setOnClickListener {respuestaCorrecta(miBoton2)}
-            //devolver resultado incorrecto
-            miBoton1.setOnClickListener{respuestaIncorrecta(miBoton1)}
-            miBoton3.setOnClickListener{respuestaIncorrecta(miBoton3)}
-        }
-        if(texto3==textoCorrecto) {
-            //correcto
-            miBoton3.setOnClickListener {respuestaCorrecta(miBoton3)}
-            //devolver resultado incorrecto
-            miBoton1.setOnClickListener{respuestaIncorrecta(miBoton1)}
-            miBoton2.setOnClickListener{respuestaIncorrecta(miBoton2)}
-        }
-
-    }
     //TODO: Ahora mismo no se usa el atributo de boton pero se podría llegar a usar para hacer
     //seguimiento de los resultados del usuario más adelante
     //TODO: mostrar de alguna forma en la Ui que el resultado a sido correcto usando estos metodos
@@ -163,25 +127,7 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     //Para cargar de otras dependencias cambiar el documentPath
-    fun cargaBDImagenes(pictogramaId: String){
-        val db = FirebaseFirestore.getInstance()
-        db.collection("imagenes")
-            .document("silabas")
-            .collection("silabas")
-            .get()
-            .addOnSuccessListener { resultadoTextView ->
-                for (document in resultadoTextView) {
-                    val nombre = document.getString(pictogramaId)
-                    val url = document.getString("url")
 
-                    Log.d("Firestore", "Image: $nombre -> $url")
-
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "Error al obtener imágenes", e)
-            }
-    }
     fun respuestaIncorrecta(boton: Button){
         val text: TextView= findViewById(R.id.ResultadoJuego)
         text.visibility = View.VISIBLE
@@ -364,6 +310,9 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
             Toast.makeText(this, "La respuesta correcta era: $palabraCorrectaActual", Toast.LENGTH_LONG).show()
         }
 
+        binding.buttonConfirm.visibility = View.INVISIBLE
+        binding.buttonNext.visibility = View.VISIBLE
+
     }
 
     private fun find(predicate: (Button) -> Boolean): Button? {
@@ -376,85 +325,6 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         return null
     }
 
-    /*
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-
-        // Si la actividad tiene el foco Y nuestro código de Glide no se ha ejecutado todavía
-        if (hasFocus && !glideExecuted) {
-
-            // Marcamos la bandera para evitar que se ejecute de nuevo
-            // si la actividad pierde y recupera el foco (ej: al bajar la cortina de notificaciones)
-            glideExecuted = true
-
-
-            Log.d("DEBUG_CHECK", "onWindowFocusChanged con foco. Ejecutando Glide.")
-
-            Log.d("DEBUG_CHECK", "Binding object: $binding")
-            Log.d("DEBUG_CHECK", "ImageView object: ${binding.imageViewPictogram}")
-            val imageUrl =
-                "https://ik.imagekit.io/pkzchzcdv/pictogramaPruebaCasa.jpg" // <-- Usando la de Imgur que sabemos que es directa
-
-            Glide.with(binding.imageViewPictogram.context)
-                .load(imageUrl)
-                .listener(object : RequestListener<Drawable> {
-
-                    // FIRMA CORREGIDA PARA onLoadFailed
-                    override fun onLoadFailed(
-                        e: GlideException?,
-                        model: Any?,
-                        target: Target<Drawable>, // Cambiado de Target<Drawable!> a Target<Drawable> que es más idiomático en Kotlin
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        Log.e("GLIDE_ERROR", "Fallo al cargar la imagen. URL: $model", e)
-                        return false // Deja que Glide muestre la imagen de 'error'
-                    }
-
-                    // FIRMA CORREGIDA PARA onResourceReady
-                    override fun onResourceReady(
-                        resource: Drawable, // Cambiado de Drawable & Any a simplemente Drawable
-                        model: Any,
-                        target: Target<Drawable>?, // Target puede ser nulo aquí
-                        dataSource: DataSource,
-
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        Log.d("GLIDE_SUCCESS", "Imagen cargada correctamente desde: $dataSource")
-                        return false // Deja que Glide muestre la imagen cargada
-                    }
-                })
-                .into(binding.imageViewPictogram)
-
-            binding.imageViewPictogram.postDelayed({
-                val drawable = binding.imageViewPictogram.drawable
-                Log.d("IV_CONTENT_CHECK", "El drawable del ImageView es: $drawable")
-
-                if (drawable != null) {
-                    // Si el drawable no es nulo, podemos obtener más información.
-                    // intrinsicWidth y intrinsicHeight son las dimensiones originales de la imagen.
-                    val width = drawable.intrinsicWidth
-                    val height = drawable.intrinsicHeight
-                    Log.d("IV_CONTENT_CHECK", "Dimensiones del drawable: ${width}x${height}")
-                }
-            }, 500) // Esperamos 500 milisegundos
-
-            //val pictogramaIdParaCargar = "id_Manzana"
-            //cargarPictograma(pictogramaIdParaCargar)
-
-            val botonHablar = findViewById<FloatingActionButton>(R.id.fabPlaySound)
-            botonHablar.setOnClickListener {
-                reproducirTexto("Hola, este es un ejemplo de texto a voz en Kotlin.")
-            }
-
-            val botonVolver = findViewById<MaterialToolbar>(R.id.toolbar)
-            botonVolver.setOnClickListener {
-                // Crea un Intent para ir de MainActivity a RegisterActivity
-                finish()
-            }
-
-        }
-    }
-     */
 }
 
 
