@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f8f5f3"
+    android:background="@color/beige"
     android:padding="24dp">
 
     <TextView
@@ -37,6 +37,7 @@
         android:text="Mis Alumnos"
         android:textSize="16sp"
         app:cornerRadius="12dp"
+        app:backgroundTint="@color/rojoBoton"
         app:icon="@android:drawable/ic_menu_my_calendar"
         app:iconGravity="textStart"
         app:layout_constraintEnd_toEndOf="parent"
@@ -51,6 +52,7 @@
         android:text="Añadir Pictograma"
         android:textSize="16sp"
         app:cornerRadius="12dp"
+        app:backgroundTint="@color/rojoBoton"
         app:icon="@android:drawable/ic_input_add"
         app:iconGravity="textStart"
         app:layout_constraintEnd_toEndOf="parent"
@@ -67,6 +69,7 @@
         app:cornerRadius="12dp"
         app:icon="@android:drawable/ic_menu_sort_by_size"
         app:iconGravity="textStart"
+        app:backgroundTint="@color/rojoBoton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnAddWord" />

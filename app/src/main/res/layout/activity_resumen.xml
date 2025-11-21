@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:background="@color/beige">
+
+
+    <TextView
+        android:id="@+id/textViewTituloResumen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="¡Buen Trabajo!"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        android:textColor="@color/rojoBoton"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="80dp"/>
+
+    <!-- Puedes añadir una imagen o icono aquí -->
+    <ImageView
+        android:id="@+id/imageViewIcono"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@drawable/ic_trophy"
+        app:tint="#E33C55"
+        app:layout_constraintTop_toBottomOf="@id/textViewTituloResumen"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="40dp" />
+
+    <TextView
+        android:id="@+id/textViewAciertos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Aciertos: 8"
+        android:textSize="24sp"
+        android:textColor="@color/verde_correcto"
+        app:layout_constraintTop_toBottomOf="@id/imageViewIcono"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="40dp"/>
+
+    <TextView
+        android:id="@+id/textViewFallos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Fallos: 2"
+        android:textSize="24sp"
+        android:textColor="@color/rojoBoton"
+        app:layout_constraintTop_toBottomOf="@id/textViewAciertos"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/buttonVolverMenu"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Volver al Menú"
+        android:textSize="18sp"
+        android:padding="12dp"
+        android:backgroundTint="@color/rojoBoton"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="32dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
