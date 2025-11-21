@@ -201,39 +201,35 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         super.onDestroy()
     }
 
+
     private fun mostrarDialogoCompletado() {
-        // 1. Inflar la vista personalizada
-        val dialogView = layoutInflater.inflate(R.layout.dialog_completado, null)
+        // Usamos 'this' como contexto, que se refiere a 'SilabasActivity'
+        val builder = AlertDialog.Builder(this)
 
-        // 2. Localizar los botones DENTRO de esa vista inflada
-        val botonRepetir = dialogView.findViewById<Button>(R.id.boton_repetir)
-        val botonVolverMenu = dialogView.findViewById<Button>(R.id.boton_volver_menu)
+        builder.setTitle("¡Felicidades!")
+        builder.setMessage("Has completado el juego de las sílabas.")
 
-        // 3. Crear el diálogo usando el constructor
-        val alertDialog = AlertDialog.Builder(this)
-            .setView(dialogView)  // Establece la vista personalizada
-            .setCancelable(false) // Impide que se cierre al tocar fuera
-            .create()             // Crea el objeto AlertDialog
-
-        // 4. (Opcional) Aplicar fondo personalizado
-        alertDialog.window?.setBackgroundDrawableResource(R.drawable.dialog_background)
-
-        // 5. Asignar las acciones a los botones
-        botonRepetir.setOnClickListener {
-            alertDialog.dismiss() // Cierra el diálogo
-            reiniciarActividad()   // Llama a la función para reiniciar
+        // Botón para cerrar la actividad y volver
+        builder.setPositiveButton("Volver al Menú") { dialog, _ ->
+            dialog.dismiss()
+            finish() // Cierra SilabasActivity y vuelve a la pantalla anterior
         }
 
-        botonVolverMenu.setOnClickListener {
-            alertDialog.dismiss() // Cierra el diálogo
-            val intent = Intent(this, HomeActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        // Botón para reiniciar el juego
+        builder.setNegativeButton("Jugar de nuevo") { dialog, _ ->
+            dialog.dismiss()
+            // Reiniciamos la actividad para empezar de nuevo
+            val intent = Intent(this, SilabasActivity::class.java)
             startActivity(intent)
-            finish() // Cierra SilabasActivity
+            finish()
         }
 
-        // 6. Mostrar el diálogo
-        alertDialog.show()
+        // Evita que el diálogo se cierre si el usuario toca fuera de él
+        builder.setCancelable(false)
+
+        // Creamos y mostramos el diálogo
+        val dialog = builder.create()
+        dialog.show()
     }
 
 
