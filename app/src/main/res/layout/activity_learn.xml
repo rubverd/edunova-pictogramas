@@ -32,6 +32,14 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/game_content_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:constraint_referenced_ids="progressBarGame,cardPictogram, toggleGroupOptions"
+        />
+
     <ProgressBar
         android:id="@+id/progressBarGame"
         style="?android:attr/progressBarStyleHorizontal"
@@ -167,7 +175,6 @@
         app:layout_constraintBottom_toTopOf="@id/buttonConfirm"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:selectionRequired="true"
         app:backgroundTint="@color/Mustard"
         app:singleSelection="true">
 
@@ -220,5 +227,79 @@
             app:strokeWidth="2dp" />
 
     </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/resumen_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="?android:colorBackground"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/textView_resumen_titulo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="64dp"
+            android:text="¡Juego Terminado!"
+            android:textSize="34sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/imageView_trofeo_resumen"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="40dp"
+            android:src="@drawable/ic_trophy"
+            app:tint="@color/rojoBoton"
+            app:layout_constraintTop_toBottomOf="@id/textView_resumen_titulo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"></ImageView>
+
+        <TextView
+
+            android:id="@+id/textView_resumen_aciertos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:textColor="@color/verde_correcto"
+            android:textSize="24sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageView_trofeo_resumen"
+            tools:text="Aciertos: 10" />
+
+        <TextView
+            android:id="@+id/textView_resumen_fallos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/rojo_incorrecto"
+            android:textSize="24sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView_resumen_aciertos"
+            tools:text="Fallos: 2" />
+
+        <Button
+            android:id="@+id/button_jugar_de_nuevo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="64dp"
+            android:textSize="18sp"
+            android:paddingTop="12dp"
+            android:backgroundTint="@color/rojoBoton"
+            android:text="Jugar de Nuevo"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
