@@ -1,51 +1,52 @@
 package com.example.edunova
 
-import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.util.Log
-import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
-import android.graphics.drawable.Drawable
-import com.example.edunova.databinding.ActivityLearnBinding
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.activity.result.launch
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.ui.semantics.text
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import coil.load
-
-import com.example.edunova.databinding.ActivityMainBinding
+import com.example.edunova.databinding.ActivityLearnBinding
+import com.example.edunova.db.FirebaseConnection
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.FieldPath
-import java.util.Locale
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-
-import kotlin.io.path.exists
-
+import java.util.Locale
 
 class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var tts: TextToSpeech
     private lateinit var binding: ActivityLearnBinding
 
+    // --- VARIABLES DEL JUEGO ---
     private var palabraCorrectaActual: String? = null
     private var aciertos = 0
+    private var fallos = 0
+    private var indice = 0
+    private var listaDeIds: List<String> = emptyList()
 
+    // Instancias de Firebase
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+
+    // --- VARIABLES PARA LA BASE DE DATOS Y SEGUIMIENTO ---
+    private val repository = FirebaseConnection()
+    private var datosAlumno: Map<String, Any>? = null
+    private var tiempoInicio: Long = 0
+    private var idPictogramaActual: String = ""
+
+    // Lista para guardar el detalle de cada respuesta
+    private val detallesDelIntento = mutableListOf<Map<String, Any>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,278 +54,297 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         binding = ActivityLearnBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Inicializamos TextToSpeech
         tts = TextToSpeech(this, this)
 
-        configurarListeners()
-        cargarPictograma("id_Manzana")
-
-    }
-
-    private fun configurarListeners() {
-        // Listener para el grupo de opciones
-        binding.toggleGroupOptions.addOnButtonCheckedListener { group, checkedId, isChecked ->
-            if (isChecked) {
-                // Si se selecciona un botón, se muestra el de confirmar
-                binding.buttonConfirm.visibility = View.VISIBLE
+        // Cargar datos del alumno
+        val currentUser = repository.getCurrentUser()
+        if (currentUser != null) {
+            repository.getUserData(currentUser.uid) { data ->
+                datosAlumno = data
+                Log.d("Juego", "Datos alumno cargados: ${datosAlumno?.get("displayName")}")
             }
         }
 
-        // Listener para el botón de confirmar
+        configurarListeners()
+        iniciarJuego()
+    }
+
+    private fun configurarListeners() {
+        binding.toggleGroupOptions.addOnButtonCheckedListener { _, _, isChecked ->
+            // Solo mostramos confirmar si hay algo seleccionado
+            if (binding.toggleGroupOptions.checkedButtonId != View.NO_ID) {
+                binding.buttonConfirm.visibility = View.VISIBLE
+            } else {
+                binding.buttonConfirm.visibility = View.INVISIBLE
+            }
+        }
+
         binding.buttonConfirm.setOnClickListener {
-            Log.d("DEBUG_JUEGO", "¡CLICK! El botón Confirmar ha sido pulsado.")
-            comprobarRespuesta() // La función que evalúa si es correcto o no
+            comprobarRespuesta()
         }
 
         val botonVolver = findViewById<MaterialToolbar>(R.id.toolbar)
         botonVolver.setOnClickListener {
-            // Crea un Intent para ir de MainActivity a RegisterActivity
             finish()
         }
+
+        binding.buttonNext.setOnClickListener {
+            // Importante: Limpiar selección antes de avanzar para evitar conflictos visuales
+            binding.toggleGroupOptions.clearChecked()
+            avanzarSiguienteRonda()
+        }
+
+        binding.buttonJugarDeNuevo.setOnClickListener {
+            reiniciarActividad()
+        }
     }
 
-    // Se llama automáticamente cuando TTS está listo
+    private fun iniciarJuego() {
+        aciertos = 0
+        fallos = 0
+        indice = 0
 
-    //Si queremos que se mantenga con una pronuciacion en concreto
-    //tts.voice = tts.voices.find { it.name.contains("es-es-x-ana") }
+        detallesDelIntento.clear()
+        tiempoInicio = System.currentTimeMillis()
 
-    override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) {
-            val result = tts.setLanguage(Locale("es", "ES"))
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                // Idioma no soportado
-                println("Idioma no soportado")
+        lifecycleScope.launch {
+            listaDeIds = getRandomPictogramaIds(10)
+
+            if (listaDeIds.isNotEmpty()) {
+                cargarPictograma(listaDeIds[indice])
+            } else {
+                Toast.makeText(this@JuegoPalabras, "No hay pictogramas disponibles.", Toast.LENGTH_LONG).show()
+                finish()
             }
         }
-    }
-
-    // Función reutilizable
-    private fun reproducirTexto(texto: String) {
-        tts.speak(texto, TextToSpeech.QUEUE_FLUSH, null, null)
-    }
-
-    // Liberar recursos al cerrar
-    override fun onDestroy() {
-        if (::tts.isInitialized) {
-            tts.stop()
-            tts.shutdown()
-        }
-        super.onDestroy()
-    }
-
-
-    //TODO: Ahora mismo no se usa el atributo de boton pero se podría llegar a usar para hacer
-    //seguimiento de los resultados del usuario más adelante
-    //TODO: mostrar de alguna forma en la Ui que el resultado a sido correcto usando estos metodos
-    fun respuestaCorrecta(boton: Button ){
-        val text: TextView= findViewById(R.id.ResultadoJuego)
-        text.visibility = View.VISIBLE
-        text.text= "Respuesta correcta"
-        text.setBackgroundColor(Color.parseColor("#4CAF50"))
-        text.alpha = 0f
-        text.animate().alpha(1f).setDuration(300).start()
-
-    }
-
-    //Para cargar de otras dependencias cambiar el documentPath
-
-    fun respuestaIncorrecta(boton: Button){
-        val text: TextView= findViewById(R.id.ResultadoJuego)
-        text.visibility = View.VISIBLE
-        text.text= "Respuesta incorrecta"
-        text.setBackgroundColor(Color.parseColor("#E78D8D"))
-        text.alpha = 0f
-        text.animate().alpha(1f).setDuration(300).start()
-
     }
 
     private fun cargarPictograma(pictogramaId: String) {
-        // Accedemos a la colección 'pictogramas' y obtenemos el documento específico
+        idPictogramaActual = pictogramaId
+        mostrarCargando(true)
+
         lifecycleScope.launch {
             try {
-                // --- PARTE 1: OBTENER LA INFORMACIÓN DEL PICTOGRAMA CORRECTO ---
                 val documentSnapshot = db.collection("palabras").document(pictogramaId).get().await()
 
-                if (documentSnapshot == null || !documentSnapshot.exists()) {
-                    Log.e("Juego", "No se encontró el documento del pictograma con ID: $pictogramaId")
-                    Toast.makeText(this@JuegoPalabras, "Error al cargar pictograma.", Toast.LENGTH_SHORT).show()
-                    return@launch // Salimos de la corrutina si no hay documento
+                if (documentSnapshot.exists()) {
+                    val imageUrl = documentSnapshot.getString("urlImagen")
+                    val palabraCorrecta = documentSnapshot.getString("palabra")
+
+                    if (!imageUrl.isNullOrEmpty() && !palabraCorrecta.isNullOrEmpty()) {
+                        palabraCorrectaActual = palabraCorrecta
+                        binding.imageViewPictogram.load(imageUrl)
+
+                        prepararBotones(palabraCorrecta)
+                    } else {
+                        Log.e("Juego", "Datos incompletos en pictograma $pictogramaId")
+                        avanzarSiguienteRonda() // Saltamos si está roto
+                    }
                 }
-
-                val imageUrl = documentSnapshot.getString("urlImagen")
-                val palabraCorrecta = documentSnapshot.getString("palabra")
-
-                if (imageUrl.isNullOrEmpty() || palabraCorrecta.isNullOrEmpty()) {
-                    Log.e("Juego", "El documento $pictogramaId no tiene urlImagen o palabra.")
-                    Toast.makeText(this@JuegoPalabras, "Datos del pictograma incompletos.", Toast.LENGTH_SHORT).show()
-                    return@launch
-                }
-
-                palabraCorrectaActual = palabraCorrecta
-
-                Log.d("DEBUG_JUEGO", "Palabra correcta guardada en 'palabraCorrectaActual': ${palabraCorrectaActual}")
-
-                // Cargar la imagen
-                binding.imageViewPictogram.load(imageUrl)
-
-                // --- PARTE 2: ASIGNAR LA PALABRA CORRECTA A UN BOTÓN ALEATORIO ---
-                val botones = mutableListOf(binding.buttonOption1, binding.buttonOption2, binding.buttonOption3)
-                val botonCorrecto = botones.random()
-                botonCorrecto.text = palabraCorrecta
-
-                val botonHablar = findViewById<FloatingActionButton>(R.id.fabPlaySound)
-                botonHablar.setOnClickListener {
-                    reproducirTexto(palabraCorrecta)
-                }
-
-                // Quitamos el botón ya usado de la lista. Ahora 'botones' solo contiene los 2 botones restantes.
-                botones.remove(botonCorrecto)
-
-                // --- PARTE 3: OBTENER PALABRAS INCORRECTAS Y ASIGNARLAS ---
-                val palabrasIncorrectas = getPalabrasAleatoriasIncorrectas(palabraCorrecta, 2)
-
-                if (palabrasIncorrectas.size < 2) {
-                    Log.e("Juego", "No se pudieron obtener suficientes palabras incorrectas.")
-                    // Aquí podrías tener una lista de palabras de respaldo por si falla Firebase
-                    botones.forEach { it.text = "Error" }
-                    return@launch
-                }
-
-                // Asignamos las palabras incorrectas a los dos botones restantes
-                botones[0].text = palabrasIncorrectas[0]
-                botones[1].text = palabrasIncorrectas[1]
-
             } catch (e: Exception) {
-                Log.e("Juego", "Ocurrió una excepción al cargar el pictograma", e)
-                Toast.makeText(this@JuegoPalabras, "Error de conexión.", Toast.LENGTH_SHORT).show()
+                Log.e("Juego", "Error cargando pictograma", e)
+                Toast.makeText(this@JuegoPalabras, "Error de conexión", Toast.LENGTH_SHORT).show()
+            } finally {
+                mostrarCargando(false)
             }
         }
     }
 
-    /**
-    * Obtiene una lista de palabras aleatorias de la colección "palabras",
-    * asegurándose de que no incluye la palabra correcta.
-    *
-    * @param palabraAExcluir La palabra correcta que no debe ser incluida en los resultados.
-    * @param cantidad La cantidad de palabras aleatorias que se necesitan.
-    * @return Una lista de Strings con las palabras incorrectas.
-    */
-    private suspend fun getPalabrasAleatoriasIncorrectas(palabraAExcluir: String, cantidad: Int): List<String> {
-        val palabrasCollection = db.collection("palabras")
-        val randomId = db.collection("some_collection").document().id // Punto de partida aleatorio
+    private suspend fun prepararBotones(palabraCorrecta: String) {
+        val botones = mutableListOf(binding.buttonOption1, binding.buttonOption2, binding.buttonOption3)
+        val botonCorrecto = botones.random()
+        botonCorrecto.text = palabraCorrecta
 
-        try {
-            // Hacemos una consulta pidiendo documentos que no sean la palabra correcta,
-            // empezando desde un punto aleatorio.
-            // Nota: Firestore no permite combinar `whereNotEqualTo` con `whereGreaterThanOrEqualTo` en campos diferentes.
-            // La estrategia es pedir más y filtrar después.
-            val snapshot = palabrasCollection
-                .whereGreaterThanOrEqualTo(FieldPath.documentId(), randomId)
-                .limit((cantidad + 5).toLong()) // Pedimos más para tener margen al filtrar
-                .get()
-                .await()
-
-            // Mapeamos los resultados a una lista de Strings (palabras) y filtramos la que no queremos
-            val palabrasObtenidas = snapshot.documents
-                .mapNotNull { it.getString("palabra") }
-                .filter { it != palabraAExcluir }
-                .distinct() // Nos aseguramos de que no haya duplicados
-
-            if (palabrasObtenidas.size >= cantidad) {
-                return palabrasObtenidas.take(cantidad) // Devolvemos la cantidad exacta que necesitamos
-            }
-
-            // Si no obtuvimos suficientes, hacemos una segunda consulta desde el principio
-            val snapshot2 = palabrasCollection
-                .limit((cantidad + 5).toLong())
-                .get()
-                .await()
-
-            val palabrasObtenidas2 = snapshot2.documents
-                .mapNotNull { it.getString("palabra") }
-                .filter { it != palabraAExcluir }
-                .distinct()
-
-            // Combinamos ambas listas, nos aseguramos de no tener duplicados, y tomamos la cantidad necesaria
-            return (palabrasObtenidas + palabrasObtenidas2).distinct().take(cantidad)
-
-        } catch (e: Exception) {
-            Log.e("Juego", "Error al obtener palabras aleatorias incorrectas", e)
-            return emptyList()
+        // Configurar audio
+        findViewById<FloatingActionButton>(R.id.fabPlaySound).setOnClickListener {
+            reproducirTexto(palabraCorrecta)
         }
+
+        botones.remove(botonCorrecto)
+        val distractores = getPalabrasAleatoriasIncorrectas(palabraCorrecta, 2)
+
+        if (distractores.size >= 2) {
+            botones[0].text = distractores[0]
+            botones[1].text = distractores[1]
+        } else {
+            botones.forEach { it.text = "---" }
+        }
+    }
+
+    private fun comprobacionVisual(boton: Button, colorHex: String) {
+        // IMPORTANTE: Usamos backgroundTintList en lugar de setBackgroundColor
+        // Esto mantiene la forma y el estilo del MaterialButton
+        boton.backgroundTintList = ColorStateList.valueOf(Color.parseColor(colorHex))
+        boton.setTextColor(Color.WHITE)
     }
 
     private fun comprobarRespuesta() {
-        // --- 1. OBTENER LA RESPUESTA DEL USUARIO ---
-        // Obtenemos el ID del botón que está seleccionado dentro del ToggleGroup.
-        val idBotonSeleccionado = binding.toggleGroupOptions.checkedButtonId
+        val idSeleccionado = binding.toggleGroupOptions.checkedButtonId
+        if (idSeleccionado == View.NO_ID || palabraCorrectaActual == null) return
 
-        // Salvaguarda: Si por alguna razón no hay ningún botón seleccionado o no tenemos
-        // la palabra correcta guardada, no hacemos nada y salimos de la función.
-        if (idBotonSeleccionado == View.NO_ID || palabraCorrectaActual == null) {
-            Log.e("Juego", "ComprobarRespuesta fue llamado sin una opción seleccionada o sin palabra correcta.")
-            return
-        }
-
-        // Obtenemos la referencia al botón concreto usando su ID.
-        val botonSeleccionado = findViewById<Button>(idBotonSeleccionado)
+        val botonSeleccionado = findViewById<MaterialButton>(idSeleccionado)
         val respuestaUsuario = botonSeleccionado.text.toString()
 
-        // --- 2. DESHABILITAR CONTROLES ---
-        // Congelamos la pantalla para que el usuario no pueda cambiar su respuesta
-        // o pulsar confirmar de nuevo mientras se muestra el resultado.
-        binding.buttonConfirm.isEnabled = false
-        // Deshabilitar todos los botones del grupo para que no se puedan pulsar.
-        // Una forma sencilla es deshabilitar el grupo entero.
-        (0 until binding.toggleGroupOptions.childCount).forEach {
-            val button = binding.toggleGroupOptions.getChildAt(it)
-            button.isEnabled = false
-        }
+        // Bloquear botones
+        bloquearInteraccion(false)
 
-        // --- 3. COMPARAR Y DAR FEEDBACK ---
-        val esRespuestaCorrecta = (respuestaUsuario == palabraCorrectaActual)
+        val esCorrecto = (respuestaUsuario == palabraCorrectaActual)
 
-        if (esRespuestaCorrecta) {
-            // --- RESPUESTA CORRECTA ---
-            Log.d("Juego", "Respuesta CORRECTA: $respuestaUsuario")
-            aciertos++ // Incrementamos el contador de aciertos
+        // Registro
+        detallesDelIntento.add(hashMapOf(
+            "questionIndex" to indice,
+            "pictogramId" to idPictogramaActual,
+            "targetWord" to palabraCorrectaActual!!,
+            "userResponse" to respuestaUsuario,
+            "isCorrect" to esCorrecto,
+            "timestamp" to System.currentTimeMillis()
+        ))
 
-            // Feedback visual: Ponemos el botón seleccionado en verde.
-            botonSeleccionado.setBackgroundColor(Color.parseColor("#4CAF50")) // Verde
-
-            // Feedback con mensaje
+        if (esCorrecto) {
+            aciertos++
+            comprobacionVisual(botonSeleccionado, "#4CAF50") // Verde
             Toast.makeText(this, "¡Correcto!", Toast.LENGTH_SHORT).show()
-
         } else {
-            // --- RESPUESTA INCORRECTA ---
-            Log.w("Juego", "Respuesta INCORRECTA. Usuario: '$respuestaUsuario', Correcta: '$palabraCorrectaActual'")
+            fallos++
+            comprobacionVisual(botonSeleccionado, "#F44336") // Rojo
 
-            // Feedback visual: Ponemos el botón seleccionado en rojo.
-            botonSeleccionado.setBackgroundColor(Color.parseColor("#F44336")) // Rojo
+            // Marcar la correcta en verde para que aprendan
+            val botonCorrecto = listOf(binding.buttonOption1, binding.buttonOption2, binding.buttonOption3)
+                .find { it.text == palabraCorrectaActual }
+            botonCorrecto?.let { comprobacionVisual(it, "#4CAF50") }
 
-            // Buscamos y resaltamos el botón que SÍ tenía la respuesta correcta.
-            val botonCorrecto = find { it.text == palabraCorrectaActual }
-            botonCorrecto?.setBackgroundColor(Color.parseColor("#4CAF50")) // Verde
-
-            // Feedback con mensaje
-            Toast.makeText(this, "La respuesta correcta era: $palabraCorrectaActual", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "La correcta era: $palabraCorrectaActual", Toast.LENGTH_SHORT).show()
         }
 
         binding.buttonConfirm.visibility = View.INVISIBLE
         binding.buttonNext.visibility = View.VISIBLE
-
     }
 
-    private fun find(predicate: (Button) -> Boolean): Button? {
-        for (i in 0 until binding.toggleGroupOptions.childCount) {
-            val button = binding.toggleGroupOptions.getChildAt(i) as Button
-            if (predicate(button)) {
-                return button
-            }
+    private fun avanzarSiguienteRonda() {
+        indice++
+        if (indice >= listaDeIds.size) {
+            finalizarJuego()
+        } else {
+            resetearEstadoRonda()
+            cargarPictograma(listaDeIds[indice])
         }
-        return null
     }
 
+    private fun resetearEstadoRonda() {
+        val botones = listOf(binding.buttonOption1, binding.buttonOption2, binding.buttonOption3)
+
+        // Restauramos colores originales
+        val colorFondo = ContextCompat.getColorStateList(this, R.color.option_button_background_color)
+        val colorTexto = ContextCompat.getColorStateList(this, R.color.black)
+        val colorBorde = ContextCompat.getColorStateList(this, R.color.option_button_stroke_color)
+
+        for (boton in botones) {
+            boton.backgroundTintList = colorFondo
+            boton.strokeColor = colorBorde
+            boton.setTextColor(colorTexto)
+            boton.isChecked = false
+        }
+
+        // Limpiamos selección del grupo
+        binding.toggleGroupOptions.clearChecked()
+
+        bloquearInteraccion(true)
+        binding.buttonNext.visibility = View.INVISIBLE
+        binding.buttonConfirm.visibility = View.INVISIBLE
+    }
+
+    private fun bloquearInteraccion(habilitar: Boolean) {
+        binding.buttonConfirm.isEnabled = habilitar
+        binding.buttonOption1.isEnabled = habilitar
+        binding.buttonOption2.isEnabled = habilitar
+        binding.buttonOption3.isEnabled = habilitar
+    }
+
+    private fun finalizarJuego() {
+        binding.gameContentGroup.visibility = View.GONE
+        binding.resumenLayout.visibility = View.VISIBLE
+        binding.textViewResumenAciertos.text = "Aciertos: $aciertos"
+        binding.textViewResumenFallos.text = "Fallos: $fallos"
+        guardarResultadosEnBD()
+    }
+
+    private fun guardarResultadosEnBD() {
+        val currentUser = repository.getCurrentUser() ?: return
+
+        val intentoData = hashMapOf(
+            "studentUid" to currentUser.uid,
+            "studentName" to (datosAlumno?.get("displayName") ?: "Alumno"),
+            "school" to (datosAlumno?.get("school") ?: "Sin Centro"),
+            "classroom" to (datosAlumno?.get("classroom") ?: "Sin Clase"),
+            "exerciseType" to "vocabulario",
+            "timestampStart" to tiempoInicio,
+            "timestampEnd" to System.currentTimeMillis(),
+            "score" to aciertos,
+            "totalQuestions" to listaDeIds.size,
+            "status" to "completed",
+            "details" to detallesDelIntento
+        )
+
+        repository.saveStudentAttempt(intentoData) { success ->
+            if (success) Log.d("Juego", "Guardado OK")
+        }
+    }
+
+    private fun mostrarCargando(loading: Boolean) {
+        binding.progressBarGame.visibility = if (loading) View.VISIBLE else View.GONE
+        bloquearInteraccion(!loading)
+    }
+
+    private fun reiniciarActividad() {
+        binding.resumenLayout.visibility = View.GONE
+        binding.gameContentGroup.visibility = View.VISIBLE
+        iniciarJuego()
+    }
+
+    // --- HELPERS FIRESTORE ---
+    private suspend fun getRandomPictogramaIds(count: Int): List<String> {
+        return try {
+            val snapshot = db.collection("palabras").get().await()
+            snapshot.documents.map { it.id }.shuffled().take(count)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    private suspend fun getPalabrasAleatoriasIncorrectas(excluir: String, cantidad: Int): List<String> {
+        return try {
+            // Corregido: Usamos "palabras" en lugar de "some_collection"
+            val randomId = db.collection("palabras").document().id
+
+            val snapshot = db.collection("palabras")
+                .whereNotEqualTo("palabra", excluir)
+                .limit((cantidad + 10).toLong()) // Pedimos de más por si acaso
+                .get().await()
+
+            val palabras = snapshot.documents.mapNotNull { it.getString("palabra") }
+                .filter { it != excluir }
+                .distinct()
+                .shuffled()
+
+            palabras.take(cantidad)
+        } catch (e: Exception) {
+            listOf("Error", "Error")
+        }
+    }
+
+    // --- TTS ---
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            tts.setLanguage(Locale("es", "ES"))
+        }
+    }
+
+    private fun reproducirTexto(texto: String) {
+        if (::tts.isInitialized) tts.speak(texto, TextToSpeech.QUEUE_FLUSH, null, null)
+    }
+
+    override fun onDestroy() {
+        if (::tts.isInitialized) { tts.stop(); tts.shutdown() }
+        super.onDestroy()
+    }
 }
-
-

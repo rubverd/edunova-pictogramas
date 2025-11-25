@@ -144,4 +144,22 @@ class FirebaseConnection {
                 onResult(emptyList())
             }
     }
+    fun getUserData(uid: String, onResult: (Map<String, Any>?) -> Unit) {
+        db.collection("usuarios").document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    onResult(document.data)
+                } else {
+                    onResult(null)
+                }
+            }
+            .addOnFailureListener { onResult(null) }
+    }
+
+    fun saveStudentAttempt(attemptData: Map<String, Any>, onComplete: (Boolean) -> Unit) {
+        db.collection("intentos_alumnos")
+            .add(attemptData)
+            .addOnSuccessListener { onComplete(true) }
+            .addOnFailureListener { onComplete(false) }
+    }
 }
