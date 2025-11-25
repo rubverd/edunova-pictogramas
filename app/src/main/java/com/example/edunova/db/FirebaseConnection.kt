@@ -4,6 +4,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.edunova.clases.Student
+import com.example.edunova.clases.StudentAttempt
+
 
 class FirebaseConnection {
 
@@ -124,5 +126,22 @@ class FirebaseConnection {
             .add(pictogramData)
             .addOnSuccessListener { onComplete(true) }
             .addOnFailureListener { onComplete(false) }
+    }
+    fun getStudentAttempts(studentUid: String, onResult: (List<StudentAttempt>) -> Unit) {
+        db.collection("intentos_alumnos")
+            .whereEqualTo("studentUid", studentUid)
+            // .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING) // Habilita esto cuando crees el índice en Firebase
+            .get()
+            .addOnSuccessListener { documents ->
+                val attempts = documents.map { doc ->
+                    doc.toObject(StudentAttempt::class.java).copy(id = doc.id)
+                }
+                // Ordenamos por fecha en código si el índice de Firebase falla al principio
+                onResult(attempts.sortedByDescending { it.timestamp })
+            }
+            .addOnFailureListener { e ->
+                e.printStackTrace()
+                onResult(emptyList())
+            }
     }
 }
