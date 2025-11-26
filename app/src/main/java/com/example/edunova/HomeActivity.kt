@@ -82,6 +82,8 @@ class HomeActivity : AppCompatActivity() {
 
         binding.cardChallenge.setOnClickListener {
             // TODO: Reemplazar con: startActivity(Intent(this, ChallengeActivity::class.java))
+            val intent= Intent(this, RetoActivity::class.java)
+            startActivity(intent)
             showToast("Modo: Reto Diario")
         }
 
