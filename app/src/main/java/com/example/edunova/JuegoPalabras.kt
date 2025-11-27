@@ -70,7 +70,7 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun configurarListeners() {
-        binding.toggleGroupOptions.addOnButtonCheckedListener { _, _, isChecked ->
+        binding.toggleGroupOptions.addOnButtonCheckedListener { _, _, _ ->
             // Solo mostramos confirmar si hay algo seleccionado
             if (binding.toggleGroupOptions.checkedButtonId != View.NO_ID) {
                 binding.buttonConfirm.visibility = View.VISIBLE
@@ -89,8 +89,7 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
 
         binding.buttonNext.setOnClickListener {
-            // Importante: Limpiar selección antes de avanzar para evitar conflictos visuales
-            binding.toggleGroupOptions.clearChecked()
+            // NO limpiamos aquí, lo hace resetearEstadoRonda en el orden correcto
             avanzarSiguienteRonda()
         }
 
@@ -172,8 +171,7 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun comprobacionVisual(boton: Button, colorHex: String) {
-        // IMPORTANTE: Usamos backgroundTintList en lugar de setBackgroundColor
-        // Esto mantiene la forma y el estilo del MaterialButton
+        // Usamos backgroundTintList para no romper la forma del MaterialButton
         boton.backgroundTintList = ColorStateList.valueOf(Color.parseColor(colorHex))
         boton.setTextColor(Color.WHITE)
     }
@@ -208,7 +206,7 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
             fallos++
             comprobacionVisual(botonSeleccionado, "#F44336") // Rojo
 
-            // Marcar la correcta en verde para que aprendan
+            // Marcar la correcta en verde
             val botonCorrecto = listOf(binding.buttonOption1, binding.buttonOption2, binding.buttonOption3)
                 .find { it.text == palabraCorrectaActual }
             botonCorrecto?.let { comprobacionVisual(it, "#4CAF50") }
@@ -230,10 +228,18 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
+    // --- FUNCIÓN CORREGIDA: ORDEN DE OPERACIONES ---
     private fun resetearEstadoRonda() {
         val botones = listOf(binding.buttonOption1, binding.buttonOption2, binding.buttonOption3)
 
-        // Restauramos colores originales
+        // 1. PRIMERO habilitamos los botones.
+        // Si limpiamos la selección estando deshabilitados, el visual no se refresca bien.
+        botones.forEach { it.isEnabled = true }
+
+        // 2. SEGUNDO limpiamos la selección del grupo
+        binding.toggleGroupOptions.clearChecked()
+
+        // 3. TERCERO restauramos los colores originales
         val colorFondo = ContextCompat.getColorStateList(this, R.color.option_button_background_color)
         val colorTexto = ContextCompat.getColorStateList(this, R.color.black)
         val colorBorde = ContextCompat.getColorStateList(this, R.color.option_button_stroke_color)
@@ -245,10 +251,6 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
             boton.isChecked = false
         }
 
-        // Limpiamos selección del grupo
-        binding.toggleGroupOptions.clearChecked()
-
-        bloquearInteraccion(true)
         binding.buttonNext.visibility = View.INVISIBLE
         binding.buttonConfirm.visibility = View.INVISIBLE
     }
@@ -292,6 +294,7 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun mostrarCargando(loading: Boolean) {
         binding.progressBarGame.visibility = if (loading) View.VISIBLE else View.GONE
+        // Si estamos cargando, bloqueamos. Si no, desbloqueamos.
         bloquearInteraccion(!loading)
     }
 
@@ -313,12 +316,11 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private suspend fun getPalabrasAleatoriasIncorrectas(excluir: String, cantidad: Int): List<String> {
         return try {
-            // Corregido: Usamos "palabras" en lugar de "some_collection"
             val randomId = db.collection("palabras").document().id
 
             val snapshot = db.collection("palabras")
                 .whereNotEqualTo("palabra", excluir)
-                .limit((cantidad + 10).toLong()) // Pedimos de más por si acaso
+                .limit((cantidad + 10).toLong())
                 .get().await()
 
             val palabras = snapshot.documents.mapNotNull { it.getString("palabra") }
