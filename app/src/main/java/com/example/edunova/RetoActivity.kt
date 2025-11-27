@@ -71,7 +71,7 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
 
         binding.fabPlaySoundSilabas.setOnClickListener {
-            //reproducirSonido(binding.NombreImagen.text.toString())
+            reproducirSonido(palabraActual.toString())
         }
         binding.buttonJugarDeNuevo.setOnClickListener {
             //reiniciarActividad()
