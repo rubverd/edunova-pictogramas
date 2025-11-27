@@ -27,6 +27,9 @@
         <activity
             android:name=".HomeActivity"
             android:exported="false" />
+        <activity
+            android:name=".RetoActivity"
+            android:exported="false" />
 
         <activity
             android:name=".ProfesorActivity"

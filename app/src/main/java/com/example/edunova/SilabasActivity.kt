@@ -2,15 +2,13 @@ package com.example.edunova
 
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.view.View
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.edunova.databinding.SilabasBinding
 import java.util.Locale
-import android.content.Intent
-import android.widget.Button
 import com.google.android.material.appbar.MaterialToolbar
 
 
@@ -52,6 +50,10 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var silabaActual: String? = null
     private var indiceGrupoActual: Int = -1
 
+    private var aciertos = 0
+    private var fallos = 0
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = SilabasBinding.inflate(layoutInflater)
@@ -74,11 +76,14 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             if (silabaActual != null) {
                 verificarRespuesta(respuestaUsuario)
             }
-            avanzarAlSiguienteGrupo()
+
         }
 
         binding.fabPlaySoundSilabas.setOnClickListener {
             reproducirSonido(binding.TextoSilabas.text.toString())
+        }
+        binding.buttonJugarDeNuevo.setOnClickListener {
+            reiniciarActividad()
         }
     }
 
@@ -99,7 +104,7 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
-    // ... (El resto de tus funciones como reproducirSonido, avanzarAlSiguienteGrupo, etc., se quedan igual)
+
 
 
     private fun reproducirSonido(texto: String) {
@@ -138,30 +143,30 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
 
+
     private fun verificarRespuesta(respuesta: String) {
+        val primeraSilabaDelGrupo = gruposDeSilabasOrdenados.getOrNull(indiceGrupoActual)?.firstOrNull()
+        val letra = primeraSilabaDelGrupo?.firstOrNull()
+        val textViewDeLetra = if (letra != null) letterMap[letra.uppercaseChar()] else null
+
         if (respuesta.equals(silabaActual, ignoreCase = true)) {
             Toast.makeText(this, "¡Correcto!", Toast.LENGTH_SHORT).show()
-
-            // --- Marcar la letra como correcta (tu código actual está bien) ---
-            val primeraSilabaDelGrupo = gruposDeSilabasOrdenados[indiceGrupoActual].firstOrNull()
-            val letra = primeraSilabaDelGrupo?.firstOrNull()
-            if (letra != null) {
-                val textViewDeLetra = letterMap[letra.uppercaseChar()]
-                textViewDeLetra?.backgroundTintList = ContextCompat.getColorStateList(this, R.color.verde_correcto)
-            }
-
-
-            if (indiceGrupoActual >= gruposDeSilabasOrdenados.size - 1) {
-                // Si es el último grupo, mostramos el diálogo de inmediato
-                binding.TextoSilabas.text = "¡Fin!"
-                binding.buttonOption3.isEnabled = false // Desactivamos el botón de avanzar
-                mostrarDialogoCompletado()
-            }
-
+            aciertos++
+            textViewDeLetra?.backgroundTintList = ContextCompat.getColorStateList(this, R.color.verde_correcto)
         } else {
             Toast.makeText(this, "Incorrecto. La sílaba era '$silabaActual'", Toast.LENGTH_SHORT).show()
+            fallos++
+            textViewDeLetra?.backgroundTintList = ContextCompat.getColorStateList(this, R.color.design_default_color_error)
         }
+
         binding.respuesta.text?.clear()
+
+        // --- LÓGICA DE FINALIZACIÓN MODIFICADA ---
+        if (indiceGrupoActual >= gruposDeSilabasOrdenados.size - 1) {
+            finalizarJuego() // Muestra la pantalla de resumen
+        } else {
+            avanzarAlSiguienteGrupo() // Si no es el final, avanza
+        }
     }
 
 
@@ -202,46 +207,38 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
 
-    private fun mostrarDialogoCompletado() {
-        // Usamos 'this' como contexto, que se refiere a 'SilabasActivity'
-        val builder = AlertDialog.Builder(this)
+    private fun finalizarJuego() {
+        // Ocultar vistas del juego usando el Group que definimos en el XML
+        binding.gameContentGroup.visibility = View.GONE
 
-        builder.setTitle("¡Felicidades!")
-        builder.setMessage("Has completado el juego de las sílabas.")
+        // Mostrar vistas del resumen
+        binding.resumenLayout.visibility = View.VISIBLE
 
-        // Botón para cerrar la actividad y volver
-        builder.setPositiveButton("Volver al Menú") { dialog, _ ->
-            dialog.dismiss()
-            finish() // Cierra SilabasActivity y vuelve a la pantalla anterior
-        }
-
-        // Botón para reiniciar el juego
-        builder.setNegativeButton("Jugar de nuevo") { dialog, _ ->
-            dialog.dismiss()
-            // Reiniciamos la actividad para empezar de nuevo
-            val intent = Intent(this, SilabasActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
-
-        // Evita que el diálogo se cierre si el usuario toca fuera de él
-        builder.setCancelable(false)
-
-        // Creamos y mostramos el diálogo
-        val dialog = builder.create()
-        dialog.show()
+        // --- LÍNEAS CORREGIDAS ---
+        // Usamos los recursos de string correctos que contienen el formato "%d"
+        binding.textViewResumenAciertos.text = getString(R.string.texto_aciertos, aciertos)
+        binding.textViewResumenFallos.text = getString(R.string.texto_fallos, fallos)
     }
 
 
 
 
     private fun reiniciarActividad() {
+        // Ocultar vistas del resumen
+        binding.resumenLayout.visibility = View.GONE
+
+        // Mostrar vistas del juego
+        binding.gameContentGroup.visibility = View.VISIBLE
+
+
         // 1. Reiniciar los colores de fondo de todas las letras
         letterMap.values.forEach { textView ->
             textView.backgroundTintList = ContextCompat.getColorStateList(this, R.color.CherryBlossomPink)
         }
 
-        // 2. Reiniciar el recorrido desde el principio
+        // 2. Reiniciar los contadores y el recorrido
+        aciertos = 0
+        fallos = 0
         iniciarRecorrido()
     }
 
