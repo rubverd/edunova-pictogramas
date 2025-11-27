@@ -108,7 +108,7 @@
                 android:layout_marginTop="16dp"
                 android:hint="Frase (palabra separada por guión: El-Río-bordea-la-montaña)">
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etSyllables"
+                    android:id="@+id/etFrase"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"/>
