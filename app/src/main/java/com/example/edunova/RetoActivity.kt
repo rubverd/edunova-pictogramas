@@ -168,6 +168,7 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     // Guardas la palabra correcta para poder comprobarla después
                     palabraActual = palabra
                     palabrasUsadasEnElRosco.add(palabra)
+                    mostrarPista(letraActual,palabraActual.toString())
                     // Habilitas los controles para el usuario
                     binding.respuesta.isEnabled = true
                     binding.botonConfirmar.isEnabled = true
@@ -395,6 +396,26 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         binding.textViewResumenFallos.text = getString(R.string.texto_fallos, fallos)
     }
 
+    private fun mostrarPista(letra: Char, palabra: String){
+
+
+        val pistaArray = CharArray(palabra.length) { '_' }
+
+        // 2. Buscamos la primera aparición de la letra del turno en la palabra (ignorando mayúsculas/minúsculas).
+        // 'indexOf' devuelve -1 si no la encuentra.
+        val posicionLetra = palabra.indexOf(letra, ignoreCase = true)
+
+        // 3. Si la letra se encuentra en la palabra, la revelamos en nuestra pista.
+        if (posicionLetra != -1) {
+            pistaArray[posicionLetra] = palabra[posicionLetra]
+        }
+
+        val pistaConEspacios = pistaArray.joinToString(separator = " ")
+
+        binding.textoPista.visibility = View.VISIBLE
+        binding.textoPista.text = pistaConEspacios
+
+    }
 
 
 
