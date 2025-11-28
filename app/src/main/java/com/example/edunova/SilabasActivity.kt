@@ -237,7 +237,7 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         // 1. Reiniciar los colores de fondo de todas las letras
         letterMap.values.forEach { textView ->
-            textView.backgroundTintList = ContextCompat.getColorStateList(this, R.color.CherryBlossomPink)
+            textView.backgroundTintList = ContextCompat.getColorStateList(this, R.color.gris_contraste)
         }
 
         // 2. Reiniciar los contadores y el recorrido
