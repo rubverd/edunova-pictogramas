@@ -13,7 +13,7 @@ import com.example.edunova.db.FirebaseConnection
 import com.google.android.material.slider.Slider
 import com.google.android.material.textfield.TextInputEditText
 
-class AddPictogramActivity : AppCompatActivity() {
+class AddFraseActivity : AppCompatActivity() {
 
     // --- 1. DECLARACIÓN DE VARIABLES ---
     private lateinit var ivPreview: ImageView
