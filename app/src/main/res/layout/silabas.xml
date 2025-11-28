@@ -133,6 +133,7 @@ tools:context=".SilabasActivity">
         android:layout_height="wrap_content"
         android:background="@color/white"
         android:hint="Escribe tu respuesta"
+        android:enabled="false"
         android:inputType="text" />
 </com.google.android.material.textfield.TextInputLayout>
 

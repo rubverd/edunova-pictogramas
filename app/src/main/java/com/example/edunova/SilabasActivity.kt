@@ -7,6 +7,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.example.edunova.databinding.SilabasBinding
 import java.util.Locale
 import com.google.android.material.appbar.MaterialToolbar
@@ -81,6 +82,8 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         binding.fabPlaySoundSilabas.setOnClickListener {
             reproducirSonido(binding.TextoSilabas.text.toString())
+            binding.TextoSilabas.text = " "
+            binding.respuesta.isEnabled = true
         }
         binding.buttonJugarDeNuevo.setOnClickListener {
             reiniciarActividad()
@@ -160,6 +163,7 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
 
         binding.respuesta.text?.clear()
+        binding.respuesta.isEnabled = false
 
         // --- LÓGICA DE FINALIZACIÓN MODIFICADA ---
         if (indiceGrupoActual >= gruposDeSilabasOrdenados.size - 1) {

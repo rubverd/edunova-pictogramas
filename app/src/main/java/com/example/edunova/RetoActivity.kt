@@ -191,6 +191,7 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             // El juego ha terminado.
             Toast.makeText(this, "¡Juego completado!", Toast.LENGTH_LONG).show()
             binding.botonConfirmar.isEnabled = false // Deshabilitar el botón de confirmar.
+            finalizarReto()
         }
     }
 
@@ -384,6 +385,14 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             Log.e("Rosco", "Error en la búsqueda secundaria (con sílabas) para '$letraMayuscula'", e)
             return null
         }
+    }
+    private fun finalizarReto(){
+        binding.gameContentGroup.visibility = View.GONE
+        // Mostrar vistas del resumen
+        binding.resumenLayout.visibility = View.VISIBLE
+
+        binding.textViewResumenAciertos.text = getString(R.string.texto_aciertos, aciertos)
+        binding.textViewResumenFallos.text = getString(R.string.texto_fallos, fallos)
     }
 
 
