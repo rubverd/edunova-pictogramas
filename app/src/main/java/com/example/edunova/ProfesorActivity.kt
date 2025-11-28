@@ -29,7 +29,8 @@ class ProfesorActivity : AppCompatActivity() {
         // 3. Crear Nivel (Pendiente)
         val btnLevels = findViewById<Button>(R.id.btnCreateLevel)
         btnLevels.setOnClickListener {
-            Toast.makeText(this, "Próximamente: Crear Nivel", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, AddFraseActivity::class.java)
+            startActivity(intent)
         }
 
         // 4. Volver

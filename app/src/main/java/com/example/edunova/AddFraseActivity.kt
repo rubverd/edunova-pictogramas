@@ -20,7 +20,6 @@ class AddFraseActivity : AppCompatActivity() {
     private lateinit var etImageUrl: TextInputEditText
     private lateinit var etWord: TextInputEditText
     private lateinit var etFrase: TextInputEditText
-    private lateinit var etCategory: TextInputEditText
     private lateinit var sliderDifficulty: Slider
     private lateinit var progressBar: ProgressBar
     private lateinit var btnSave: Button
@@ -100,7 +99,7 @@ class AddFraseActivity : AppCompatActivity() {
             return false
         }
         if (etFrase.text.isNullOrEmpty()) {
-            etFrase.error = "Faltan las sílabas"
+            etFrase.error = "Faltan las palabras"
             return false
         }
         // Validación extra de seguridad
