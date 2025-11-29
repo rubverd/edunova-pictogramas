@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Contenedor general -->
     <LinearLayout
         android:id="@+id/mainContent"
         android:layout_width="match_parent"
@@ -14,7 +14,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Barra superior -->
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
@@ -42,7 +41,6 @@
             app:constraint_referenced_ids="lettersGrid,imagenReto, fabPlaySoundSilabas, respuesta_layout, respuesta"
             />
 
-        <!-- Contenido principal -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -51,10 +49,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Grid de consonantes -->
-            <!-- En juego_reto.xml -->
-
-            <!-- Grid de consonantes optimizado -->
             <GridLayout
                 android:id="@+id/lettersGrid"
                 android:layout_width="wrap_content"
@@ -66,45 +60,39 @@
                 android:padding="4dp"
                 android:rowOrderPreserved="false">
 
-            <!-- Fila 1 -->
-            <TextView android:id="@+id/A" style="@style/LetraReto" android:text="A" />
-            <TextView android:id="@+id/B" style="@style/LetraReto" android:text="B" />
-            <TextView android:id="@+id/C" style="@style/LetraReto" android:text="C" />
-            <TextView android:id="@+id/D" style="@style/LetraReto" android:text="D" />
-            <TextView android:id="@+id/E" style="@style/LetraReto" android:text="E" />
-            <TextView android:id="@+id/F" style="@style/LetraReto" android:text="F" />
-            <TextView android:id="@+id/G" style="@style/LetraReto" android:text="G" />
+                <TextView android:id="@+id/A" style="@style/LetraReto" android:text="A" />
+                <TextView android:id="@+id/B" style="@style/LetraReto" android:text="B" />
+                <TextView android:id="@+id/C" style="@style/LetraReto" android:text="C" />
+                <TextView android:id="@+id/D" style="@style/LetraReto" android:text="D" />
+                <TextView android:id="@+id/E" style="@style/LetraReto" android:text="E" />
+                <TextView android:id="@+id/F" style="@style/LetraReto" android:text="F" />
+                <TextView android:id="@+id/G" style="@style/LetraReto" android:text="G" />
 
-            <!-- Fila 2 -->
-            <TextView android:id="@+id/H" style="@style/LetraReto" android:text="H" />
-            <TextView android:id="@+id/I" style="@style/LetraReto" android:text="I" />
-            <TextView android:id="@+id/J" style="@style/LetraReto" android:text="J" />
-            <TextView android:id="@+id/K" style="@style/LetraReto" android:text="K" />
-            <TextView android:id="@+id/L" style="@style/LetraReto" android:text="L" />
-            <TextView android:id="@+id/M" style="@style/LetraReto" android:text="M" />
-            <TextView android:id="@+id/N" style="@style/LetraReto" android:text="N" />
+                <TextView android:id="@+id/H" style="@style/LetraReto" android:text="H" />
+                <TextView android:id="@+id/I" style="@style/LetraReto" android:text="I" />
+                <TextView android:id="@+id/J" style="@style/LetraReto" android:text="J" />
+                <TextView android:id="@+id/K" style="@style/LetraReto" android:text="K" />
+                <TextView android:id="@+id/L" style="@style/LetraReto" android:text="L" />
+                <TextView android:id="@+id/M" style="@style/LetraReto" android:text="M" />
+                <TextView android:id="@+id/N" style="@style/LetraReto" android:text="N" />
 
-            <!-- Fila 3 -->
-            <TextView android:id="@+id/N_ene" style="@style/LetraReto" android:text="Ñ" />
-            <TextView android:id="@+id/O" style="@style/LetraReto" android:text="O" />
-            <TextView android:id="@+id/P" style="@style/LetraReto" android:text="P" />
-            <TextView android:id="@+id/Q" style="@style/LetraReto" android:text="Q" />
-            <TextView android:id="@+id/letraR" style="@style/LetraReto" android:text="R" />
-            <TextView android:id="@+id/S" style="@style/LetraReto" android:text="S" />
-            <TextView android:id="@+id/T" style="@style/LetraReto" android:text="T" />
+                <TextView android:id="@+id/N_ene" style="@style/LetraReto" android:text="Ñ" />
+                <TextView android:id="@+id/O" style="@style/LetraReto" android:text="O" />
+                <TextView android:id="@+id/P" style="@style/LetraReto" android:text="P" />
+                <TextView android:id="@+id/Q" style="@style/LetraReto" android:text="Q" />
+                <TextView android:id="@+id/letraR" style="@style/LetraReto" android:text="R" />
+                <TextView android:id="@+id/S" style="@style/LetraReto" android:text="S" />
+                <TextView android:id="@+id/T" style="@style/LetraReto" android:text="T" />
 
-            <!-- Fila 4 -->
-            <TextView android:id="@+id/U" style="@style/LetraReto" android:text="U" />
-            <TextView android:id="@+id/V" style="@style/LetraReto" android:text="V" />
-            <TextView android:id="@+id/W" style="@style/LetraReto" android:text="W" />
-            <TextView android:id="@+id/X" style="@style/LetraReto" android:text="X" />
-            <TextView android:id="@+id/Y" style="@style/LetraReto" android:text="Y" />
-            <TextView android:id="@+id/Z" style="@style/LetraReto" android:text="Z" />
+                <TextView android:id="@+id/U" style="@style/LetraReto" android:text="U" />
+                <TextView android:id="@+id/V" style="@style/LetraReto" android:text="V" />
+                <TextView android:id="@+id/W" style="@style/LetraReto" android:text="W" />
+                <TextView android:id="@+id/X" style="@style/LetraReto" android:text="X" />
+                <TextView android:id="@+id/Y" style="@style/LetraReto" android:text="Y" />
+                <TextView android:id="@+id/Z" style="@style/LetraReto" android:text="Z" />
 
-        </GridLayout>
+            </GridLayout>
 
-        <!-- TextView grande debajo del grid -->
-            <!-- Bloque NUEVO con ImageView -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -125,20 +113,17 @@
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintBottom_toBottomOf="parent"
                         android:contentDescription="Pictograma a completar"
-                        android:src="@drawable/ic_launcher_background" /> <!-- Imagen de ejemplo, la cargarás desde código -->
-
-
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
-                        android:id="@+id/fabPlaySoundSilabas"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="16dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        android:contentDescription="Reproducir sonido de la palabra"
-                        app:backgroundTint="@color/Mustard"
-                        app:srcCompat="@drawable/ic_volume_up"
-                        app:tint="@android:color/white" />
+                        android:src="@drawable/ic_launcher_background" /> <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fabPlaySoundSilabas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:contentDescription="Reproducir sonido de la palabra"
+                    app:backgroundTint="@color/Mustard"
+                    app:srcCompat="@drawable/ic_volume_up"
+                    app:tint="@android:color/white" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 

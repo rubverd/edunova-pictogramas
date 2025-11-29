@@ -6,12 +6,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/beige"
-    android:padding="24dp">
+    android:fitsSystemWindows="true">
 
     <TextView
         android:id="@+id/tvTitlePanel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
         android:text="Panel de Gestión"
         android:textColor="#212121"
         android:textSize="28sp"
@@ -23,6 +25,7 @@
         android:id="@+id/tvSubtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
         android:text="Zona de Profesor"
         android:textColor="#757575"
         android:textSize="16sp"
@@ -34,6 +37,7 @@
         android:layout_width="0dp"
         android:layout_height="64dp"
         android:layout_marginTop="40dp"
+        android:layout_marginHorizontal="24dp"
         android:text="Mis Alumnos"
         android:textSize="16sp"
         app:cornerRadius="12dp"
@@ -49,6 +53,7 @@
         android:layout_width="0dp"
         android:layout_height="64dp"
         android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="24dp"
         android:text="Añadir Pictograma"
         android:textSize="16sp"
         app:cornerRadius="12dp"
@@ -64,6 +69,7 @@
         android:layout_width="0dp"
         android:layout_height="64dp"
         android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="24dp"
         android:text="Crear frase"
         android:textSize="16sp"
         app:cornerRadius="12dp"
