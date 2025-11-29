@@ -6,7 +6,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.example.edunova.clases.Student
 import com.example.edunova.clases.StudentAttempt
 
-
 class FirebaseConnection {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -90,16 +89,27 @@ class FirebaseConnection {
             .addOnFailureListener { onResult(null) }
     }
 
-    // --- NUEVO: Obtener el Centro (School) del Profesor ---
+    // Obtener el Centro (School) del Profesor
     fun getTeacherSchool(uid: String, onResult: (String?) -> Unit) {
         db.collection("usuarios").document(uid).get()
             .addOnSuccessListener { document ->
-                // Devuelve el campo "school" o null si no existe
                 onResult(document.getString("school"))
             }
             .addOnFailureListener {
                 onResult(null)
             }
+    }
+
+    fun getUserData(uid: String, onResult: (Map<String, Any>?) -> Unit) {
+        db.collection("usuarios").document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    onResult(document.data)
+                } else {
+                    onResult(null)
+                }
+            }
+            .addOnFailureListener { onResult(null) }
     }
 
     // --- GESTIÓN DE ALUMNOS ---
@@ -118,25 +128,14 @@ class FirebaseConnection {
             }
     }
 
-    // --- GESTIÓN DE PICTOGRAMAS ---
-
-    fun savePictogram(pictogramData: Map<String, Any>, onComplete: (Boolean) -> Unit) {
-        // CAMBIO IMPORTANTE: "palabras" para coincidir con tu base de datos real
-        db.collection("palabras")
-            .add(pictogramData)
-            .addOnSuccessListener { onComplete(true) }
-            .addOnFailureListener { onComplete(false) }
-    }
     fun getStudentAttempts(studentUid: String, onResult: (List<StudentAttempt>) -> Unit) {
         db.collection("intentos_alumnos")
             .whereEqualTo("studentUid", studentUid)
-            // .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING) // Habilita esto cuando crees el índice en Firebase
             .get()
             .addOnSuccessListener { documents ->
                 val attempts = documents.map { doc ->
                     doc.toObject(StudentAttempt::class.java).copy(id = doc.id)
                 }
-                // Ordenamos por fecha en código si el índice de Firebase falla al principio
                 onResult(attempts.sortedByDescending { it.timestamp })
             }
             .addOnFailureListener { e ->
@@ -144,22 +143,51 @@ class FirebaseConnection {
                 onResult(emptyList())
             }
     }
-    fun getUserData(uid: String, onResult: (Map<String, Any>?) -> Unit) {
-        db.collection("usuarios").document(uid).get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    onResult(document.data)
-                } else {
-                    onResult(null)
-                }
-            }
-            .addOnFailureListener { onResult(null) }
-    }
 
     fun saveStudentAttempt(attemptData: Map<String, Any>, onComplete: (Boolean) -> Unit) {
         db.collection("intentos_alumnos")
             .add(attemptData)
             .addOnSuccessListener { onComplete(true) }
             .addOnFailureListener { onComplete(false) }
+    }
+
+    // --- GESTIÓN DE PICTOGRAMAS ---
+
+    fun savePictogram(pictogramData: Map<String, Any>, onComplete: (Boolean) -> Unit) {
+        db.collection("palabras")
+            .add(pictogramData)
+            .addOnSuccessListener { onComplete(true) }
+            .addOnFailureListener { onComplete(false) }
+    }
+
+    // --- GESTIÓN DE FRASES (NUEVO) ---
+
+    /**
+     * Guarda una nueva frase en la colección "frases".
+     * Separa automáticamente la frase en palabras individuales para facilitar el juego.
+     */
+    fun savePhrase(frase: String, imageUrl: String, dificultad: Int, onComplete: (Boolean) -> Unit) {
+
+        // 1. Limpiamos espacios extra al inicio/final y separamos por espacios en blanco.
+        // El regex "\\s+" asegura que si hay 2 espacios seguidos, no cree una palabra vacía.
+        val palabrasSeparadas = frase.trim().split("\\s+".toRegex())
+
+        // 2. Preparamos el objeto para Firebase
+        val phraseData = hashMapOf(
+            "frase" to frase.trim(),
+            "urlImagen" to imageUrl,
+            "dificultad" to dificultad, // Viene del Slider (1, 2 o 3)
+            "palabras" to palabrasSeparadas, // Array ["El", "rio", "corre"]
+            "createdAt" to System.currentTimeMillis()
+        )
+
+        // 3. Guardamos en la colección 'frases'
+        db.collection("frases")
+            .add(phraseData)
+            .addOnSuccessListener { onComplete(true) }
+            .addOnFailureListener { e ->
+                e.printStackTrace()
+                onComplete(false)
+            }
     }
 }

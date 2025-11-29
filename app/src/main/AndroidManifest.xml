@@ -60,6 +60,10 @@
             android:name=".SettingsActivity"
             android:exported="false" />
         <activity android:name=".StudentProgressActivity" android:exported="false" />
+        <activity
+            android:name=".JuegoFrasesActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>
