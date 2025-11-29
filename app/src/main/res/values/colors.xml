@@ -10,4 +10,5 @@
     <color name="beige">#f8f5f3</color>
     <color name="verde_correcto">#4CAF50</color>
     <color name="rojo_incorrecto">#D32F2F</color>
+    <color name="gris_contraste">#8C8181</color>
 </resources>

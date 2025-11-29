@@ -71,7 +71,7 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
 
         binding.fabPlaySoundSilabas.setOnClickListener {
-            //reproducirSonido(binding.NombreImagen.text.toString())
+            reproducirSonido(palabraActual.toString())
         }
         binding.buttonJugarDeNuevo.setOnClickListener {
             //reiniciarActividad()
@@ -168,6 +168,7 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     // Guardas la palabra correcta para poder comprobarla después
                     palabraActual = palabra
                     palabrasUsadasEnElRosco.add(palabra)
+                    mostrarPista(letraActual,palabraActual.toString())
                     // Habilitas los controles para el usuario
                     binding.respuesta.isEnabled = true
                     binding.botonConfirmar.isEnabled = true
@@ -191,6 +192,7 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             // El juego ha terminado.
             Toast.makeText(this, "¡Juego completado!", Toast.LENGTH_LONG).show()
             binding.botonConfirmar.isEnabled = false // Deshabilitar el botón de confirmar.
+            finalizarReto()
         }
     }
 
@@ -385,7 +387,35 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             return null
         }
     }
+    private fun finalizarReto(){
+        binding.gameContentGroup.visibility = View.GONE
+        // Mostrar vistas del resumen
+        binding.resumenLayout.visibility = View.VISIBLE
 
+        binding.textViewResumenAciertos.text = getString(R.string.texto_aciertos, aciertos)
+        binding.textViewResumenFallos.text = getString(R.string.texto_fallos, fallos)
+    }
+
+    private fun mostrarPista(letra: Char, palabra: String){
+
+
+        val pistaArray = CharArray(palabra.length) { '_' }
+
+        // 2. Buscamos la primera aparición de la letra del turno en la palabra (ignorando mayúsculas/minúsculas).
+        // 'indexOf' devuelve -1 si no la encuentra.
+        val posicionLetra = palabra.indexOf(letra, ignoreCase = true)
+
+        // 3. Si la letra se encuentra en la palabra, la revelamos en nuestra pista.
+        if (posicionLetra != -1) {
+            pistaArray[posicionLetra] = palabra[posicionLetra]
+        }
+
+        val pistaConEspacios = pistaArray.joinToString(separator = " ")
+
+        binding.textoPista.visibility = View.VISIBLE
+        binding.textoPista.text = pistaConEspacios
+
+    }
 
 
 

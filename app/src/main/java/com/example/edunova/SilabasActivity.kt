@@ -7,6 +7,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.example.edunova.databinding.SilabasBinding
 import java.util.Locale
 import com.google.android.material.appbar.MaterialToolbar
@@ -17,6 +18,8 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var binding: SilabasBinding
     private lateinit var letterMap: Map<Char, TextView>
     private lateinit var tts: TextToSpeech
+
+    private var tiempoInicioJuego: Long = 0L
 
     // Esta parte está bien con by lazy, ya que la carga es diferida.
 // En SilabasActivity.kt
@@ -81,6 +84,8 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         binding.fabPlaySoundSilabas.setOnClickListener {
             reproducirSonido(binding.TextoSilabas.text.toString())
+            binding.TextoSilabas.text = " "
+            binding.respuesta.isEnabled = true
         }
         binding.buttonJugarDeNuevo.setOnClickListener {
             reiniciarActividad()
@@ -128,6 +133,8 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         indiceGrupoActual = -1
         // Asegúrate de que el botón esté habilitado al iniciar/reiniciar
         binding.buttonOption3.isEnabled = true
+
+        tiempoInicioJuego = System.currentTimeMillis()
         avanzarAlSiguienteGrupo()
     }
 
@@ -160,6 +167,7 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
 
         binding.respuesta.text?.clear()
+        binding.respuesta.isEnabled = false
 
         // --- LÓGICA DE FINALIZACIÓN MODIFICADA ---
         if (indiceGrupoActual >= gruposDeSilabasOrdenados.size - 1) {
@@ -214,11 +222,25 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         // Mostrar vistas del resumen
         binding.resumenLayout.visibility = View.VISIBLE
 
+
+        // PASO 3.1: Calcula el tiempo transcurrido
+        val tiempoFinalJuego = System.currentTimeMillis()
+        val tiempoTotalMs = tiempoFinalJuego - tiempoInicioJuego // Tiempo en milisegundos
+        val segundosTotales = tiempoTotalMs / 1000
+
+        // PASO 3.2: Formatea el tiempo a minutos y segundos
+        val minutos = segundosTotales / 60
+        val segundos = segundosTotales % 60
+        val tiempoFormateado = String.format(Locale.getDefault(), "%02d:%02d", minutos, segundos)
+
         // --- LÍNEAS CORREGIDAS ---
         // Usamos los recursos de string correctos que contienen el formato "%d"
         binding.textViewResumenAciertos.text = getString(R.string.texto_aciertos, aciertos)
         binding.textViewResumenFallos.text = getString(R.string.texto_fallos, fallos)
+        binding.textViewResumenTiempo.text = getString(R.string.texto_tiempo, tiempoFormateado)
+        4
     }
+
 
 
 
@@ -233,7 +255,7 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         // 1. Reiniciar los colores de fondo de todas las letras
         letterMap.values.forEach { textView ->
-            textView.backgroundTintList = ContextCompat.getColorStateList(this, R.color.CherryBlossomPink)
+            textView.backgroundTintList = ContextCompat.getColorStateList(this, R.color.gris_contraste)
         }
 
         // 2. Reiniciar los contadores y el recorrido

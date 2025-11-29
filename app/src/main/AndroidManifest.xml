@@ -35,6 +35,9 @@
             android:name=".ProfesorActivity"
             android:exported="false" />
         <activity
+            android:name=".AddFraseActivity"
+            android:exported="false" />
+        <activity
             android:name=".ListStudentsActivity"
             android:exported="false" />
         <activity
@@ -47,13 +50,8 @@
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <activity
             android:name=".SilabasActivity"
-            android:exported="false" />
-        <activity
-            android:name=".SonidoActivity"
-            android:exported="false" />
-        <activity
-            android:name=".MenuActivity"
-            android:exported="false" />
+            android:exported="false"
+            />
 
         <activity
             android:name=".AjustesActivity"
