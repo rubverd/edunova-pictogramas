@@ -47,4 +47,5 @@
 
     <string name="texto_aciertos">Aciertos: %d</string>
     <string name="texto_fallos">Fallos: %d</string>
+    <string name="texto_tiempo">Tiempo: %s</string>
 </resources>

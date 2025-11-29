@@ -219,6 +219,18 @@ tools:context=".SilabasActivity">
         app:layout_constraintTop_toBottomOf="@+id/textView_resumen_aciertos"
         tools:text="Fallos: 2" />
 
+
+    <TextView
+        android:id="@+id/textViewResumenTiempo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView_resumen_fallos"
+        tools:text="Tiempo: 01:23" />
+
     <Button
         android:id="@+id/button_jugar_de_nuevo"
         android:layout_width="wrap_content"

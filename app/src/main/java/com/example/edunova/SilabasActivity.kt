@@ -19,6 +19,8 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var letterMap: Map<Char, TextView>
     private lateinit var tts: TextToSpeech
 
+    private var tiempoInicioJuego: Long = 0L
+
     // Esta parte está bien con by lazy, ya que la carga es diferida.
 // En SilabasActivity.kt
 
@@ -131,6 +133,8 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         indiceGrupoActual = -1
         // Asegúrate de que el botón esté habilitado al iniciar/reiniciar
         binding.buttonOption3.isEnabled = true
+
+        tiempoInicioJuego = System.currentTimeMillis()
         avanzarAlSiguienteGrupo()
     }
 
@@ -218,11 +222,25 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         // Mostrar vistas del resumen
         binding.resumenLayout.visibility = View.VISIBLE
 
+
+        // PASO 3.1: Calcula el tiempo transcurrido
+        val tiempoFinalJuego = System.currentTimeMillis()
+        val tiempoTotalMs = tiempoFinalJuego - tiempoInicioJuego // Tiempo en milisegundos
+        val segundosTotales = tiempoTotalMs / 1000
+
+        // PASO 3.2: Formatea el tiempo a minutos y segundos
+        val minutos = segundosTotales / 60
+        val segundos = segundosTotales % 60
+        val tiempoFormateado = String.format(Locale.getDefault(), "%02d:%02d", minutos, segundos)
+
         // --- LÍNEAS CORREGIDAS ---
         // Usamos los recursos de string correctos que contienen el formato "%d"
         binding.textViewResumenAciertos.text = getString(R.string.texto_aciertos, aciertos)
         binding.textViewResumenFallos.text = getString(R.string.texto_fallos, fallos)
+        binding.textViewResumenTiempo.text = getString(R.string.texto_tiempo, tiempoFormateado)
+        4
     }
+
 
 
 
