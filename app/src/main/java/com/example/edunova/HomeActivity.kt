@@ -4,20 +4,16 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
-import coil.load
+import android.util.Log
 import com.example.edunova.databinding.ActivityHomeBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import android.util.Log
-
 
 class HomeActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityHomeBinding
-
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-
-    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    // private val db: FirebaseFirestore = FirebaseFirestore.getInstance() // No se usa aquí, se puede quitar o dejar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,12 +30,11 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun setupRoleUI(role: String?) {
-        // 1. IMPRIMIR EL ROL RECIBIDO
         Log.d("HomeActivity", "--- DEBUG ROL ---")
         Log.d("HomeActivity", "Rol recibido del Intent: '$role'")
 
         if (role == "teacher") {
-            // 2. CONFIRMACIÓN DE PROFESOR
+            // CONFIRMACIÓN DE PROFESOR
             Log.d("HomeActivity", ">> Configurando vista de PROFESOR")
 
             binding.btnAdminPanel.visibility = android.view.View.VISIBLE
@@ -51,63 +46,55 @@ class HomeActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         } else {
-            // 3. CONFIRMACIÓN DE ALUMNO
+            // CONFIRMACIÓN DE ALUMNO
             Log.d("HomeActivity", ">> Configurando vista de ALUMNO")
-
             binding.btnAdminPanel.visibility = android.view.View.GONE
             binding.badgeTeacher.visibility = android.view.View.GONE
         }
     }
 
     private fun setupClickListeners() {
+
+        // JUEGO VOCABULARIO (Palabras)
         binding.cardLearn.setOnClickListener {
             val intent = Intent(this, JuegoPalabras::class.java)
-
-            // Inicia la nueva actividad
             startActivity(intent)
         }
 
+        // JUEGO SÍLABAS
         binding.cardGuess.setOnClickListener {
-            // TODO: Reemplazar con: startActivity(Intent(this, GuessActivity::class.java))
-            val intent= Intent(this, SilabasActivity::class.java)
+            val intent = Intent(this, SilabasActivity::class.java)
             startActivity(intent)
-
-            showToast("Modo: Adivinar")
         }
 
+        // --- CAMBIO AQUÍ: CONEXIÓN CON EL JUEGO DE FRASES ---
         binding.cardBuild.setOnClickListener {
-            // TODO: Reemplazar con: startActivity(Intent(this, BuildSentenceActivity::class.java))
-            showToast("Modo: Construir Frases")
-        }
-
-        binding.cardChallenge.setOnClickListener {
-            // TODO: Reemplazar con: startActivity(Intent(this, ChallengeActivity::class.java))
-            val intent= Intent(this, RetoActivity::class.java)
+            val intent = Intent(this, JuegoFrasesActivity::class.java)
             startActivity(intent)
-            showToast("Modo: Reto Diario")
+            // showToast("Modo: Construir Frases") // Ya no es necesario el mensaje
         }
 
-        // Listeners para los botones de la barra inferior
+        // RETO DIARIO
+        binding.cardChallenge.setOnClickListener {
+            val intent = Intent(this, RetoActivity::class.java)
+            startActivity(intent)
+        }
+
+        // AJUSTES
         binding.buttonSettings.setOnClickListener {
-            // TODO: Reemplazar con: startActivity(Intent(this, SettingsActivity::class.java))
             startActivity(Intent(this, SettingsActivity::class.java))
-            //showToast("Ajustes")
         }
 
+        // CERRAR SESIÓN
         binding.buttonLogout.setOnClickListener {
-            // Lógica para cerrar sesión en Firebase
             auth.signOut()
-
-            // Redirigir al usuario a la pantalla de Login (MainActivity)
             val intent = Intent(this, MainActivity::class.java)
-            // Estas flags limpian el historial para que el usuario no pueda volver al Home
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             showToast("Sesión cerrada")
         }
     }
 
-    // Función de ayuda para mostrar mensajes Toast rápidamente
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
