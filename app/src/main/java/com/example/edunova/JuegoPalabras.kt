@@ -265,8 +265,22 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun finalizarJuego() {
         binding.gameContentGroup.visibility = View.GONE
         binding.resumenLayout.visibility = View.VISIBLE
+        // 1. Calcula el tiempo transcurrido en milisegundos.
+        val tiempoFinal = System.currentTimeMillis()
+        val tiempoTotalMs = tiempoFinal - tiempoInicio
+
+        // 2. Convierte los milisegundos a minutos y segundos.
+        val segundosTotales = tiempoTotalMs / 1000
+        val minutos = segundosTotales / 60
+        val segundos = segundosTotales % 60
+
+        // 3. Formatea el tiempo en un string "MM:SS".
+        val tiempoFormateado = String.format(Locale.getDefault(), "%02d:%02d", minutos, segundos)
+
         binding.textViewResumenAciertos.text = "Aciertos: $aciertos"
         binding.textViewResumenFallos.text = "Fallos: $fallos"
+        binding.textViewResumenTiempo.text = "Tiempo: $tiempoFormateado"
+
         guardarResultadosEnBD()
     }
 

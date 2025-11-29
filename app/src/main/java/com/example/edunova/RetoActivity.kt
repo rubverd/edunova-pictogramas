@@ -39,6 +39,8 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var fallos = 0
     private var palabraActual: String? = null
 
+    private var tiempoInicioJuego: Long = 0L
+
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
     private val palabrasUsadasEnElRosco = mutableListOf<String>()
@@ -121,6 +123,7 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         indiceGrupoActual = -1
         // Asegúrate de que el botón esté habilitado al iniciar/reiniciar
         binding.botonConfirmar.isEnabled = true
+        tiempoInicioJuego = System.currentTimeMillis()
         avanzarAlSiguienteGrupo()
     }
 
@@ -392,8 +395,19 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         // Mostrar vistas del resumen
         binding.resumenLayout.visibility = View.VISIBLE
 
+        val tiempoFinalJuego = System.currentTimeMillis()
+        val tiempoTotalMs = tiempoFinalJuego - tiempoInicioJuego // Tiempo en milisegundos
+        val segundosTotales = tiempoTotalMs / 1000
+
+        // PASO 3.2: Formatea el tiempo a minutos y segundos
+        val minutos = segundosTotales / 60
+        val segundos = segundosTotales % 60
+        val tiempoFormateado = String.format(Locale.getDefault(),"%02d:%02d", minutos, segundos)
+
+
         binding.textViewResumenAciertos.text = getString(R.string.texto_aciertos, aciertos)
         binding.textViewResumenFallos.text = getString(R.string.texto_fallos, fallos)
+        binding.textViewResumenTiempo.text = getString(R.string.texto_tiempo, tiempoFormateado)
     }
 
     private fun mostrarPista(letra: Char, palabra: String){
