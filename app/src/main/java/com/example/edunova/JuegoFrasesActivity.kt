@@ -8,7 +8,6 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import coil.load
 import com.example.edunova.databinding.ActivityJuegoFrasesBinding
@@ -34,11 +33,15 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private val palabrasEnBanco = mutableListOf<String>()    // Abajo
     private val palabrasEnRespuesta = mutableListOf<String>() // Arriba
 
-    // Control de Rondas
+    // Control de Rondas y Seguimiento
     private var listaIdsFrases: List<String> = emptyList()
     private var indiceActual = 0
     private var aciertos = 0
     private var fallos = 0
+
+    // --- NUEVAS VARIABLES PARA SEGUIMIENTO ---
+    private var tiempoInicio: Long = 0
+    private var datosAlumno: Map<String, Any>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +49,16 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         setContentView(binding.root)
 
         tts = TextToSpeech(this, this)
+
+        // 1. CARGAR DATOS DEL ALUMNO
+        val currentUser = repository.getCurrentUser()
+        if (currentUser != null) {
+            repository.getUserData(currentUser.uid) { data ->
+                datosAlumno = data
+                Log.d("JuegoFrases", "Datos alumno cargados: ${datosAlumno?.get("displayName")}")
+            }
+        }
+
         setupUI()
         iniciarJuego()
     }
@@ -69,6 +82,9 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         aciertos = 0
         fallos = 0
         indiceActual = 0
+
+        // 2. MARCAR TIEMPO DE INICIO
+        tiempoInicio = System.currentTimeMillis()
 
         // Obtenemos IDs de frases (puedes filtrar por dificultad si quieres)
         lifecycleScope.launch {
@@ -115,10 +131,6 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
-    /**
-     * Dibuja los Chips (botones de palabra) en la zona de arriba y abajo
-     * según el contenido de las listas `palabrasEnRespuesta` y `palabrasEnBanco`.
-     */
     private fun renderizarChips() {
         // 1. Limpiar contenedores
         binding.chipGroupRespuesta.removeAllViews()
@@ -128,7 +140,6 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         palabrasEnRespuesta.forEachIndexed { index, palabra ->
             val chip = crearChip(palabra, esRespuesta = true)
             chip.setOnClickListener {
-                // AL TOCAR ARRIBA: Devuelve la palabra al banco
                 palabrasEnRespuesta.removeAt(index)
                 palabrasEnBanco.add(palabra)
                 renderizarChips()
@@ -140,7 +151,6 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         palabrasEnBanco.forEachIndexed { index, palabra ->
             val chip = crearChip(palabra, esRespuesta = false)
             chip.setOnClickListener {
-                // AL TOCAR ABAJO: Sube la palabra a la respuesta
                 palabrasEnBanco.removeAt(index)
                 palabrasEnRespuesta.add(palabra)
                 renderizarChips()
@@ -163,42 +173,32 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         chip.textSize = 18f
 
         if (esRespuesta) {
-            // Estilo para chips en la zona de respuesta
             chip.setChipBackgroundColorResource(R.color.white)
             chip.chipStrokeWidth = 2f
             chip.setChipStrokeColorResource(R.color.black)
         } else {
-            // Estilo para chips en el banco (opciones)
-            chip.setChipBackgroundColorResource(R.color.Mustard) // O el color amarillo que usas
+            chip.setChipBackgroundColorResource(R.color.Mustard)
             chip.setTextColor(Color.BLACK)
         }
         return chip
     }
 
     private fun comprobarRespuesta() {
-        // Construimos la frase del usuario uniendo las palabras
         val fraseUsuario = palabrasEnRespuesta.joinToString(" ")
 
-        // Normalizamos strings (quitar mayusculas/puntos si quieres ser flexible)
-        // Aquí comparamos exacto para enseñar gramática, o con ignoreCase
         if (fraseUsuario.equals(fraseOriginal, ignoreCase = true)) {
-            // CORRECTO
             aciertos++
             Toast.makeText(this, "¡Correcto!", Toast.LENGTH_SHORT).show()
             pintarRespuesta(true)
             speak("¡Muy bien!")
         } else {
-            // INCORRECTO
             fallos++
             Toast.makeText(this, "Incorrecto. Inténtalo de nuevo.", Toast.LENGTH_SHORT).show()
             pintarRespuesta(false)
-            // Opcional: speak("Inténtalo de nuevo")
         }
 
         binding.buttonConfirm.visibility = View.INVISIBLE
         binding.buttonNext.visibility = View.VISIBLE
-
-        // Bloquear chips para que no muevan nada hasta pasar de ronda
         deshabilitarChips()
     }
 
@@ -232,11 +232,43 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun mostrarResumen() {
         binding.gameContentGroup.visibility = View.GONE
         binding.resumenLayout.visibility = View.VISIBLE
+
+        // 3. CALCULAR TIEMPO
+        val tiempoTotalMs = System.currentTimeMillis() - tiempoInicio
+        val segundosTotales = tiempoTotalMs / 1000
+        val minutos = segundosTotales / 60
+        val segundos = segundosTotales % 60
+        val tiempoFormateado = String.format(Locale.getDefault(), "%02d:%02d", minutos, segundos)
+
         binding.textViewResumenAciertos.text = "Aciertos: $aciertos"
-        // Guardar en BD si quieres (usando repository.saveStudentAttempt)
+        // Si añades el textView de Tiempo en tu XML de frases, descomenta esto:
+        // binding.textViewResumenTiempo.text = "Tiempo: $tiempoFormateado"
+
+        // 4. GUARDAR RESULTADOS
+        guardarResultadosEnBD(segundosTotales)
     }
 
-    // --- TTS ---
+    private fun guardarResultadosEnBD(segundosTotales: Long) {
+        val currentUser = repository.getCurrentUser() ?: return
+
+        val intentoData = hashMapOf(
+            "studentUid" to currentUser.uid,
+            "studentName" to (datosAlumno?.get("displayName") ?: "Alumno"),
+            "school" to (datosAlumno?.get("school") ?: "Sin Centro"),
+            "classroom" to (datosAlumno?.get("classroom") ?: "Sin Clase"),
+            "exerciseType" to "frases",
+            "timestamp" to System.currentTimeMillis(),
+            "timeSpentSeconds" to segundosTotales,
+            "score" to aciertos,
+            "totalQuestions" to listaIdsFrases.size,
+            "status" to "completed"
+        )
+
+        repository.saveStudentAttempt(intentoData) { success ->
+            if (success) Log.d("JuegoFrases", "Progreso guardado correctamente")
+        }
+    }
+
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
             tts.language = Locale("es", "ES")

@@ -287,14 +287,23 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun guardarResultadosEnBD() {
         val currentUser = repository.getCurrentUser() ?: return
 
+        // Calculamos tiempo total en SEGUNDOS
+        val tiempoTotalMs = System.currentTimeMillis() - tiempoInicio
+        val tiempoTotalSegundos = tiempoTotalMs / 1000
+
         val intentoData = hashMapOf(
             "studentUid" to currentUser.uid,
             "studentName" to (datosAlumno?.get("displayName") ?: "Alumno"),
             "school" to (datosAlumno?.get("school") ?: "Sin Centro"),
             "classroom" to (datosAlumno?.get("classroom") ?: "Sin Clase"),
             "exerciseType" to "vocabulario",
-            "timestampStart" to tiempoInicio,
-            "timestampEnd" to System.currentTimeMillis(),
+
+            // IMPORTANTE: Campo 'timestamp' genérico para ordenar y mostrar fecha
+            "timestamp" to System.currentTimeMillis(),
+
+            // Guardamos cuánto tardó
+            "timeSpentSeconds" to tiempoTotalSegundos,
+
             "score" to aciertos,
             "totalQuestions" to listaDeIds.size,
             "status" to "completed",
@@ -302,7 +311,7 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         )
 
         repository.saveStudentAttempt(intentoData) { success ->
-            if (success) Log.d("Juego", "Guardado OK")
+            if (success) Log.d("Juego", "Guardado OK con fecha y tiempo")
         }
     }
 

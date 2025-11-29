@@ -61,7 +61,7 @@ class StudentProgressActivity : AppCompatActivity() {
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            // Usamos un layout simple de Android para ir rápido, puedes crear uno personalizado (item_attempt.xml)
+            // Usamos un layout estándar que permite dos líneas de texto
             val v = LayoutInflater.from(parent.context)
                 .inflate(android.R.layout.simple_list_item_2, parent, false)
             return ViewHolder(v)
@@ -70,11 +70,15 @@ class StudentProgressActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = attempts[position]
 
-            // Título: Tipo de ejercicio (Primera letra mayúscula)
-            holder.tvType.text = item.exerciseType.replaceFirstChar { it.uppercase() }
+            // Línea 1: Tipo de ejercicio y Fecha
+            holder.tvType.text = "${item.exerciseType.uppercase()}  -  ${item.getDateString()}"
+            holder.tvType.setTypeface(null, android.graphics.Typeface.BOLD)
 
-            // Subtítulo: Puntuación y Fecha
-            holder.tvInfo.text = "Nota: ${item.getScoreString()}   |   ${item.getDateString()}"
+            // Línea 2: Nota y Tiempo
+            // Usamos los helpers que creamos en el Paso 1
+            val textoInfo = "Aciertos: ${item.getScoreString()}   |   Tiempo: ${item.getDurationString()} min"
+            holder.tvInfo.text = textoInfo
+            holder.tvInfo.setTextColor(android.graphics.Color.DKGRAY)
         }
 
         override fun getItemCount() = attempts.size
