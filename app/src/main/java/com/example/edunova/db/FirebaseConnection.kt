@@ -19,26 +19,16 @@ class FirebaseConnection {
         return auth.currentUser
     }
 
-    // --- AUTENTICACIÓN ---
-
+    // --- AUTENTICACIÓN --- (Sin cambios)
     fun loginUser(email: String, pass: String, onComplete: (success: Boolean, message: String?) -> Unit) {
         auth.signInWithEmailAndPassword(email, pass)
             .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    onComplete(true, null)
-                } else {
-                    onComplete(false, task.exception?.message ?: "Error al iniciar sesión.")
-                }
+                if (task.isSuccessful) onComplete(true, null)
+                else onComplete(false, task.exception?.message ?: "Error al iniciar sesión.")
             }
     }
 
-    fun registerUser(
-        name: String,
-        email: String,
-        pass: String,
-        additionalData: Map<String, Any>,
-        onComplete: (success: Boolean, message: String?) -> Unit
-    ) {
+    fun registerUser(name: String, email: String, pass: String, additionalData: Map<String, Any>, onComplete: (success: Boolean, message: String?) -> Unit) {
         auth.createUserWithEmailAndPassword(email, pass)
             .addOnCompleteListener { authTask ->
                 if (authTask.isSuccessful) {
@@ -54,15 +44,8 @@ class FirebaseConnection {
             }
     }
 
-    // --- GESTIÓN DE USUARIOS ---
-
-    private fun saveUserInfoToFirestore(
-        uid: String,
-        name: String,
-        email: String,
-        additionalData: Map<String, Any>,
-        onComplete: (success: Boolean, message: String?) -> Unit
-    ) {
+    // --- GESTIÓN DE USUARIOS --- (Sin cambios)
+    private fun saveUserInfoToFirestore(uid: String, name: String, email: String, additionalData: Map<String, Any>, onComplete: (success: Boolean, message: String?) -> Unit) {
         val userInfo = hashMapOf<String, Any>(
             "uid" to uid,
             "displayName" to name,
@@ -70,62 +53,39 @@ class FirebaseConnection {
             "createdAt" to System.currentTimeMillis()
         )
         userInfo.putAll(additionalData)
-
-        db.collection("usuarios").document(uid)
-            .set(userInfo)
+        db.collection("usuarios").document(uid).set(userInfo)
             .addOnSuccessListener { onComplete(true, null) }
             .addOnFailureListener { e -> onComplete(false, e.message) }
     }
 
     fun getUserRole(uid: String, onResult: (role: String?) -> Unit) {
         db.collection("usuarios").document(uid).get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    onResult(document.getString("role"))
-                } else {
-                    onResult(null)
-                }
-            }
+            .addOnSuccessListener { document -> onResult(document.getString("role")) }
             .addOnFailureListener { onResult(null) }
     }
 
-    // Obtener el Centro (School) del Profesor
     fun getTeacherSchool(uid: String, onResult: (String?) -> Unit) {
         db.collection("usuarios").document(uid).get()
-            .addOnSuccessListener { document ->
-                onResult(document.getString("school"))
-            }
-            .addOnFailureListener {
-                onResult(null)
-            }
+            .addOnSuccessListener { document -> onResult(document.getString("school")) }
+            .addOnFailureListener { onResult(null) }
     }
 
     fun getUserData(uid: String, onResult: (Map<String, Any>?) -> Unit) {
         db.collection("usuarios").document(uid).get()
             .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    onResult(document.data)
-                } else {
-                    onResult(null)
-                }
+                if (document.exists()) onResult(document.data) else onResult(null)
             }
             .addOnFailureListener { onResult(null) }
     }
 
-    // --- GESTIÓN DE ALUMNOS ---
-
+    // --- GESTIÓN DE ALUMNOS --- (Sin cambios)
     fun getStudentsBySchool(schoolName: String, onResult: (List<Student>) -> Unit) {
         db.collection("usuarios")
             .whereEqualTo("school", schoolName)
             .whereEqualTo("role", "student")
             .get()
-            .addOnSuccessListener { documents ->
-                val studentList = documents.toObjects(Student::class.java)
-                onResult(studentList)
-            }
-            .addOnFailureListener {
-                onResult(emptyList())
-            }
+            .addOnSuccessListener { documents -> onResult(documents.toObjects(Student::class.java)) }
+            .addOnFailureListener { onResult(emptyList()) }
     }
 
     fun getStudentAttempts(studentUid: String, onResult: (List<StudentAttempt>) -> Unit) {
@@ -138,50 +98,40 @@ class FirebaseConnection {
                 }
                 onResult(attempts.sortedByDescending { it.timestamp })
             }
-            .addOnFailureListener { e ->
-                e.printStackTrace()
-                onResult(emptyList())
-            }
+            .addOnFailureListener { e -> e.printStackTrace(); onResult(emptyList()) }
     }
 
     fun saveStudentAttempt(attemptData: Map<String, Any>, onComplete: (Boolean) -> Unit) {
-        db.collection("intentos_alumnos")
-            .add(attemptData)
+        db.collection("intentos_alumnos").add(attemptData)
             .addOnSuccessListener { onComplete(true) }
             .addOnFailureListener { onComplete(false) }
     }
 
-    // --- GESTIÓN DE PICTOGRAMAS ---
-
+    // --- GESTIÓN DE PICTOGRAMAS --- (Sin cambios)
     fun savePictogram(pictogramData: Map<String, Any>, onComplete: (Boolean) -> Unit) {
-        db.collection("palabras")
-            .add(pictogramData)
+        db.collection("palabras").add(pictogramData)
             .addOnSuccessListener { onComplete(true) }
             .addOnFailureListener { onComplete(false) }
     }
 
-    // --- GESTIÓN DE FRASES (NUEVO) ---
+    // --- GESTIÓN DE FRASES (MODIFICADO) ---
 
     /**
-     * Guarda una nueva frase en la colección "frases".
-     * Separa automáticamente la frase en palabras individuales para facilitar el juego.
+     * Guarda una nueva frase incluyendo el CENTRO (school).
      */
-    fun savePhrase(frase: String, imageUrl: String, dificultad: Int, onComplete: (Boolean) -> Unit) {
+    fun savePhrase(frase: String, imageUrl: String, dificultad: Int, school: String, onComplete: (Boolean) -> Unit) { // AÑADIDO PARÁMETRO SCHOOL
 
-        // 1. Limpiamos espacios extra al inicio/final y separamos por espacios en blanco.
-        // El regex "\\s+" asegura que si hay 2 espacios seguidos, no cree una palabra vacía.
         val palabrasSeparadas = frase.trim().split("\\s+".toRegex())
 
-        // 2. Preparamos el objeto para Firebase
         val phraseData = hashMapOf(
             "frase" to frase.trim(),
             "urlImagen" to imageUrl,
-            "dificultad" to dificultad, // Viene del Slider (1, 2 o 3)
-            "palabras" to palabrasSeparadas, // Array ["El", "rio", "corre"]
+            "dificultad" to dificultad,
+            "palabras" to palabrasSeparadas,
+            "school" to school, // AÑADIDO EL CAMPO SCHOOL
             "createdAt" to System.currentTimeMillis()
         )
 
-        // 3. Guardamos en la colección 'frases'
         db.collection("frases")
             .add(phraseData)
             .addOnSuccessListener { onComplete(true) }

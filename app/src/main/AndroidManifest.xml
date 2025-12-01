@@ -64,6 +64,11 @@
             android:name=".JuegoFrasesActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".AdminFrasesActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
     </application>
+
 
 </manifest>
