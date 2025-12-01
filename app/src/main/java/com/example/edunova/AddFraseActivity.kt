@@ -8,7 +8,7 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.bumptech.glide.Glide // Asegúrate de tener esta importación o cámbiala por Coil si prefieres
+import com.bumptech.glide.Glide
 import com.example.edunova.db.FirebaseConnection
 import com.google.android.material.slider.Slider
 import com.google.android.material.textfield.TextInputEditText
@@ -25,8 +25,10 @@ class AddFraseActivity : AppCompatActivity() {
     private lateinit var btnPreviewImage: Button
     private lateinit var btnBack: ImageButton
 
-    // Instancia de nuestra conexión a Base de Datos
     private val repository = FirebaseConnection()
+
+    // VARIABLE NUEVA: Para almacenar el centro
+    private var currentSchool: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,20 +44,34 @@ class AddFraseActivity : AppCompatActivity() {
         btnPreviewImage = findViewById(R.id.btnPreviewImage)
         btnBack = findViewById(R.id.returnButton)
 
+        // Deshabilitamos guardar hasta cargar el centro (Seguridad)
+        btnSave.isEnabled = false
+
         setupListeners()
+        loadTeacherData()
+    }
+
+    private fun loadTeacherData() {
+        // Cargar el Centro del Profesor al iniciar (Lógica traída de AddPictogramActivity)
+        val currentUser = repository.getCurrentUser()
+        if (currentUser != null) {
+            repository.getTeacherSchool(currentUser.uid) { school ->
+                if (school != null) {
+                    currentSchool = school
+                    btnSave.isEnabled = true // Habilitamos botón ahora que tenemos centro
+                } else {
+                    Toast.makeText(this, "Error: No tienes centro asignado.", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
     private fun setupListeners() {
-        // 1. Botón Volver
-        btnBack.setOnClickListener {
-            finish()
-        }
+        btnBack.setOnClickListener { finish() }
 
-        // 2. Botón Ver Imagen (Previsualización)
         btnPreviewImage.setOnClickListener {
             val url = etImageUrl.text.toString().trim()
             if (url.isNotEmpty()) {
-                // Usamos Glide para cargar la imagen (igual que tenías en tu código)
                 Glide.with(this)
                     .load(url)
                     .placeholder(android.R.drawable.ic_menu_upload)
@@ -66,7 +82,6 @@ class AddFraseActivity : AppCompatActivity() {
             }
         }
 
-        // 3. Botón Guardar
         btnSave.setOnClickListener {
             if (validateFields()) {
                 saveDataToFirestore()
@@ -83,23 +98,26 @@ class AddFraseActivity : AppCompatActivity() {
             etFrase.error = "Introduce la frase completa"
             return false
         }
+        if (currentSchool == null) {
+            Toast.makeText(this, "No se ha podido identificar tu centro", Toast.LENGTH_SHORT).show()
+            return false
+        }
         return true
     }
 
     private fun saveDataToFirestore() {
         setLoading(true)
 
-        // 1. Obtenemos los datos limpios de la vista
         val urlImagen = etImageUrl.text.toString().trim()
         val fraseCompleta = etFrase.text.toString().trim()
         val dificultad = sliderDifficulty.value.toInt()
+        val escuela = currentSchool ?: "" // Usamos la variable del centro
 
-        // 2. Llamamos al NUEVO método savePhrase
-        // NO separamos las palabras aquí; FirebaseConnection ya lo hace con el split.
-        repository.savePhrase(fraseCompleta, urlImagen, dificultad) { success ->
+        // Pasamos la escuela al método actualizado
+        repository.savePhrase(fraseCompleta, urlImagen, dificultad, escuela) { success ->
             setLoading(false)
             if (success) {
-                Toast.makeText(this, "¡Frase guardada correctamente!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "¡Frase guardada en $escuela!", Toast.LENGTH_SHORT).show()
                 limpiarCampos()
             } else {
                 Toast.makeText(this, "Error al guardar la frase", Toast.LENGTH_SHORT).show()

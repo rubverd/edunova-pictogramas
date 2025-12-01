@@ -65,15 +65,15 @@
         app:layout_constraintTop_toBottomOf="@id/btnViewStudents" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnCreateLevel"
+        android:id="@+id/btnManagePhrases"
         android:layout_width="0dp"
         android:layout_height="64dp"
         android:layout_marginTop="16dp"
         android:layout_marginHorizontal="24dp"
-        android:text="Crear frase"
+        android:text="Gestionar Frases"
         android:textSize="16sp"
         app:cornerRadius="12dp"
-        app:icon="@android:drawable/ic_menu_sort_by_size"
+        app:icon="@android:drawable/ic_menu_agenda"
         app:iconGravity="textStart"
         app:backgroundTint="@color/rojoBoton"
         app:layout_constraintEnd_toEndOf="parent"
