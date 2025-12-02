@@ -23,43 +23,55 @@
 
         <activity
             android:name=".RegisterActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".HomeActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".RetoActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".ProfesorActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".AddFraseActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".ListStudentsActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".AddPictogramActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".JuegoPalabras"
             android:exported="false"
-            android:windowSoftInputMode="stateHidden|adjustPan" />
+            android:windowSoftInputMode="stateHidden|adjustPan"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".SilabasActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             />
 
         <activity
             android:name=".AjustesActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".SettingsActivity"
-            android:exported="false" />
-        <activity android:name=".StudentProgressActivity" android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".StudentProgressActivity" android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".JuegoFrasesActivity"
             android:exported="false"
