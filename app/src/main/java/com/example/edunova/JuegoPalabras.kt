@@ -2,6 +2,8 @@ package com.example.edunova
 
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.util.Log
@@ -48,6 +50,11 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
     // Lista para guardar el detalle de cada respuesta
     private val detallesDelIntento = mutableListOf<Map<String, Any>>()
 
+    private lateinit var soundPool: SoundPool
+    private var sonidoAciertoId: Int = 0
+    private var sonidoFalloId: Int = 0
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -66,6 +73,7 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
 
         configurarListeners()
+        inicializarSoundPool()
         iniciarJuego()
     }
 
@@ -200,10 +208,12 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         if (esCorrecto) {
             aciertos++
+            soundPool.play(sonidoAciertoId, 1.0f, 1.0f, 1, 0, 1.0f)
             comprobacionVisual(botonSeleccionado, "#4CAF50") // Verde
             Toast.makeText(this, "¡Correcto!", Toast.LENGTH_SHORT).show()
         } else {
             fallos++
+            soundPool.play(sonidoFalloId, 1.0f, 1.0f, 1, 0, 1.0f)
             comprobacionVisual(botonSeleccionado, "#F44336") // Rojo
 
             // Marcar la correcta en verde
@@ -372,4 +382,26 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         if (::tts.isInitialized) { tts.stop(); tts.shutdown() }
         super.onDestroy()
     }
+    private fun inicializarSoundPool() {
+        // Define los atributos de audio para el juego.
+        val audioAttributes = AudioAttributes.Builder()
+            // --- INICIO DE LA CORRECCIÓN ---
+            // Usa la clase del paquete android.media, no androidx.media3
+            .setUsage(AudioAttributes.USAGE_GAME)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            // --- FIN DE LA CORRECCIÓN ---
+            .build()
+
+        // Construye el SoundPool
+        soundPool = SoundPool.Builder()
+            .setMaxStreams(2) // Podemos reproducir 2 sonidos a la vez
+            .setAudioAttributes(audioAttributes)
+            .build()
+
+        // Carga los sonidos desde la carpeta 'raw' y guarda sus IDs.
+        // El '1' es la prioridad, pero no es muy relevante en este caso.
+        sonidoAciertoId = soundPool.load(this, R.raw.sonido_correcto, 1)
+        sonidoFalloId = soundPool.load(this, R.raw.sonido_incorrecto, 1)
+    }
+
 }
