@@ -16,6 +16,7 @@ import com.example.edunova.databinding.ActivityJuegoFrasesBinding
 import com.example.edunova.db.FirebaseConnection
 import com.google.android.material.chip.Chip
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -279,6 +280,7 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun guardarResultadosEnBD(segundosTotales: Long) {
         val currentUser = repository.getCurrentUser() ?: return
+        val studentUid = currentUser.uid
 
         val intentoData = hashMapOf(
             "studentUid" to currentUser.uid,
@@ -296,6 +298,13 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         repository.saveStudentAttempt(intentoData) { success ->
             if (success) Log.d("JuegoFrases", "Progreso guardado correctamente")
         }
+
+        val progrssUpdate = mapOf("completedJuegoFrases" to true)
+        db.collection("userProgress").documet(studentUid)
+            .set(progressUpdate, SetOptions.merge())
+            .addOnSuccessListener {
+                Log.d("JuegoFrases", "Progreso actualizado correctamente")
+            }
     }
 
     override fun onInit(status: Int) {
