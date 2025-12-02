@@ -18,12 +18,10 @@ import com.example.edunova.databinding.ActivityLearnBinding
 import com.example.edunova.db.FirebaseConnection
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
@@ -38,26 +36,20 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var indice = 0
     private var listaDeIds: List<String> = emptyList()
 
-    // Instancias de Firebase
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
-
-    // --- VARIABLES PARA LA BASE DE DATOS Y SEGUIMIENTO ---
     private val repository = FirebaseConnection()
     private var datosAlumno: Map<String, Any>? = null
     private var tiempoInicio: Long = 0
     private var idPictogramaActual: String = ""
 
-    // Lista para guardar el detalle de cada respuesta
     private val detallesDelIntento = mutableListOf<Map<String, Any>>()
 
     private lateinit var soundPool: SoundPool
     private var sonidoAciertoId: Int = 0
     private var sonidoFalloId: Int = 0
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityLearnBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -68,7 +60,6 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         if (currentUser != null) {
             repository.getUserData(currentUser.uid) { data ->
                 datosAlumno = data
-                Log.d("Juego", "Datos alumno cargados: ${datosAlumno?.get("displayName")}")
             }
         }
 
@@ -79,7 +70,6 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun configurarListeners() {
         binding.toggleGroupOptions.addOnButtonCheckedListener { _, _, _ ->
-            // Solo mostramos confirmar si hay algo seleccionado
             if (binding.toggleGroupOptions.checkedButtonId != View.NO_ID) {
                 binding.buttonConfirm.visibility = View.VISIBLE
             } else {
@@ -97,12 +87,16 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
 
         binding.buttonNext.setOnClickListener {
-            // NO limpiamos aquí, lo hace resetearEstadoRonda en el orden correcto
             avanzarSiguienteRonda()
         }
 
+        // --- BOTONES FINALES ---
         binding.buttonJugarDeNuevo.setOnClickListener {
             reiniciarActividad()
+        }
+
+        binding.buttonSalir.setOnClickListener {
+            finish()
         }
     }
 
@@ -141,15 +135,12 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
                     if (!imageUrl.isNullOrEmpty() && !palabraCorrecta.isNullOrEmpty()) {
                         palabraCorrectaActual = palabraCorrecta
                         binding.imageViewPictogram.load(imageUrl)
-
                         prepararBotones(palabraCorrecta)
                     } else {
-                        Log.e("Juego", "Datos incompletos en pictograma $pictogramaId")
-                        avanzarSiguienteRonda() // Saltamos si está roto
+                        avanzarSiguienteRonda() // Saltamos si está incompleto
                     }
                 }
             } catch (e: Exception) {
-                Log.e("Juego", "Error cargando pictograma", e)
                 Toast.makeText(this@JuegoPalabras, "Error de conexión", Toast.LENGTH_SHORT).show()
             } finally {
                 mostrarCargando(false)
@@ -162,7 +153,6 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         val botonCorrecto = botones.random()
         botonCorrecto.text = palabraCorrecta
 
-        // Configurar audio
         findViewById<FloatingActionButton>(R.id.fabPlaySound).setOnClickListener {
             reproducirTexto(palabraCorrecta)
         }
@@ -179,7 +169,6 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun comprobacionVisual(boton: Button, colorHex: String) {
-        // Usamos backgroundTintList para no romper la forma del MaterialButton
         boton.backgroundTintList = ColorStateList.valueOf(Color.parseColor(colorHex))
         boton.setTextColor(Color.WHITE)
     }
@@ -191,12 +180,10 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         val botonSeleccionado = findViewById<MaterialButton>(idSeleccionado)
         val respuestaUsuario = botonSeleccionado.text.toString()
 
-        // Bloquear botones
         bloquearInteraccion(false)
 
         val esCorrecto = (respuestaUsuario == palabraCorrectaActual)
 
-        // Registro
         detallesDelIntento.add(hashMapOf(
             "questionIndex" to indice,
             "pictogramId" to idPictogramaActual,
@@ -209,14 +196,13 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         if (esCorrecto) {
             aciertos++
             soundPool.play(sonidoAciertoId, 1.0f, 1.0f, 1, 0, 1.0f)
-            comprobacionVisual(botonSeleccionado, "#4CAF50") // Verde
+            comprobacionVisual(botonSeleccionado, "#4CAF50")
             Toast.makeText(this, "¡Correcto!", Toast.LENGTH_SHORT).show()
         } else {
             fallos++
             soundPool.play(sonidoFalloId, 1.0f, 1.0f, 1, 0, 1.0f)
-            comprobacionVisual(botonSeleccionado, "#F44336") // Rojo
+            comprobacionVisual(botonSeleccionado, "#F44336")
 
-            // Marcar la correcta en verde
             val botonCorrecto = listOf(binding.buttonOption1, binding.buttonOption2, binding.buttonOption3)
                 .find { it.text == palabraCorrectaActual }
             botonCorrecto?.let { comprobacionVisual(it, "#4CAF50") }
@@ -238,18 +224,11 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
-    // --- FUNCIÓN CORREGIDA: ORDEN DE OPERACIONES ---
     private fun resetearEstadoRonda() {
         val botones = listOf(binding.buttonOption1, binding.buttonOption2, binding.buttonOption3)
-
-        // 1. PRIMERO habilitamos los botones.
-        // Si limpiamos la selección estando deshabilitados, el visual no se refresca bien.
         botones.forEach { it.isEnabled = true }
-
-        // 2. SEGUNDO limpiamos la selección del grupo
         binding.toggleGroupOptions.clearChecked()
 
-        // 3. TERCERO restauramos los colores originales
         val colorFondo = ContextCompat.getColorStateList(this, R.color.option_button_background_color)
         val colorTexto = ContextCompat.getColorStateList(this, R.color.black)
         val colorBorde = ContextCompat.getColorStateList(this, R.color.option_button_stroke_color)
@@ -275,16 +254,11 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun finalizarJuego() {
         binding.gameContentGroup.visibility = View.GONE
         binding.resumenLayout.visibility = View.VISIBLE
-        // 1. Calcula el tiempo transcurrido en milisegundos.
-        val tiempoFinal = System.currentTimeMillis()
-        val tiempoTotalMs = tiempoFinal - tiempoInicio
 
-        // 2. Convierte los milisegundos a minutos y segundos.
+        val tiempoTotalMs = System.currentTimeMillis() - tiempoInicio
         val segundosTotales = tiempoTotalMs / 1000
         val minutos = segundosTotales / 60
         val segundos = segundosTotales % 60
-
-        // 3. Formatea el tiempo en un string "MM:SS".
         val tiempoFormateado = String.format(Locale.getDefault(), "%02d:%02d", minutos, segundos)
 
         binding.textViewResumenAciertos.text = "Aciertos: $aciertos"
@@ -296,8 +270,6 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun guardarResultadosEnBD() {
         val currentUser = repository.getCurrentUser() ?: return
-
-        // Calculamos tiempo total en SEGUNDOS
         val tiempoTotalMs = System.currentTimeMillis() - tiempoInicio
         val tiempoTotalSegundos = tiempoTotalMs / 1000
 
@@ -307,13 +279,8 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
             "school" to (datosAlumno?.get("school") ?: "Sin Centro"),
             "classroom" to (datosAlumno?.get("classroom") ?: "Sin Clase"),
             "exerciseType" to "vocabulario",
-
-            // IMPORTANTE: Campo 'timestamp' genérico para ordenar y mostrar fecha
             "timestamp" to System.currentTimeMillis(),
-
-            // Guardamos cuánto tardó
             "timeSpentSeconds" to tiempoTotalSegundos,
-
             "score" to aciertos,
             "totalQuestions" to listaDeIds.size,
             "status" to "completed",
@@ -321,13 +288,12 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         )
 
         repository.saveStudentAttempt(intentoData) { success ->
-            if (success) Log.d("Juego", "Guardado OK con fecha y tiempo")
+            if (success) Log.d("Juego", "Guardado OK")
         }
     }
 
     private fun mostrarCargando(loading: Boolean) {
         binding.progressBarGame.visibility = if (loading) View.VISIBLE else View.GONE
-        // Si estamos cargando, bloqueamos. Si no, desbloqueamos.
         bloquearInteraccion(!loading)
     }
 
@@ -337,7 +303,6 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         iniciarJuego()
     }
 
-    // --- HELPERS FIRESTORE ---
     private suspend fun getRandomPictogramaIds(count: Int): List<String> {
         return try {
             val snapshot = db.collection("palabras").get().await()
@@ -349,8 +314,6 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private suspend fun getPalabrasAleatoriasIncorrectas(excluir: String, cantidad: Int): List<String> {
         return try {
-            val randomId = db.collection("palabras").document().id
-
             val snapshot = db.collection("palabras")
                 .whereNotEqualTo("palabra", excluir)
                 .limit((cantidad + 10).toLong())
@@ -367,11 +330,23 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
-    // --- TTS ---
+    private fun inicializarSoundPool() {
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_GAME)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+
+        soundPool = SoundPool.Builder()
+            .setMaxStreams(2)
+            .setAudioAttributes(audioAttributes)
+            .build()
+
+        sonidoAciertoId = soundPool.load(this, R.raw.sonido_correcto, 1)
+        sonidoFalloId = soundPool.load(this, R.raw.sonido_incorrecto, 1)
+    }
+
     override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) {
-            tts.setLanguage(Locale("es", "ES"))
-        }
+        if (status == TextToSpeech.SUCCESS) tts.language = Locale("es", "ES")
     }
 
     private fun reproducirTexto(texto: String) {
@@ -382,26 +357,4 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
         if (::tts.isInitialized) { tts.stop(); tts.shutdown() }
         super.onDestroy()
     }
-    private fun inicializarSoundPool() {
-        // Define los atributos de audio para el juego.
-        val audioAttributes = AudioAttributes.Builder()
-            // --- INICIO DE LA CORRECCIÓN ---
-            // Usa la clase del paquete android.media, no androidx.media3
-            .setUsage(AudioAttributes.USAGE_GAME)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            // --- FIN DE LA CORRECCIÓN ---
-            .build()
-
-        // Construye el SoundPool
-        soundPool = SoundPool.Builder()
-            .setMaxStreams(2) // Podemos reproducir 2 sonidos a la vez
-            .setAudioAttributes(audioAttributes)
-            .build()
-
-        // Carga los sonidos desde la carpeta 'raw' y guarda sus IDs.
-        // El '1' es la prioridad, pero no es muy relevante en este caso.
-        sonidoAciertoId = soundPool.load(this, R.raw.sonido_correcto, 1)
-        sonidoFalloId = soundPool.load(this, R.raw.sonido_incorrecto, 1)
-    }
-
 }

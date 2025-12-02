@@ -43,7 +43,7 @@
         android:id="@+id/game_content_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="cardPictogram, areaRespuesta, labelOpciones, chipGroupOpciones" />
+        app:constraint_referenced_ids="cardPictogram,areaRespuesta,labelOpciones,chipGroupOpciones" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_image_bottom"
@@ -111,7 +111,6 @@
             android:layout_height="wrap_content"
             app:chipSpacing="8dp"
             app:singleSelection="false" />
-
     </LinearLayout>
 
     <TextView
@@ -136,7 +135,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
     </com.google.android.material.chip.ChipGroup>
-
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonConfirm"
@@ -171,6 +169,54 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_intermedio"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#f8f5f3"
+        android:elevation="20dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvTituloIntermedio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="¡Ahora vamos con los errores!"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="@color/rojoBoton"
+            android:gravity="center"
+            app:layout_constraintBottom_toTopOf="@+id/tvSubtituloIntermedio"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/tvSubtituloIntermedio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="¡Prepárate para intentarlo de nuevo!"
+            android:textSize="20sp"
+            android:layout_marginTop="16dp"
+            android:textColor="#757575"
+            app:layout_constraintBottom_toTopOf="@+id/btnComenzarRepaso"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTituloIntermedio" />
+
+        <Button
+            android:id="@+id/btnComenzarRepaso"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="48dp"
+            android:text="Continuar"
+            android:backgroundTint="@color/rojoBoton"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvSubtituloIntermedio" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/resumen_layout"
@@ -178,7 +224,7 @@
         android:layout_height="match_parent"
         android:background="#f8f5f3"
         android:visibility="gone"
-        android:elevation="20dp">
+        android:elevation="21dp">
 
         <TextView
             android:id="@+id/textView_resumen_titulo"
@@ -192,28 +238,80 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageView
+            android:id="@+id/imageView_trofeo_resumen"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="40dp"
+            android:src="@drawable/ic_trophy"
+            app:tint="@color/rojoBoton"
+            app:layout_constraintTop_toBottomOf="@id/textView_resumen_titulo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
         <TextView
             android:id="@+id/textView_resumen_aciertos"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            android:text="Aciertos: 0"
-            android:textColor="@android:color/holo_green_dark"
+            android:textColor="@color/verde_correcto"
             android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView_resumen_titulo" />
+            app:layout_constraintTop_toBottomOf="@+id/imageView_trofeo_resumen"
+            tools:text="Aciertos: 10" />
 
-        <Button
-            android:id="@+id/button_jugar_de_nuevo"
+        <TextView
+            android:id="@+id/textView_resumen_fallos"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="64dp"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/rojo_incorrecto"
+            android:textSize="24sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView_resumen_aciertos"
+            tools:text="Fallos: 2" />
+
+        <TextView
+            android:id="@+id/textViewResumenTiempo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textSize="24sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView_resumen_fallos"
+            tools:text="Tiempo: 01:23" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_jugar_de_nuevo"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:layout_marginBottom="16dp"
             android:backgroundTint="@color/rojoBoton"
-            android:text="Salir"
+            android:text="Volver a intentar"
+            android:textSize="16sp"
+            app:cornerRadius="12dp"
+            app:layout_constraintBottom_toTopOf="@+id/button_salir"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_salir"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:layout_marginBottom="64dp"
+            android:text="Salir al menú"
+            android:textColor="@color/rojoBoton"
+            android:textSize="16sp"
+            app:strokeColor="@color/rojoBoton"
+            app:strokeWidth="2dp"
+            app:cornerRadius="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
