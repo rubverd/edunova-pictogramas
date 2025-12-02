@@ -26,7 +26,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:title="Completa las sílabas"
+                app:title="El Rosco"
                 app:titleTextColor="@color/white"
                 app:navigationIcon="@drawable/ic_arrow_back"
                 app:navigationIconTint="@color/white" />
@@ -179,17 +179,15 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/resumen_layout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="?android:colorBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#f8f5f3"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:elevation="21dp"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="?attr/actionBarSize"
-
-        tools:visibility="invisible">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
             android:id="@+id/textView_resumen_titulo"
@@ -215,7 +213,6 @@
             app:tint="@color/rojoBoton"></ImageView>
 
         <TextView
-
             android:id="@+id/textView_resumen_aciertos"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -239,7 +236,6 @@
             app:layout_constraintTop_toBottomOf="@+id/textView_resumen_aciertos"
             tools:text="Fallos: 2" />
 
-        <!-- En tu archivo silabas.xml, dentro del ConstraintLayout de resumen -->
         <TextView
             android:id="@+id/textViewResumenTiempo"
             android:layout_width="wrap_content"
@@ -251,31 +247,35 @@
             app:layout_constraintTop_toBottomOf="@+id/textView_resumen_fallos"
             tools:text="Tiempo: 01:23" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_jugar_de_nuevo"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="@color/rojoBoton"
+            android:text="Volver a intentar"
+            android:textSize="16sp"
+            app:cornerRadius="12dp"
+            app:layout_constraintBottom_toTopOf="@+id/button_salir"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-        <Button
-            android:id="@+id/buttonJugarDeNuevo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_salir"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
             android:layout_marginBottom="64dp"
-            android:backgroundTint="@color/rojoBoton"
-            android:paddingTop="12dp"
-            android:text="Jugar de Nuevo"
-            android:textSize="18sp"
+            android:text="Salir al menú"
+            android:textColor="@color/rojoBoton"
+            android:textSize="16sp"
+            app:strokeColor="@color/rojoBoton"
+            app:strokeWidth="2dp"
+            app:cornerRadius="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
-        <Button
-            android:id="@+id/buttonSalirJuego"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="64dp"
-            android:backgroundTint="@color/rojoBoton"
-            android:paddingTop="12dp"
-            android:text="Salir del juego"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

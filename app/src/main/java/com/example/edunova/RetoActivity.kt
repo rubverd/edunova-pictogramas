@@ -40,13 +40,10 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private val palabrasUsadasEnElRosco = mutableListOf<String>()
     private var abecedarioEspanol: MutableList<Char> = mutableListOf()
 
-
-    // --- INICIO: VARIABLES PARA SONIDOS ---
+    // --- VARIABLES PARA SONIDOS ---
     private lateinit var soundPool: SoundPool
     private var sonidoAciertoId: Int = 0
     private var sonidoFalloId: Int = 0
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +63,7 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         initializeLetterMap()
         inicializarAbecedario()
+        inicializarSoundPool() // Iniciamos sonidos
 
         val botonVolver = findViewById<MaterialToolbar>(R.id.toolbar)
         botonVolver.setOnClickListener { finish() }
@@ -81,11 +79,13 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             reproducirSonido(palabraActual.toString())
         }
 
-
-        inicializarSoundPool()
-
+        // --- BOTONES DEL RESUMEN ---
         binding.buttonJugarDeNuevo.setOnClickListener {
-            // Reiniciar actividad si lo necesitas
+            reiniciarActividad()
+        }
+
+        binding.buttonSalir.setOnClickListener {
+            finish()
         }
     }
 
@@ -292,31 +292,42 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         binding.textoPista.text = pistaConEspacios
     }
 
-    override fun onDestroy() {
-        if (::tts.isInitialized) { tts.stop(); tts.shutdown() }
-        super.onDestroy()
+    private fun reiniciarActividad() {
+        // Resetear vista
+        binding.resumenLayout.visibility = View.GONE
+        binding.gameContentGroup.visibility = View.VISIBLE
+
+        // Resetear colores de letras
+        letterMap.values.forEach { textView ->
+            textView.backgroundTintList = ContextCompat.getColorStateList(this, R.color.gris_contraste) // Asegúrate de tener este color o usa otro gris
+        }
+
+        // Resetear lógica
+        aciertos = 0
+        fallos = 0
+        palabrasUsadasEnElRosco.clear()
+        binding.respuesta.text?.clear()
+
+        iniciarRecorrido()
     }
 
     private fun inicializarSoundPool() {
-        // Define los atributos de audio para el juego.
         val audioAttributes = AudioAttributes.Builder()
-            // --- INICIO DE LA CORRECCIÓN ---
-            // Usa la clase del paquete android.media, no androidx.media3
             .setUsage(AudioAttributes.USAGE_GAME)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            // --- FIN DE LA CORRECCIÓN ---
             .build()
 
-        // Construye el SoundPool
         soundPool = SoundPool.Builder()
-            .setMaxStreams(2) // Podemos reproducir 2 sonidos a la vez
+            .setMaxStreams(2)
             .setAudioAttributes(audioAttributes)
             .build()
 
-        // Carga los sonidos desde la carpeta 'raw' y guarda sus IDs.
-        // El '1' es la prioridad, pero no es muy relevante en este caso.
         sonidoAciertoId = soundPool.load(this, R.raw.sonido_correcto, 1)
         sonidoFalloId = soundPool.load(this, R.raw.sonido_incorrecto, 1)
     }
 
+    override fun onDestroy() {
+        if (::tts.isInitialized) { tts.stop(); tts.shutdown() }
+        super.onDestroy()
+    }
 }
