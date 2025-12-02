@@ -12,6 +12,7 @@ import androidx.compose.animation.with
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.text
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.add
 
 import androidx.lifecycle.lifecycleScope
 
@@ -34,6 +35,7 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var binding: JuegoRetoBinding
     private lateinit var letterMap: Map<Char, TextView>
     private lateinit var tts: TextToSpeech
+    private val historialPartida = mutableListOf<ResultadoTurno>()
     private var indiceGrupoActual: Int = -1
     private var aciertos = 0
     private var fallos = 0
@@ -236,6 +238,8 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
 
         // Importante: Después de verificar, avanzamos a la siguiente letra.
+        val resultado = ResultadoTurno(letraActual, palabraActual, EstadoTurno.ACIERTO)
+        historialPartida.add(resultado)
         avanzarAlSiguienteGrupo()
     }
 
