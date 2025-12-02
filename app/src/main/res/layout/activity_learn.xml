@@ -130,23 +130,26 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonNext"
-        style="?attr/materialButtonOutlinedStyle"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:layout_marginEnd="24dp"
-        android:textColor="@color/black"
-        android:backgroundTint="@color/rojoBoton"
+        android:text="SIGUIENTE"
+        android:textColor="@color/white"
         android:textSize="16sp"
-        app:cornerRadius="16dp"
+        android:textStyle="bold"
+        android:paddingStart="32dp"
+        android:paddingEnd="24dp"
+        android:elevation="8dp"
+        android:stateListAnimator="@null"
         android:visibility="invisible"
+        app:backgroundTint="@color/rojoBoton"
+        app:cornerRadius="28dp"
         app:icon="@drawable/ic_next"
-        app:iconGravity="textStart"
+        app:iconGravity="textEnd"
         app:iconPadding="8dp"
-        app:iconTint="@color/black"
-        app:strokeColor="@color/black"
-        app:strokeWidth="2dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/guideline_bottom_anchor" />
+        app:iconTint="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/guideline_bottom_anchor"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/toggleGroupOptions"
