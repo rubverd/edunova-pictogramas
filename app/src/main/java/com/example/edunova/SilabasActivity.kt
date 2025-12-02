@@ -85,9 +85,17 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
         }
 
+        // --- LÓGICA DEL BOTÓN DE ESCUCHAR ---
         binding.fabPlaySoundSilabas.setOnClickListener {
-            reproducirSonido(binding.TextoSilabas.text.toString())
+            // 1. Reproducimos usando la variable 'silabaActual' (memoria), NO el texto visible.
+            silabaActual?.let { silaba ->
+                reproducirSonido(silaba)
+            }
+
+            // 2. Borramos el texto para que "desaparezca" visualmente como pediste.
             binding.TextoSilabas.text = " "
+
+            // 3. Habilitamos la escritura
             binding.respuesta.isEnabled = true
         }
 
@@ -124,6 +132,8 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun iniciarRecorrido() {
         indiceGrupoActual = -1
         binding.buttonOption3.isEnabled = true
+        // Bloqueamos escritura al inicio
+        binding.respuesta.isEnabled = false
         tiempoInicioJuego = System.currentTimeMillis()
         avanzarAlSiguienteGrupo()
     }
@@ -133,7 +143,13 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         if (indiceGrupoActual < gruposDeSilabasOrdenados.size) {
             val grupoActual = gruposDeSilabasOrdenados[indiceGrupoActual]
             silabaActual = grupoActual.randomOrNull()
+
+            // Mostramos la sílaba nueva como pista inicial
             binding.TextoSilabas.text = silabaActual ?: "Error"
+
+            // Reseteamos el campo de texto y lo bloqueamos
+            binding.respuesta.text?.clear()
+            binding.respuesta.isEnabled = false
         }
     }
 

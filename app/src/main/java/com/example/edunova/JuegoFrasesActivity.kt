@@ -29,18 +29,18 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     // --- VARIABLES DEL JUEGO ---
     private var fraseOriginal: String = ""
-    private var palabrasCorrectas: List<String> = emptyList()
+    private var palabrasCorrectas: List<String> = emptyList() // Lista ordenada correcta
 
     private val palabrasEnBanco = mutableListOf<String>()
-    private val palabrasEnRespuesta = mutableListOf<String>()
+    private val palabrasEnRespuesta = mutableListOf<String>() // Lo que el usuario va poniendo
 
     private var listaIdsFrases: List<String> = emptyList()
-    private val listaErrores: MutableList<String> = mutableListOf() // Lista para guardar fallos
+    private val listaErrores: MutableList<String> = mutableListOf()
 
     private var indiceActual = 0
     private var aciertos = 0
     private var fallos = 0
-    private var enModoRepaso = false // Flag para saber si estamos repitiendo errores
+    private var enModoRepaso = false
 
     private var tiempoInicio: Long = 0
     private var datosAlumno: Map<String, Any>? = null
@@ -81,9 +81,7 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         binding.buttonConfirm.setOnClickListener { comprobarRespuesta() }
         binding.buttonNext.setOnClickListener { siguienteFrase() }
 
-        // --- BOTONES FINALES ---
         binding.buttonJugarDeNuevo.setOnClickListener {
-            // Reiniciamos buscando el colegio guardado
             val school = datosAlumno?.get("school") as? String
             if (school != null) {
                 iniciarJuego(school)
@@ -92,11 +90,7 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
         }
 
-        binding.buttonSalir.setOnClickListener {
-            finish()
-        }
-        // ----------------------
-
+        binding.buttonSalir.setOnClickListener { finish() }
         binding.btnComenzarRepaso.setOnClickListener { iniciarModoRepaso() }
 
         binding.fabPlaySound.setOnClickListener {
@@ -120,7 +114,6 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun iniciarJuego(school: String) {
-        // Restaurar visibilidad para el juego
         binding.gameContentGroup.visibility = View.VISIBLE
         binding.resumenLayout.visibility = View.GONE
         binding.layoutIntermedio.visibility = View.GONE
@@ -160,11 +153,11 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             fraseOriginal = doc.getString("frase") ?: ""
             val urlImagen = doc.getString("urlImagen") ?: ""
+            // Guardamos la lista ordenada correcta
             palabrasCorrectas = (doc.get("palabras") as? List<String>) ?: fraseOriginal.split(" ")
 
             binding.imageViewPictogram.load(urlImagen)
 
-            // Actualizar barra de progreso
             val total = if (enModoRepaso) listaErrores.size else listaIdsFrases.size
             binding.progressBarGame.max = total
             binding.progressBarGame.progress = indiceActual + 1
@@ -228,13 +221,19 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun comprobarRespuesta() {
+        // Unimos las palabras del usuario para ver si la frase completa es correcta
         val fraseUsuario = palabrasEnRespuesta.joinToString(" ")
-        val esCorrecto = fraseUsuario.equals(fraseOriginal, ignoreCase = true)
+        val esCorrectoTotal = fraseUsuario.equals(fraseOriginal, ignoreCase = true)
 
-        if (esCorrecto) {
-            // ACIERTO
+        if (esCorrectoTotal) {
+            // --- ACIERTO TOTAL ---
             soundPool.play(sonidoAciertoId, 1.0f, 1.0f, 1, 0, 1.0f)
-            pintarRespuesta(true)
+
+            // Pintamos todos de verde
+            for (i in 0 until binding.chipGroupRespuesta.childCount) {
+                val chip = binding.chipGroupRespuesta.getChildAt(i) as Chip
+                pintarChipIndividual(chip, true)
+            }
 
             if (!enModoRepaso) {
                 aciertos++
@@ -242,9 +241,25 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             Toast.makeText(this, "¡Correcto!", Toast.LENGTH_SHORT).show()
 
         } else {
-            // FALLO
+            // --- FALLO ---
             soundPool.play(sonidoFalloId, 1.0f, 1.0f, 1, 0, 1.0f)
-            pintarRespuesta(false)
+
+            // LÓGICA DE FEEDBACK GRANULAR:
+            // Recorremos los chips y comparamos posición por posición
+            for (i in 0 until binding.chipGroupRespuesta.childCount) {
+                val chip = binding.chipGroupRespuesta.getChildAt(i) as Chip
+
+                val palabraPuesta = palabrasEnRespuesta.getOrNull(i) ?: ""
+                val palabraCorrecta = palabrasCorrectas.getOrNull(i) ?: ""
+
+                if (palabraPuesta.equals(palabraCorrecta, ignoreCase = true)) {
+                    // Está en la posición correcta -> VERDE
+                    pintarChipIndividual(chip, true)
+                } else {
+                    // No está en su sitio -> ROJO
+                    pintarChipIndividual(chip, false)
+                }
+            }
 
             if (!enModoRepaso) {
                 fallos++
@@ -253,7 +268,7 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     listaErrores.add(idActual)
                 }
             }
-            Toast.makeText(this, "Incorrecto.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Hay errores. Fíjate en los colores.", Toast.LENGTH_SHORT).show()
         }
 
         binding.buttonConfirm.visibility = View.INVISIBLE
@@ -261,15 +276,20 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         deshabilitarChips()
     }
 
+    // Nueva función helper para pintar un solo chip
+    private fun pintarChipIndividual(chip: Chip, esCorrecto: Boolean) {
+        val color = if (esCorrecto) Color.parseColor("#4CAF50") else Color.parseColor("#F44336")
+        chip.setChipBackgroundColor(ColorStateList.valueOf(color))
+        chip.setTextColor(Color.WHITE)
+    }
+
     private fun siguienteFrase() {
         indiceActual++
-
         val listaActual = if (enModoRepaso) listaErrores else listaIdsFrases
 
         if (indiceActual < listaActual.size) {
             cargarFrase(listaActual[indiceActual])
         } else {
-            // Fin de la lista actual
             if (!enModoRepaso && listaErrores.isNotEmpty()) {
                 mostrarPantallaIntermedia()
             } else {
@@ -286,7 +306,6 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun iniciarModoRepaso() {
         binding.layoutIntermedio.visibility = View.GONE
         binding.gameContentGroup.visibility = View.VISIBLE
-
         enModoRepaso = true
         indiceActual = 0
         cargarFrase(listaErrores[indiceActual])
@@ -298,7 +317,6 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         val tiempoTotalMs = System.currentTimeMillis() - tiempoInicio
         val segundosTotales = tiempoTotalMs / 1000
-
         val minutos = segundosTotales / 60
         val segundos = segundosTotales % 60
         val tiempoFormateado = String.format(Locale.getDefault(), "%02d:%02d", minutos, segundos)
@@ -326,15 +344,6 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         )
         repository.saveStudentAttempt(intentoData) { success ->
             if (success) Log.d("JuegoFrases", "Progreso guardado")
-        }
-    }
-
-    private fun pintarRespuesta(esCorrecto: Boolean) {
-        val color = if (esCorrecto) Color.parseColor("#4CAF50") else Color.parseColor("#F44336")
-        for (i in 0 until binding.chipGroupRespuesta.childCount) {
-            val chip = binding.chipGroupRespuesta.getChildAt(i) as Chip
-            chip.setChipBackgroundColor(ColorStateList.valueOf(color))
-            chip.setTextColor(Color.WHITE)
         }
     }
 
