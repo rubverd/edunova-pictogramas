@@ -2,6 +2,8 @@ package com.example.edunova
 
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.media.AudioAttributes // Importado
+import android.media.SoundPool // Importado
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.util.Log
@@ -40,6 +42,11 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var tiempoInicio: Long = 0
     private var datosAlumno: Map<String, Any>? = null
 
+    // --- VARIABLES PARA SONIDOS (SoundPool) ---
+    private lateinit var soundPool: SoundPool
+    private var sonidoAciertoId: Int = 0
+    private var sonidoFalloId: Int = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityJuegoFrasesBinding.inflate(layoutInflater)
@@ -47,6 +54,9 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         tts = TextToSpeech(this, this)
         setupUI()
+
+        // Inicializamos los sonidos aquí
+        inicializarSoundPool()
 
         // 1. CARGAR DATOS DEL ALUMNO Y LUEGO INICIAR
         val currentUser = repository.getCurrentUser()
@@ -81,7 +91,23 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
-    // MODIFICADO: Recibe el school como parámetro
+    // --- MÉTODO PARA INICIALIZAR SONIDOS (Igual que en SilabasActivity) ---
+    private fun inicializarSoundPool() {
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_GAME)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+
+        soundPool = SoundPool.Builder()
+            .setMaxStreams(2)
+            .setAudioAttributes(audioAttributes)
+            .build()
+
+        // Carga los sonidos desde la carpeta 'raw'
+        sonidoAciertoId = soundPool.load(this, R.raw.sonido_correcto, 1)
+        sonidoFalloId = soundPool.load(this, R.raw.sonido_incorrecto, 1)
+    }
+
     private fun iniciarJuego(school: String) {
         binding.gameContentGroup.visibility = View.VISIBLE
         binding.resumenLayout.visibility = View.GONE
@@ -93,9 +119,8 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         lifecycleScope.launch {
             try {
-                // MODIFICADO: Filtrar por "school"
                 val snapshot = db.collection("frases")
-                    .whereEqualTo("school", school) // FILTRO CLAVE
+                    .whereEqualTo("school", school)
                     .get()
                     .await()
 
@@ -188,14 +213,25 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         val fraseUsuario = palabrasEnRespuesta.joinToString(" ")
 
         if (fraseUsuario.equals(fraseOriginal, ignoreCase = true)) {
+            // ACIERTO
             aciertos++
             Toast.makeText(this, "¡Correcto!", Toast.LENGTH_SHORT).show()
             pintarRespuesta(true)
             speak("¡Muy bien!")
+
+            // --- REPRODUCIR SONIDO ACIERTO ---
+            soundPool.play(sonidoAciertoId, 1.0f, 1.0f, 1, 0, 1.0f)
+            // ---------------------------------
+
         } else {
+            // FALLO
             fallos++
             Toast.makeText(this, "Incorrecto. Inténtalo de nuevo.", Toast.LENGTH_SHORT).show()
             pintarRespuesta(false)
+
+            // --- REPRODUCIR SONIDO FALLO ---
+            soundPool.play(sonidoFalloId, 1.0f, 1.0f, 1, 0, 1.0f)
+            // -------------------------------
         }
 
         binding.buttonConfirm.visibility = View.INVISIBLE
@@ -236,9 +272,6 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         val tiempoTotalMs = System.currentTimeMillis() - tiempoInicio
         val segundosTotales = tiempoTotalMs / 1000
-        val minutos = segundosTotales / 60
-        val segundos = segundosTotales % 60
-        // val tiempoFormateado = String.format(Locale.getDefault(), "%02d:%02d", minutos, segundos)
 
         binding.textViewResumenAciertos.text = "Aciertos: $aciertos"
         guardarResultadosEnBD(segundosTotales)
