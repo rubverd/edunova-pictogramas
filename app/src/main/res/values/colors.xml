@@ -11,4 +11,6 @@
     <color name="verde_correcto">#4CAF50</color>
     <color name="rojo_incorrecto">#D32F2F</color>
     <color name="gris_contraste">#8C8181</color>
+
+    <color name="gris_contraste_oscuro">#666666</color>
 </resources>

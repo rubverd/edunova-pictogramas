@@ -1,17 +1,19 @@
 package com.example.edunova
 
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
 import com.example.edunova.databinding.SilabasBinding
-import java.util.Locale
+import com.example.edunova.db.FirebaseConnection
 import com.google.android.material.appbar.MaterialToolbar
-
+import java.util.Locale
 
 class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
@@ -19,8 +21,10 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var letterMap: Map<Char, TextView>
     private lateinit var tts: TextToSpeech
 
-    // Esta parte está bien con by lazy, ya que la carga es diferida.
-// En SilabasActivity.kt
+    // --- VARIABLES DE SEGUIMIENTO ---
+    private val repository = FirebaseConnection()
+    private var datosAlumno: Map<String, Any>? = null
+    private var tiempoInicioJuego: Long = 0L
 
     private val gruposDeSilabasOrdenados: List<List<String>> by lazy {
         val silabas = listOf(
@@ -36,15 +40,9 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             "ya", "ye", "yi", "yo", "yu", "za", "ze", "zi", "zo", "zu"
         )
 
-        // --- LÓGICA DE ORDENAMIENTO CORREGIDA ---
-        // 1. Obtener un Collator para el idioma español.
         val collator = java.text.Collator.getInstance(Locale("es", "ES"))
-        collator.strength = java.text.Collator.PRIMARY // Ignora mayúsculas/minúsculas y acentos si fuera necesario
-
-        // 2. Ordenar la lista de sílabas usando el Collator.
+        collator.strength = java.text.Collator.PRIMARY
         val silabasOrdenadas = silabas.sortedWith(compareBy(collator) { it })
-
-        // 3. Agrupar por la primera letra y devolver la lista de grupos.
         silabasOrdenadas.groupBy { it.first() }.values.toList()
     }
 
@@ -54,30 +52,37 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var aciertos = 0
     private var fallos = 0
 
+    // --- SONIDOS ---
+    private lateinit var soundPool: SoundPool
+    private var sonidoAciertoId: Int = 0
+    private var sonidoFalloId: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = SilabasBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Inicializa el motor TTS aquí, pero el juego comenzará después en onInit
         tts = TextToSpeech(this, this)
 
-        // Las inicializaciones rápidas se quedan aquí
+        // Cargar datos del alumno
+        val currentUser = repository.getCurrentUser()
+        if (currentUser != null) {
+            repository.getUserData(currentUser.uid) { data ->
+                datosAlumno = data
+            }
+        }
+
         initializeLetterMap()
+        inicializarSoundPool()
 
         val botonVolver = findViewById<MaterialToolbar>(R.id.toolbar)
-        botonVolver.setOnClickListener {
-            // Crea un Intent para ir de MainActivity a RegisterActivity
-            finish()
-        }
+        botonVolver.setOnClickListener { finish() }
 
         binding.buttonOption3.setOnClickListener {
             val respuestaUsuario = binding.respuesta.text.toString().trim()
             if (silabaActual != null) {
                 verificarRespuesta(respuestaUsuario)
             }
-
         }
 
         binding.fabPlaySoundSilabas.setOnClickListener {
@@ -85,8 +90,14 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             binding.TextoSilabas.text = " "
             binding.respuesta.isEnabled = true
         }
+
+        // --- LISTENERS BOTONES FINALES ---
         binding.buttonJugarDeNuevo.setOnClickListener {
             reiniciarActividad()
+        }
+
+        binding.buttonSalir.setOnClickListener {
+            finish()
         }
     }
 
@@ -96,56 +107,35 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Toast.makeText(this, "El idioma español no está soportado.", Toast.LENGTH_SHORT).show()
             }
-
-            // ¡PUNTO CLAVE! Inicia el juego aquí, después de que TTS esté listo.
-            // Esto asegura que la inicialización de TTS no bloquee el inicio.
             iniciarRecorrido()
-
         } else {
             Toast.makeText(this, "Error al inicializar el motor de voz.", Toast.LENGTH_SHORT).show()
-            // Opcional: podrías deshabilitar las funciones de sonido si TTS falla
         }
     }
 
-
-
-
     private fun reproducirSonido(texto: String) {
-        // La condición "::tts.isInitialized" ya asegura que TTS no se usará antes de estar listo.
-        // La comprobación del idioma se hace de forma más segura.
         if (::tts.isInitialized && texto.isNotBlank()) {
-            // Comprobamos si el idioma actual del motor de voz es español.
-            // tts.voice.locale es la forma correcta y segura de hacerlo.
             if (tts.voice.locale.toLanguageTag().startsWith("es")) {
                 tts.speak(texto, TextToSpeech.QUEUE_FLUSH, null, null)
-            } else {
-                // Opcional: Informar al usuario que el sonido no se puede reproducir
-                // si el idioma no es el correcto. Esto puede ayudar a depurar.
-                // Toast.makeText(this, "El motor de voz no está en español.", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-
     private fun iniciarRecorrido() {
         indiceGrupoActual = -1
-        // Asegúrate de que el botón esté habilitado al iniciar/reiniciar
         binding.buttonOption3.isEnabled = true
+        tiempoInicioJuego = System.currentTimeMillis()
         avanzarAlSiguienteGrupo()
     }
 
     private fun avanzarAlSiguienteGrupo() {
         indiceGrupoActual++
-        // La comprobación del final del juego ya no es necesaria aquí.
-        // Solo avanzamos si no hemos llegado al final.
         if (indiceGrupoActual < gruposDeSilabasOrdenados.size) {
             val grupoActual = gruposDeSilabasOrdenados[indiceGrupoActual]
             silabaActual = grupoActual.randomOrNull()
             binding.TextoSilabas.text = silabaActual ?: "Error"
         }
     }
-
-
 
     private fun verificarRespuesta(respuesta: String) {
         val primeraSilabaDelGrupo = gruposDeSilabasOrdenados.getOrNull(indiceGrupoActual)?.firstOrNull()
@@ -154,10 +144,12 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         if (respuesta.equals(silabaActual, ignoreCase = true)) {
             Toast.makeText(this, "¡Correcto!", Toast.LENGTH_SHORT).show()
+            soundPool.play(sonidoAciertoId, 1.0f, 1.0f, 1, 0, 1.0f)
             aciertos++
             textViewDeLetra?.backgroundTintList = ContextCompat.getColorStateList(this, R.color.verde_correcto)
         } else {
             Toast.makeText(this, "Incorrecto. La sílaba era '$silabaActual'", Toast.LENGTH_SHORT).show()
+            soundPool.play(sonidoFalloId, 1.0f, 1.0f, 1, 0, 1.0f)
             fallos++
             textViewDeLetra?.backgroundTintList = ContextCompat.getColorStateList(this, R.color.design_default_color_error)
         }
@@ -165,85 +157,97 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         binding.respuesta.text?.clear()
         binding.respuesta.isEnabled = false
 
-        // --- LÓGICA DE FINALIZACIÓN MODIFICADA ---
         if (indiceGrupoActual >= gruposDeSilabasOrdenados.size - 1) {
-            finalizarJuego() // Muestra la pantalla de resumen
+            finalizarJuego()
         } else {
-            avanzarAlSiguienteGrupo() // Si no es el final, avanza
+            avanzarAlSiguienteGrupo()
         }
     }
 
-
     private fun initializeLetterMap() {
         letterMap = mapOf(
-            'B' to binding.B,
-            'C' to binding.C,
-            'D' to binding.D,
-            'F' to binding.F,
-            'G' to binding.G,
-            'H' to binding.H,
-            'J' to binding.J,
-            'K' to binding.K,
-            'L' to binding.L,
-            'M' to binding.M,
-            'N' to binding.N,
-            'Ñ' to binding.NEne,
-            'P' to binding.P,
-            'Q' to binding.Q,
-            'R' to binding.letraR,
-            'S' to binding.S,
-            'T' to binding.T,
-            'V' to binding.V,
-            'W' to binding.W,
-            'X' to binding.X,
-            'Y' to binding.Y,
-            'Z' to binding.Z
+            'B' to binding.B, 'C' to binding.C, 'D' to binding.D, 'F' to binding.F,
+            'G' to binding.G, 'H' to binding.H, 'J' to binding.J, 'K' to binding.K,
+            'L' to binding.L, 'M' to binding.M, 'N' to binding.N, 'Ñ' to binding.NEne,
+            'P' to binding.P, 'Q' to binding.Q, 'R' to binding.letraR, 'S' to binding.S,
+            'T' to binding.T, 'V' to binding.V, 'W' to binding.W, 'X' to binding.X,
+            'Y' to binding.Y, 'Z' to binding.Z
         )
     }
 
+    private fun finalizarJuego() {
+        binding.gameContentGroup.visibility = View.GONE
+        binding.resumenLayout.visibility = View.VISIBLE
+
+        val tiempoFinalJuego = System.currentTimeMillis()
+        val tiempoTotalMs = tiempoFinalJuego - tiempoInicioJuego
+        val segundosTotales = tiempoTotalMs / 1000
+
+        val minutos = segundosTotales / 60
+        val segundos = segundosTotales % 60
+        val tiempoFormateado = String.format(Locale.getDefault(), "%02d:%02d", minutos, segundos)
+
+        binding.textViewResumenAciertos.text = "Aciertos: $aciertos"
+        binding.textViewResumenFallos.text = "Fallos: $fallos"
+        binding.textViewResumenTiempo.text = "Tiempo: $tiempoFormateado"
+
+        guardarResultadosEnBD(segundosTotales)
+    }
+
+    private fun guardarResultadosEnBD(segundosTotales: Long) {
+        val currentUser = repository.getCurrentUser() ?: return
+
+        val intentoData = hashMapOf(
+            "studentUid" to currentUser.uid,
+            "studentName" to (datosAlumno?.get("displayName") ?: "Alumno"),
+            "school" to (datosAlumno?.get("school") ?: "Sin Centro"),
+            "classroom" to (datosAlumno?.get("classroom") ?: "Sin Clase"),
+            "exerciseType" to "silabas",
+            "timestamp" to System.currentTimeMillis(),
+            "timeSpentSeconds" to segundosTotales,
+            "score" to aciertos,
+            "totalQuestions" to gruposDeSilabasOrdenados.size,
+            "status" to "completed"
+        )
+
+        repository.saveStudentAttempt(intentoData) { success ->
+            if (success) Log.d("SilabasActivity", "Progreso guardado correctamente")
+        }
+    }
+
+    private fun reiniciarActividad() {
+        binding.resumenLayout.visibility = View.GONE
+        binding.gameContentGroup.visibility = View.VISIBLE
+
+        letterMap.values.forEach { textView ->
+            textView.backgroundTintList = ContextCompat.getColorStateList(this, R.color.gris_contraste)
+        }
+
+        aciertos = 0
+        fallos = 0
+        iniciarRecorrido()
+    }
+
+    private fun inicializarSoundPool() {
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_GAME)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+
+        soundPool = SoundPool.Builder()
+            .setMaxStreams(2)
+            .setAudioAttributes(audioAttributes)
+            .build()
+
+        sonidoAciertoId = soundPool.load(this, R.raw.sonido_correcto, 1)
+        sonidoFalloId = soundPool.load(this, R.raw.sonido_incorrecto, 1)
+    }
+
     override fun onDestroy() {
-        // No olvides liberar los recursos de TTS cuando la actividad se destruya
         if (::tts.isInitialized) {
             tts.stop()
             tts.shutdown()
         }
         super.onDestroy()
     }
-
-
-    private fun finalizarJuego() {
-        // Ocultar vistas del juego usando el Group que definimos en el XML
-        binding.gameContentGroup.visibility = View.GONE
-
-        // Mostrar vistas del resumen
-        binding.resumenLayout.visibility = View.VISIBLE
-
-        // --- LÍNEAS CORREGIDAS ---
-        // Usamos los recursos de string correctos que contienen el formato "%d"
-        binding.textViewResumenAciertos.text = getString(R.string.texto_aciertos, aciertos)
-        binding.textViewResumenFallos.text = getString(R.string.texto_fallos, fallos)
-    }
-
-
-
-
-    private fun reiniciarActividad() {
-        // Ocultar vistas del resumen
-        binding.resumenLayout.visibility = View.GONE
-
-        // Mostrar vistas del juego
-        binding.gameContentGroup.visibility = View.VISIBLE
-
-
-        // 1. Reiniciar los colores de fondo de todas las letras
-        letterMap.values.forEach { textView ->
-            textView.backgroundTintList = ContextCompat.getColorStateList(this, R.color.gris_contraste)
-        }
-
-        // 2. Reiniciar los contadores y el recorrido
-        aciertos = 0
-        fallos = 0
-        iniciarRecorrido()
-    }
-
 }

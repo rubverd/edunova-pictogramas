@@ -15,58 +15,60 @@ import com.google.android.material.textfield.TextInputEditText
 
 class AddFraseActivity : AppCompatActivity() {
 
-    // --- 1. DECLARACIÓN DE VARIABLES ---
+    // --- VARIABLES ---
     private lateinit var ivPreview: ImageView
     private lateinit var etImageUrl: TextInputEditText
-    private lateinit var etWord: TextInputEditText
     private lateinit var etFrase: TextInputEditText
-    private lateinit var etCategory: TextInputEditText
     private lateinit var sliderDifficulty: Slider
     private lateinit var progressBar: ProgressBar
     private lateinit var btnSave: Button
+    private lateinit var btnPreviewImage: Button
+    private lateinit var btnBack: ImageButton
 
     private val repository = FirebaseConnection()
 
-    // Variable para almacenar el centro del profesor (Puede ser nula al principio)
+    // VARIABLE NUEVA: Para almacenar el centro
     private var currentSchool: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_frase)
 
-        // --- 2. INICIALIZACIÓN ---
+        // --- INICIALIZACIÓN DE VISTAS ---
         ivPreview = findViewById(R.id.ivPreview)
         etImageUrl = findViewById(R.id.etImageUrl)
         etFrase = findViewById(R.id.etFrase)
         sliderDifficulty = findViewById(R.id.sliderDifficulty)
         progressBar = findViewById(R.id.progressBar)
         btnSave = findViewById(R.id.btnSave)
+        btnPreviewImage = findViewById(R.id.btnPreviewImage)
+        btnBack = findViewById(R.id.returnButton)
 
-        val btnPreviewImage = findViewById<Button>(R.id.btnPreviewImage)
-        val btnBack = findViewById<ImageButton>(R.id.returnButton)
-
-        // 1. Botón Volver
-        btnBack.setOnClickListener {
-            finish()
-        }
-
-        // 2. Cargar el Centro del Profesor al iniciar
+        // Deshabilitamos guardar hasta cargar el centro (Seguridad)
         btnSave.isEnabled = false
 
+        setupListeners()
+        loadTeacherData()
+    }
+
+    private fun loadTeacherData() {
+        // Cargar el Centro del Profesor al iniciar (Lógica traída de AddPictogramActivity)
         val currentUser = repository.getCurrentUser()
         if (currentUser != null) {
             repository.getTeacherSchool(currentUser.uid) { school ->
                 if (school != null) {
                     currentSchool = school
-                    btnSave.isEnabled = true
+                    btnSave.isEnabled = true // Habilitamos botón ahora que tenemos centro
                 } else {
-                    Toast.makeText(this, "Error: No tienes centro asignado.", Toast.LENGTH_LONG)
-                        .show()
+                    Toast.makeText(this, "Error: No tienes centro asignado.", Toast.LENGTH_LONG).show()
                 }
             }
         }
+    }
 
-        // 3. Botón Ver Imagen
+    private fun setupListeners() {
+        btnBack.setOnClickListener { finish() }
+
         btnPreviewImage.setOnClickListener {
             val url = etImageUrl.text.toString().trim()
             if (url.isNotEmpty()) {
@@ -80,7 +82,6 @@ class AddFraseActivity : AppCompatActivity() {
             }
         }
 
-        // 4. Botón Guardar
         btnSave.setOnClickListener {
             if (validateFields()) {
                 saveDataToFirestore()
@@ -88,22 +89,15 @@ class AddFraseActivity : AppCompatActivity() {
         }
     }
 
-    // --- 4. LÓGICA ---
-
     private fun validateFields(): Boolean {
         if (etImageUrl.text.isNullOrEmpty()) {
             etImageUrl.error = "Falta la URL de la imagen"
             return false
         }
-        if (etWord.text.isNullOrEmpty()) {
-            etWord.error = "Falta la palabra"
-            return false
-        }
         if (etFrase.text.isNullOrEmpty()) {
-            etFrase.error = "Faltan las sílabas"
+            etFrase.error = "Introduce la frase completa"
             return false
         }
-        // Validación extra de seguridad
         if (currentSchool == null) {
             Toast.makeText(this, "No se ha podido identificar tu centro", Toast.LENGTH_SHORT).show()
             return false
@@ -115,40 +109,40 @@ class AddFraseActivity : AppCompatActivity() {
         setLoading(true)
 
         val urlImagen = etImageUrl.text.toString().trim()
+        val fraseCompleta = etFrase.text.toString().trim()
         val dificultad = sliderDifficulty.value.toInt()
+        val escuela = currentSchool ?: "" // Usamos la variable del centro
 
-        val rawFrase = etFrase.text.toString().trim()
-        val listaPalabras = rawFrase.split("-").map { it.trim() }
-
-        // Mapa de datos
-        // CORRECCIÓN AQUÍ: Usamos (currentSchool ?: "") para asegurar que no es nulo
-        val pictogramData = hashMapOf(
-            "dificultad" to dificultad,
-            "palabras" to listaPalabras,
-            "urlImagen" to urlImagen,
-            "updatedAt" to System.currentTimeMillis(),
-            "school" to (currentSchool ?: "") // <-- ESTO SOLUCIONA EL ERROR DE TIPOS
-        )
-
-        repository.savePictogram(pictogramData) { success ->
+        // Pasamos la escuela al método actualizado
+        repository.savePhrase(fraseCompleta, urlImagen, dificultad, escuela) { success ->
             setLoading(false)
             if (success) {
-                Toast.makeText(this, "¡Pictograma guardado en $currentSchool!", Toast.LENGTH_SHORT)
-                    .show()
-                finish()
+                Toast.makeText(this, "¡Frase guardada en $escuela!", Toast.LENGTH_SHORT).show()
+                limpiarCampos()
             } else {
-                Toast.makeText(this, "Error al guardar", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Error al guardar la frase", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun limpiarCampos() {
+        etFrase.text?.clear()
+        etImageUrl.text?.clear()
+        sliderDifficulty.value = 1f
+        ivPreview.setImageResource(android.R.drawable.ic_menu_gallery)
     }
 
     private fun setLoading(isLoading: Boolean) {
         if (isLoading) {
             progressBar.visibility = View.VISIBLE
             btnSave.isEnabled = false
+            etFrase.isEnabled = false
+            etImageUrl.isEnabled = false
         } else {
             progressBar.visibility = View.GONE
             btnSave.isEnabled = true
+            etFrase.isEnabled = true
+            etImageUrl.isEnabled = true
         }
     }
 }

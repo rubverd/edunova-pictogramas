@@ -3,7 +3,6 @@ package com.example.edunova
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class ProfesorActivity : AppCompatActivity() {
@@ -26,10 +25,11 @@ class ProfesorActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // 3. Crear Nivel (Pendiente)
-        val btnLevels = findViewById<Button>(R.id.btnCreateLevel)
-        btnLevels.setOnClickListener {
-            Toast.makeText(this, "Próximamente: Crear Nivel", Toast.LENGTH_SHORT).show()
+        // 3. GESTIONAR FRASES (Actualizado)
+        val btnManage = findViewById<Button>(R.id.btnManagePhrases)
+        btnManage.setOnClickListener {
+            val intent = Intent(this, AdminFrasesActivity::class.java)
+            startActivity(intent)
         }
 
         // 4. Volver

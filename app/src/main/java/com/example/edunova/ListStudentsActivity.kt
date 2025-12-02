@@ -6,6 +6,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.ImageButton
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -73,15 +74,20 @@ class ListStudentsActivity : AppCompatActivity() {
     }
 
     private fun loadStudents(school: String) {
-        // Usamos la función del repositorio para buscar alumnos por centro
         repository.getStudentsBySchool(school) { students ->
             progressBar.visibility = View.GONE
 
             if (students.isEmpty()) {
                 Toast.makeText(this, "No hay alumnos en este centro.", Toast.LENGTH_SHORT).show()
             } else {
-                // Asignamos el adaptador con la lista obtenida
-                recyclerView.adapter = StudentAdapter(students)
+                // 3. Pasamos la lambda para manejar el clic
+                recyclerView.adapter = StudentAdapter(students) { studentClicked ->
+                    // Esto se ejecuta cuando tocas un alumno
+                    val intent = Intent(this, StudentProgressActivity::class.java)
+                    intent.putExtra("STUDENT_UID", studentClicked.uid) // Pasamos el ID
+                    intent.putExtra("STUDENT_NAME", studentClicked.displayName) // Pasamos el Nombre
+                    startActivity(intent)
+                }
             }
         }
     }
