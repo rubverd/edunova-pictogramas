@@ -46,11 +46,12 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_marginTop="8dp"
+            android:layout_marginEnd="-16dp"
             app:cardBackgroundColor="#FFC107"
             app:cardCornerRadius="8dp"
             app:cardElevation="0dp"
-            android:visibility="gone"
-            app:layout_constraintStart_toEndOf="@id/imageViewLogo"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="@id/imageViewLogo"
             app:layout_constraintTop_toTopOf="@id/imageViewLogo"
             app:layout_constraintBottom_toBottomOf="@id/imageViewLogo">
 
@@ -59,7 +60,7 @@
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
-                android:text="PROFESOR"
+                android:text="PROFE"
                 android:textColor="#212121"
                 android:textSize="10sp"
                 android:textStyle="bold" />
@@ -119,7 +120,7 @@
                 <ImageView
                     android:layout_width="64dp"
                     android:layout_height="64dp"
-                    android:src="@drawable/ic_learn"
+                    android:src="@drawable/ic_image"
                     app:tint="#E33C55" />
 
                 <TextView
@@ -194,7 +195,7 @@
                 <ImageView
                     android:layout_width="64dp"
                     android:layout_height="64dp"
-                    android:src="@drawable/ic_phrase"
+                    android:src="@drawable/ic_puzzle"
                     app:tint="#E33C55" />
 
                 <TextView
@@ -232,7 +233,7 @@
                     android:id="@+id/imageViewReto"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
-                    android:src="@drawable/ic_circle"
+                    android:src="@drawable/ic_editor_choice"
                     app:tint="#E33C55" />
 
                 <TextView
