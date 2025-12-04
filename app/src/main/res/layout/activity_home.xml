@@ -19,28 +19,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <TextView
-            android:id="@+id/textViewLogo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-black"
-            android:text="PictoNova"
-            android:textColor="@color/white"
-            android:textSize="42sp"
-            android:shadowColor="#80000000"
-            android:shadowDx="2"
-            android:shadowDy="2"
-            android:shadowRadius="4"
+        <ImageView
+            android:id="@+id/imageViewLogo"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp"
+            android:src="@drawable/pictonova"
+            android:contentDescription="Logo de la aplicación"
+            android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- Esta View ahora se ancla al nuevo imageViewLogo -->
         <View
             android:layout_width="80dp"
             android:layout_height="8dp"
-            app:layout_constraintStart_toStartOf="@id/textViewLogo"
-            app:layout_constraintTop_toBottomOf="@id/textViewLogo" />
+            app:layout_constraintStart_toStartOf="@id/imageViewLogo"
+            app:layout_constraintTop_toBottomOf="@id/imageViewLogo" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/badgeTeacher"
@@ -52,9 +50,9 @@
             app:cardCornerRadius="8dp"
             app:cardElevation="0dp"
             android:visibility="gone"
-            app:layout_constraintStart_toEndOf="@id/textViewLogo"
-            app:layout_constraintTop_toTopOf="@id/textViewLogo"
-            app:layout_constraintBottom_toBottomOf="@id/textViewLogo">
+            app:layout_constraintStart_toEndOf="@id/imageViewLogo"
+            app:layout_constraintTop_toTopOf="@id/imageViewLogo"
+            app:layout_constraintBottom_toBottomOf="@id/imageViewLogo">
 
             <TextView
                 android:layout_width="wrap_content"

@@ -7,19 +7,20 @@ import android.util.Patterns
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.edunova.databinding.ActivityLoginBinding
 import com.example.edunova.databinding.ActivityMainBinding
 import com.example.edunova.db.FirebaseConnection // Importamos tu repositorio
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityLoginBinding
 
     // 1. Sustituimos las instancias directas de Firebase por tu repositorio
     private lateinit var repository: FirebaseConnection
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         // 2. Inicializamos el repositorio
