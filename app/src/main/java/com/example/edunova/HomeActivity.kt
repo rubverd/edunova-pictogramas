@@ -107,15 +107,13 @@ class HomeActivity : AppCompatActivity() {
             return
         }
         val db = FirebaseFirestore.getInstance()
-        val progressDocRef = db.collection("users").document(userId)
+        val progressDocRef = db.collection("userProgress").document(userId)
         progressDocRef.get()
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
                     val completedPalabras = document.getBoolean("completedPalabras") == true
-                    val completedSilabas = document.getBoolean("completedSilabasActivity") == true
-                    val completedFrases = document.getBoolean("completedFrases") == true
 
-                    if (completedPalabras && completedSilabas && completedFrases) {
+                    if (completedPalabras) {
                         Log.d("HomeActivity", "Progreso completado, puede iniciar el reto.")
                         startActivity(Intent(this, RetoActivity::class.java))
                     } else {

@@ -22,6 +22,7 @@ import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.Locale
@@ -53,6 +54,8 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var soundPool: SoundPool
     private var sonidoAciertoId: Int = 0
     private var sonidoFalloId: Int = 0
+
+    private val MINIMO_ACIERTOS = 2
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -296,6 +299,7 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun guardarResultadosEnBD() {
         val currentUser = repository.getCurrentUser() ?: return
+        val studentUid = currentUser.uid
 
         // Calculamos tiempo total en SEGUNDOS
         val tiempoTotalMs = System.currentTimeMillis() - tiempoInicio
@@ -322,6 +326,12 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         repository.saveStudentAttempt(intentoData) { success ->
             if (success) Log.d("Juego", "Guardado OK con fecha y tiempo")
+        }
+        if (aciertos >= MINIMO_ACIERTOS) {
+            val progressUpdate = mapOf("completedPalabras" to true)
+            db.collection("userProgress").document(studentUid)
+                .set(progressUpdate, SetOptions.merge())
+                .addOnSuccessListener { Log.d("Juego", "Progreso actualizado correctamente") }
         }
     }
 
