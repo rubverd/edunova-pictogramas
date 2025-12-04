@@ -38,6 +38,10 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val palabrasUsadasEnElRosco = mutableListOf<String>()
+
+    private val listaAciertos = mutableListOf<String>()
+
+    private val listaFallos = mutableListOf<String>()
     private var abecedarioEspanol: MutableList<Char> = mutableListOf()
 
     // --- VARIABLES PARA SONIDOS ---
@@ -180,11 +184,17 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         if (respuesta.equals(nombrePictograma, ignoreCase = true)) {
             Toast.makeText(this, "¡Correcto!", Toast.LENGTH_SHORT).show()
             aciertos++
+            palabraActual?.let { palabra ->
+                listaAciertos.add(palabra)
+            }
             soundPool.play(sonidoAciertoId, 1.0f, 1.0f, 1, 0, 1.0f)
             textViewDeLetra?.backgroundTintList = ContextCompat.getColorStateList(this, R.color.verde_correcto)
         } else {
             Toast.makeText(this, "Incorrecto. La respuesta era '$nombrePictograma'", Toast.LENGTH_SHORT).show()
             fallos++
+            palabraActual?.let { palabra ->
+                listaFallos.add(palabra)
+            }
             soundPool.play(sonidoFalloId, 1.0f, 1.0f, 1, 0, 1.0f)
             textViewDeLetra?.backgroundTintList = ContextCompat.getColorStateList(this, R.color.design_default_color_error)
         }
@@ -273,7 +283,9 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             "timeSpentSeconds" to segundosTotales,
             "score" to aciertos,
             "totalQuestions" to 27,
-            "status" to "completed"
+            "status" to "completed",
+            "aciertos" to listaAciertos,
+            "fallos" to listaFallos
         )
 
         repository.saveStudentAttempt(intentoData) { success ->

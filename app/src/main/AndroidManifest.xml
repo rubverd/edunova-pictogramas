@@ -67,6 +67,10 @@
             android:exported="false"
             android:screenOrientation="portrait"/>
         <activity
+            android:name=".AttemptActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"/>
+        <activity
             android:name=".SettingsActivity"
             android:exported="false"
             android:screenOrientation="portrait"/>

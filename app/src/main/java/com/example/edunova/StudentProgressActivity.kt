@@ -1,5 +1,6 @@
 package com.example.edunova
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.edunova.clases.Student
 import com.example.edunova.clases.StudentAttempt
 import com.example.edunova.db.FirebaseConnection
 
@@ -46,24 +48,30 @@ class StudentProgressActivity : AppCompatActivity() {
             if (attempts.isEmpty()) {
                 tvEmpty.visibility = View.VISIBLE
             } else {
-                recyclerView.adapter = AttemptsAdapter(attempts)
+                recyclerView.adapter = AttemptsAdapter(attempts) { attemptClicked ->
+                    // Esto se ejecuta cuando tocas un alumno
+                    val intent = Intent(this, AttemptActivity::class.java)
+                    intent.putExtra("GAME_ID", attemptClicked.id) // Pasamos el ID
+                    startActivity(intent)
+                }
             }
         }
     }
 
     // --- ADAPTADOR INTERNO PARA LA LISTA DE RESULTADOS ---
-    class AttemptsAdapter(private val attempts: List<StudentAttempt>) :
+    class AttemptsAdapter(private val attempts: List<StudentAttempt>, private val onAttemptClick: (StudentAttempt) -> Unit) :
         RecyclerView.Adapter<AttemptsAdapter.ViewHolder>() {
 
         class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-            val tvType: TextView = v.findViewById(android.R.id.text1)
-            val tvInfo: TextView = v.findViewById(android.R.id.text2)
+            val tvType: TextView = v.findViewById(R.id.tipoJuego)
+            val tvInfo: TextView = v.findViewById(R.id.score)
+
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             // Usamos un layout estándar que permite dos líneas de texto
             val v = LayoutInflater.from(parent.context)
-                .inflate(android.R.layout.simple_list_item_2, parent, false)
+                .inflate(R.layout.item_attempt, parent, false)
             return ViewHolder(v)
         }
 
@@ -79,7 +87,13 @@ class StudentProgressActivity : AppCompatActivity() {
             val textoInfo = "Aciertos: ${item.getScoreString()}   |   Tiempo: ${item.getDurationString()} min"
             holder.tvInfo.text = textoInfo
             holder.tvInfo.setTextColor(android.graphics.Color.DKGRAY)
+
+            holder.itemView.setOnClickListener {
+                onAttemptClick(item)
+            }
         }
+
+
 
         override fun getItemCount() = attempts.size
     }

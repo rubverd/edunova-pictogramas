@@ -36,6 +36,11 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var indice = 0
     private var listaDeIds: List<String> = emptyList()
 
+    private var listaAciertos = mutableListOf<String>()
+
+    private var listaFallos = mutableListOf<String>()
+
+
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val repository = FirebaseConnection()
     private var datosAlumno: Map<String, Any>? = null
@@ -195,11 +200,17 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         if (esCorrecto) {
             aciertos++
+            palabraCorrectaActual?.let { palabra ->
+                listaAciertos.add(palabra)
+            }
             soundPool.play(sonidoAciertoId, 1.0f, 1.0f, 1, 0, 1.0f)
             comprobacionVisual(botonSeleccionado, "#4CAF50")
             Toast.makeText(this, "¡Correcto!", Toast.LENGTH_SHORT).show()
         } else {
             fallos++
+            palabraCorrectaActual?.let { palabra ->
+                listaFallos.add(palabra)
+            }
             soundPool.play(sonidoFalloId, 1.0f, 1.0f, 1, 0, 1.0f)
             comprobacionVisual(botonSeleccionado, "#F44336")
 
@@ -284,7 +295,9 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
             "score" to aciertos,
             "totalQuestions" to listaDeIds.size,
             "status" to "completed",
-            "details" to detallesDelIntento
+            "details" to detallesDelIntento,
+            "aciertos" to listaAciertos,
+            "fallos" to listaFallos
         )
 
         repository.saveStudentAttempt(intentoData) { success ->

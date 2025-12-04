@@ -26,6 +26,10 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var datosAlumno: Map<String, Any>? = null
     private var tiempoInicioJuego: Long = 0L
 
+    private var listaAciertos = mutableListOf<String>()
+
+    private var listaFallos = mutableListOf<String>()
+
     private val gruposDeSilabasOrdenados: List<List<String>> by lazy {
         val silabas = listOf(
             "ba", "be", "bi", "bo", "bu", "ca", "ce", "ci", "co", "cu",
@@ -162,11 +166,17 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             Toast.makeText(this, "¡Correcto!", Toast.LENGTH_SHORT).show()
             soundPool.play(sonidoAciertoId, 1.0f, 1.0f, 1, 0, 1.0f)
             aciertos++
+            silabaActual?.let { palabra ->
+                listaAciertos.add(palabra)
+            }
             textViewDeLetra?.backgroundTintList = ContextCompat.getColorStateList(this, R.color.verde_correcto)
         } else {
             Toast.makeText(this, "Incorrecto. La sílaba era '$silabaActual'", Toast.LENGTH_SHORT).show()
             soundPool.play(sonidoFalloId, 1.0f, 1.0f, 1, 0, 1.0f)
             fallos++
+            silabaActual?.let { palabra ->
+                listaFallos.add(palabra)
+            }
             textViewDeLetra?.backgroundTintList = ContextCompat.getColorStateList(this, R.color.design_default_color_error)
         }
 
@@ -223,7 +233,9 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             "timeSpentSeconds" to segundosTotales,
             "score" to aciertos,
             "totalQuestions" to gruposDeSilabasOrdenados.size,
-            "status" to "completed"
+            "status" to "completed",
+            "aciertos" to listaAciertos,
+            "fallos" to listaFallos
         )
 
         repository.saveStudentAttempt(intentoData) { success ->

@@ -12,7 +12,9 @@ data class StudentAttempt(
     val score: Int = 0,
     val totalQuestions: Int = 0,
     val timestamp: Long = 0,       // FECHA GENERAL DEL INTENTO
-    val timeSpentSeconds: Long = 0 // NUEVO: TIEMPO QUE TARDÓ
+    val timeSpentSeconds: Long = 0, // NUEVO: TIEMPO QUE TARDÓ
+    val aciertos: MutableList<String> = mutableListOf(),
+    val fallos: MutableList<String> = mutableListOf()
 ) {
     // Helper para mostrar la nota ej: "8/10"
     fun getScoreString(): String {
