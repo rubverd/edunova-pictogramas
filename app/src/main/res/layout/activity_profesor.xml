@@ -36,7 +36,7 @@
         android:id="@+id/btnViewStudents"
         android:layout_width="0dp"
         android:layout_height="64dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="32dp"
         android:layout_marginHorizontal="24dp"
         android:text="Mis Alumnos"
         android:textSize="16sp"
@@ -47,6 +47,22 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvSubtitle" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnManageCategories"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="24dp"
+        android:text="Gestionar Categorías"
+        android:textSize="16sp"
+        app:cornerRadius="12dp"
+        app:backgroundTint="#FF9800"
+        app:icon="@android:drawable/ic_menu_sort_by_size"
+        app:iconGravity="textStart"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnViewStudents" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAddWord"
@@ -62,7 +78,7 @@
         app:iconGravity="textStart"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnViewStudents" />
+        app:layout_constraintTop_toBottomOf="@id/btnManageCategories" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnManagePhrases"

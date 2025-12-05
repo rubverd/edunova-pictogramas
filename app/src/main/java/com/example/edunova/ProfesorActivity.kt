@@ -18,21 +18,28 @@ class ProfesorActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // 2. Añadir Pictograma (Formulario)
+        // 2. NUEVO: Gestionar Categorías
+        val btnCategories = findViewById<Button>(R.id.btnManageCategories)
+        btnCategories.setOnClickListener {
+            val intent = Intent(this, ManageCategoriesActivity::class.java)
+            startActivity(intent)
+        }
+
+        // 3. Añadir Pictograma
         val btnAddWord = findViewById<Button>(R.id.btnAddWord)
         btnAddWord.setOnClickListener {
             val intent = Intent(this, AddPictogramActivity::class.java)
             startActivity(intent)
         }
 
-        // 3. GESTIONAR FRASES (Actualizado)
+        // 4. Gestionar Frases
         val btnManage = findViewById<Button>(R.id.btnManagePhrases)
         btnManage.setOnClickListener {
             val intent = Intent(this, AdminFrasesActivity::class.java)
             startActivity(intent)
         }
 
-        // 4. Volver
+        // 5. Volver
         val btnBack = findViewById<Button>(R.id.btnBack)
         btnBack.setOnClickListener {
             finish()

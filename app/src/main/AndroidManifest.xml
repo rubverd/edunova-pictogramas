@@ -85,6 +85,9 @@
             android:name=".AdminFrasesActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
+        <activity android:name=".ManageCategoriesActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
     </application>
 
 
