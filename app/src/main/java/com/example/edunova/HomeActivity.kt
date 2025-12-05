@@ -87,7 +87,9 @@ class HomeActivity : AppCompatActivity() {
 
         // AJUSTES
         binding.buttonSettings.setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
+            Log.d("MainActivity", "Intentando lanzar AjustesActivity...")
+
+            startActivity(Intent(this, AjustesActivity::class.java))
         }
 
         // CERRAR SESIÓN

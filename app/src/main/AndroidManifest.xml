@@ -65,6 +65,7 @@
         <activity
             android:name=".AjustesActivity"
             android:exported="false"
+            android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait"/>
         <activity
             android:name=".AttemptActivity"

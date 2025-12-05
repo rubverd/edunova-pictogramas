@@ -1,5 +1,7 @@
 package com.example.edunova
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.media.AudioAttributes
@@ -95,7 +97,7 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         binding.btnComenzarRepaso.setOnClickListener { iniciarModoRepaso() }
 
         binding.fabPlaySound.setOnClickListener {
-            if (fraseOriginal.isNotEmpty()) speak(fraseOriginal)
+            if (fraseOriginal.isNotEmpty()) reproducirFrase(fraseOriginal)
         }
     }
 
@@ -358,8 +360,51 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) tts.language = Locale("es", "ES")
+        if (status == TextToSpeech.SUCCESS) {
+            // El motor se ha inicializado correctamente.
+            val result = tts.setLanguage(Locale("es", "ES"))
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                // El idioma no está disponible, informamos al usuario y al log.
+                Log.e("TTS", "El idioma Español no está soportado en este dispositivo.")
+                Toast.makeText(this, "El idioma para la voz no está disponible.", Toast.LENGTH_SHORT).show()
+            } else {
+                // ¡Todo correcto! Ahora el motor está listo para ser usado.
+                Log.d("TTS", "TextToSpeech inicializado correctamente con idioma Español.")
+            }
+        } else {
+            // Falló la inicialización, es importante saber por qué.
+            Log.e("TTS", "Falló la inicialización de TextToSpeech. Código de estado: $status")
+            Toast.makeText(this, "No se pudo iniciar el servicio de voz.", Toast.LENGTH_SHORT).show()
+        }
     }
+
+
+
+// En JuegoFrasesActivity.kt
+
+    private fun reproducirFrase(frase: String) {
+        // --- INICIO DE LA LÓGICA DE CARGA ---
+
+        // 1. Accede a las preferencias guardadas.
+        val prefs: SharedPreferences = getSharedPreferences("AjustesPrefs", MODE_PRIVATE)
+
+        // 2. Recupera la velocidad. Usa 1.0f (velocidad normal) como valor por defecto.
+        val velocidadGuardada = prefs.getFloat("velocidad_reproduccion", 1.0f)
+
+        // (Opcional pero recomendado) Imprime en la consola para depurar y confirmar que se lee bien.
+        Log.d("JuegoFrasesActivity", "Velocidad de reproducción cargada: $velocidadGuardada")
+
+        // --- FIN DE LA LÓGICA DE CARGA ---
+
+
+        // 3. Aplica la velocidad al motor de TextToSpeech.
+        tts.setSpeechRate(velocidadGuardada)
+
+        // 4. Reproduce el texto.
+        tts.speak(frase, TextToSpeech.QUEUE_FLUSH, null, null)
+    }
+
+
 
     private fun speak(text: String) {
         if (::tts.isInitialized) tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)

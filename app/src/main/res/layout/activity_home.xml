@@ -265,13 +265,13 @@
         android:id="@+id/buttonSettings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_settings"
-        app:tint="#212121"
+        android:layout_margin="16dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:padding="16dp"
-        android:layout_margin="16dp"
-        android:visibility="gone"
+        android:src="@drawable/ic_settings"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:tint="#212121" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
