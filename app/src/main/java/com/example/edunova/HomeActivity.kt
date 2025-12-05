@@ -2,6 +2,7 @@ package com.example.edunova
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
 import android.os.Bundle
 import android.widget.Toast
 import android.util.Log
@@ -76,8 +77,12 @@ class HomeActivity : AppCompatActivity() {
 
         // RETO DIARIO
         binding.cardChallenge.setOnClickListener {
-            val intent = Intent(this, RetoActivity::class.java)
-            startActivity(intent)
+            val userRole = intent.getStringExtra("USER_ROLE")
+            if(userRole != "teacher") {
+                checkStudentProgressAndStartChallenge()
+            } else {
+                startActivity(Intent(this, RetoActivity::class.java))
+            }
         }
 
         // AJUSTES
@@ -93,6 +98,51 @@ class HomeActivity : AppCompatActivity() {
             startActivity(intent)
             showToast("Sesión cerrada")
         }
+    }
+
+    private fun checkStudentProgressAndStartChallenge() {
+        val userId = auth.currentUser?.uid
+        if (userId == null){
+            showToast("Error: No se pudo obtener el ID del usuario")
+            return
+        }
+        val db = FirebaseFirestore.getInstance()
+        val progressDocRef = db.collection("userProgress").document(userId)
+        progressDocRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val completedPalabras = document.getBoolean("completedPalabras") == true
+
+                    if (completedPalabras) {
+                        Log.d("HomeActivity", "Progreso completado, puede iniciar el reto.")
+                        startActivity(Intent(this, RetoActivity::class.java))
+                    } else {
+                        Log.d("HomeActivity", "Progreso incompleto, no puede iniciar el reto.")
+                        showAccessDeniedDialog()
+                    }
+                } else {
+                    Log.d("HomeActivity", "No se encontró el documento de progreso del usuario.")
+                    showAccessDeniedDialog()
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("HomeActivity", "Error al obtener el progreso del usuairo", exception)
+                showToast("No se pudo verificar tu progrso. Intentalo de nuevo.")
+            }
+    }
+
+    /**
+     * Muestra un dialogo informativo que indica que modos se deben completar primero
+     */
+    private fun showAccessDeniedDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Aun no puedes acceder!")
+            .setMessage("Para desbloquear el modo reto debes completar los otros modos primero.")
+            .setPositiveButton("Entendido") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setIcon(R.drawable.ic_lock)
+            .show()
     }
 
     private fun showToast(message: String) {

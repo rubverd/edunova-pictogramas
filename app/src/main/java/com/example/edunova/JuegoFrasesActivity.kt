@@ -16,6 +16,7 @@ import com.example.edunova.databinding.ActivityJuegoFrasesBinding
 import com.example.edunova.db.FirebaseConnection
 import com.google.android.material.chip.Chip
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.launch
 import java.util.Locale
