@@ -11,38 +11,27 @@ class ProfesorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profesor)
 
-        // 1. Ver lista de Alumnos
-        val btnStudents = findViewById<Button>(R.id.btnViewStudents)
-        btnStudents.setOnClickListener {
-            val intent = Intent(this, ListStudentsActivity::class.java)
-            startActivity(intent)
+        // 1. Alumnos
+        findViewById<Button>(R.id.btnViewStudents).setOnClickListener {
+            startActivity(Intent(this, ListStudentsActivity::class.java))
         }
 
-        // 2. NUEVO: Gestionar Categorías
-        val btnCategories = findViewById<Button>(R.id.btnManageCategories)
-        btnCategories.setOnClickListener {
-            val intent = Intent(this, ManageCategoriesActivity::class.java)
-            startActivity(intent)
+        // 2. Categorías
+        findViewById<Button>(R.id.btnManageCategories).setOnClickListener {
+            startActivity(Intent(this, ManageCategoriesActivity::class.java))
         }
 
-        // 3. Añadir Pictograma
-        val btnAddWord = findViewById<Button>(R.id.btnAddWord)
-        btnAddWord.setOnClickListener {
-            val intent = Intent(this, AddPictogramActivity::class.java)
-            startActivity(intent)
+        // 3. GESTIONAR PICTOGRAMAS (Nuevo enlace)
+        findViewById<Button>(R.id.btnManagePictograms).setOnClickListener {
+            startActivity(Intent(this, ManagePictogramsActivity::class.java))
         }
 
-        // 4. Gestionar Frases
-        val btnManage = findViewById<Button>(R.id.btnManagePhrases)
-        btnManage.setOnClickListener {
-            val intent = Intent(this, AdminFrasesActivity::class.java)
-            startActivity(intent)
+        // 4. Frases
+        findViewById<Button>(R.id.btnManagePhrases).setOnClickListener {
+            startActivity(Intent(this, AdminFrasesActivity::class.java))
         }
 
         // 5. Volver
-        val btnBack = findViewById<Button>(R.id.btnBack)
-        btnBack.setOnClickListener {
-            finish()
-        }
+        findViewById<Button>(R.id.btnBack).setOnClickListener { finish() }
     }
 }

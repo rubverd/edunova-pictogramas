@@ -28,21 +28,18 @@ class AdminFrasesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_admin_frases)
 
-        // Configurar UI
         findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
         btnCreate = findViewById(R.id.btnCreatePhrase)
         recyclerView = findViewById(R.id.rvPhrases)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Listener: Ir a crear frase
+        // Crear nueva frase (sin datos extra)
         btnCreate.setOnClickListener {
-            // Ir a la actividad existente de crear frase
             val intent = Intent(this, AddFraseActivity::class.java)
             startActivity(intent)
         }
     }
 
-    // Usamos onResume para que la lista se recargue al volver
     override fun onResume() {
         super.onResume()
         cargarFrases()
@@ -50,57 +47,62 @@ class AdminFrasesActivity : AppCompatActivity() {
 
     private fun cargarFrases() {
         db.collection("frases")
-            .orderBy("createdAt", Query.Direction.DESCENDING) // Ordenar: más recientes primero
+            .orderBy("createdAt", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { documents ->
                 val list = documents.map { doc ->
                     PhraseItem(
                         id = doc.id,
-                        text = doc.getString("frase") ?: "Frase sin texto",
+                        text = doc.getString("frase") ?: "",
                         imageUrl = doc.getString("urlImagen") ?: "",
                         difficulty = doc.getLong("dificultad")?.toInt() ?: 1
                     )
                 }
-
-                recyclerView.adapter = PhrasesAdapter(list) { phrase ->
-                    confirmarBorrado(phrase)
-                }
+                // Pasamos dos lambdas: una para borrar y otra para editar
+                recyclerView.adapter = PhrasesAdapter(list,
+                    onDeleteClick = { phrase -> confirmingBorrado(phrase) },
+                    onEditClick = { phrase -> editPhrase(phrase) }
+                )
             }
             .addOnFailureListener {
                 Toast.makeText(this, "Error al cargar frases", Toast.LENGTH_SHORT).show()
             }
     }
 
-    private fun confirmarBorrado(phrase: PhraseItem) {
+    // --- FUNCIÓN EDITAR ---
+    private fun editPhrase(item: PhraseItem) {
+        val intent = Intent(this, AddFraseActivity::class.java)
+        // Pasamos los datos existentes para rellenar el formulario
+        intent.putExtra("EXTRA_ID", item.id)
+        intent.putExtra("EXTRA_FRASE", item.text)
+        intent.putExtra("EXTRA_IMAGE", item.imageUrl)
+        intent.putExtra("EXTRA_DIFFICULTY", item.difficulty)
+        startActivity(intent)
+    }
+
+    private fun confirmingBorrado(phrase: PhraseItem) {
         AlertDialog.Builder(this)
             .setTitle("Eliminar frase")
-            .setMessage("¿Estás seguro de que quieres borrar la frase:\n\n'${phrase.text}'?")
+            .setMessage("¿Borrar: '${phrase.text}'?")
             .setPositiveButton("Eliminar") { _, _ ->
-                borrarFrase(phrase.id)
+                db.collection("frases").document(phrase.id).delete()
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Frase eliminada", Toast.LENGTH_SHORT).show()
+                        cargarFrases()
+                    }
             }
             .setNegativeButton("Cancelar", null)
             .show()
     }
 
-    private fun borrarFrase(id: String) {
-        db.collection("frases").document(id)
-            .delete()
-            .addOnSuccessListener {
-                Toast.makeText(this, "Frase eliminada", Toast.LENGTH_SHORT).show()
-                cargarFrases() // Recargamos la lista
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Error al eliminar", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    // --- CLASE DE DATOS ---
+    // --- DATA CLASS ---
     data class PhraseItem(val id: String, val text: String, val imageUrl: String, val difficulty: Int)
 
-    // --- ADAPTADOR RECYCLERVIEW ---
+    // --- ADAPTER ---
     class PhrasesAdapter(
         private val phrases: List<PhraseItem>,
-        private val onDeleteClick: (PhraseItem) -> Unit
+        private val onDeleteClick: (PhraseItem) -> Unit,
+        private val onEditClick: (PhraseItem) -> Unit // Nuevo callback
     ) : RecyclerView.Adapter<PhrasesAdapter.ViewHolder>() {
 
         class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
@@ -108,6 +110,7 @@ class AdminFrasesActivity : AppCompatActivity() {
             val tvText: TextView = v.findViewById(R.id.tvPhraseText)
             val tvDiff: TextView = v.findViewById(R.id.tvDifficulty)
             val btnDel: ImageButton = v.findViewById(R.id.btnDelete)
+            val btnEdit: ImageButton = v.findViewById(R.id.btnEdit) // Nuevo botón
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -127,6 +130,7 @@ class AdminFrasesActivity : AppCompatActivity() {
             }
 
             holder.btnDel.setOnClickListener { onDeleteClick(item) }
+            holder.btnEdit.setOnClickListener { onEditClick(item) }
         }
 
         override fun getItemCount() = phrases.size

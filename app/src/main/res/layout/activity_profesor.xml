@@ -65,16 +65,16 @@
         app:layout_constraintTop_toBottomOf="@id/btnViewStudents" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnAddWord"
+        android:id="@+id/btnManagePictograms"
         android:layout_width="0dp"
         android:layout_height="64dp"
         android:layout_marginTop="16dp"
         android:layout_marginHorizontal="24dp"
-        android:text="Añadir Pictograma"
+        android:text="Gestionar Pictogramas"
         android:textSize="16sp"
         app:cornerRadius="12dp"
         app:backgroundTint="@color/rojoBoton"
-        app:icon="@android:drawable/ic_input_add"
+        app:icon="@android:drawable/ic_menu_gallery"
         app:iconGravity="textStart"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -94,7 +94,7 @@
         app:backgroundTint="@color/rojoBoton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnAddWord" />
+        app:layout_constraintTop_toBottomOf="@id/btnManagePictograms" />
 
     <Button
         android:id="@+id/btnBack"

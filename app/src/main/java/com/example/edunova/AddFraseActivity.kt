@@ -12,10 +12,10 @@ import com.bumptech.glide.Glide
 import com.example.edunova.db.FirebaseConnection
 import com.google.android.material.slider.Slider
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.firestore.FirebaseFirestore
 
 class AddFraseActivity : AppCompatActivity() {
 
-    // --- VARIABLES ---
     private lateinit var ivPreview: ImageView
     private lateinit var etImageUrl: TextInputEditText
     private lateinit var etFrase: TextInputEditText
@@ -26,15 +26,17 @@ class AddFraseActivity : AppCompatActivity() {
     private lateinit var btnBack: ImageButton
 
     private val repository = FirebaseConnection()
+    private val db = FirebaseFirestore.getInstance() // Necesario para updates directos
 
-    // VARIABLE NUEVA: Para almacenar el centro
     private var currentSchool: String? = null
+
+    // Variable para saber si editamos
+    private var editingId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_frase)
 
-        // --- INICIALIZACIÓN DE VISTAS ---
         ivPreview = findViewById(R.id.ivPreview)
         etImageUrl = findViewById(R.id.etImageUrl)
         etFrase = findViewById(R.id.etFrase)
@@ -44,21 +46,45 @@ class AddFraseActivity : AppCompatActivity() {
         btnPreviewImage = findViewById(R.id.btnPreviewImage)
         btnBack = findViewById(R.id.returnButton)
 
-        // Deshabilitamos guardar hasta cargar el centro (Seguridad)
         btnSave.isEnabled = false
 
         setupListeners()
         loadTeacherData()
+
+        // Comprobar si venimos a editar
+        checkForEditMode()
+    }
+
+    private fun checkForEditMode() {
+        if (intent.hasExtra("EXTRA_ID")) {
+            editingId = intent.getStringExtra("EXTRA_ID")
+
+            // Cambiar textos visuales
+            findViewById<android.widget.TextView>(R.id.tvAppTitle).text = "EDITAR FRASE"
+            btnSave.text = "Actualizar Frase"
+
+            // Rellenar campos
+            etFrase.setText(intent.getStringExtra("EXTRA_FRASE"))
+            etImageUrl.setText(intent.getStringExtra("EXTRA_IMAGE"))
+
+            val diff = intent.getIntExtra("EXTRA_DIFFICULTY", 1)
+            sliderDifficulty.value = diff.toFloat()
+
+            // Cargar imagen
+            val url = intent.getStringExtra("EXTRA_IMAGE")
+            if (!url.isNullOrEmpty()) {
+                Glide.with(this).load(url).into(ivPreview)
+            }
+        }
     }
 
     private fun loadTeacherData() {
-        // Cargar el Centro del Profesor al iniciar (Lógica traída de AddPictogramActivity)
         val currentUser = repository.getCurrentUser()
         if (currentUser != null) {
             repository.getTeacherSchool(currentUser.uid) { school ->
                 if (school != null) {
                     currentSchool = school
-                    btnSave.isEnabled = true // Habilitamos botón ahora que tenemos centro
+                    btnSave.isEnabled = true
                 } else {
                     Toast.makeText(this, "Error: No tienes centro asignado.", Toast.LENGTH_LONG).show()
                 }
@@ -77,8 +103,6 @@ class AddFraseActivity : AppCompatActivity() {
                     .placeholder(android.R.drawable.ic_menu_upload)
                     .error(android.R.drawable.ic_delete)
                     .into(ivPreview)
-            } else {
-                Toast.makeText(this, "Introduce una URL primero", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -90,18 +114,9 @@ class AddFraseActivity : AppCompatActivity() {
     }
 
     private fun validateFields(): Boolean {
-        if (etImageUrl.text.isNullOrEmpty()) {
-            etImageUrl.error = "Falta la URL de la imagen"
-            return false
-        }
-        if (etFrase.text.isNullOrEmpty()) {
-            etFrase.error = "Introduce la frase completa"
-            return false
-        }
-        if (currentSchool == null) {
-            Toast.makeText(this, "No se ha podido identificar tu centro", Toast.LENGTH_SHORT).show()
-            return false
-        }
+        if (etImageUrl.text.isNullOrEmpty()) return false
+        if (etFrase.text.isNullOrEmpty()) return false
+        if (currentSchool == null) return false
         return true
     }
 
@@ -111,38 +126,60 @@ class AddFraseActivity : AppCompatActivity() {
         val urlImagen = etImageUrl.text.toString().trim()
         val fraseCompleta = etFrase.text.toString().trim()
         val dificultad = sliderDifficulty.value.toInt()
-        val escuela = currentSchool ?: "" // Usamos la variable del centro
+        val escuela = currentSchool ?: ""
 
-        // Pasamos la escuela al método actualizado
-        repository.savePhrase(fraseCompleta, urlImagen, dificultad, escuela) { success ->
-            setLoading(false)
-            if (success) {
-                Toast.makeText(this, "¡Frase guardada en $escuela!", Toast.LENGTH_SHORT).show()
-                limpiarCampos()
-            } else {
-                Toast.makeText(this, "Error al guardar la frase", Toast.LENGTH_SHORT).show()
+        // Separamos palabras (lógica crítica para el juego)
+        val palabrasSeparadas = fraseCompleta.split("\\s+".toRegex())
+
+        // Mapa de datos
+        val data = hashMapOf(
+            "frase" to fraseCompleta,
+            "urlImagen" to urlImagen,
+            "dificultad" to dificultad,
+            "school" to escuela,
+            "palabras" to palabrasSeparadas, // Importante actualizar esto también
+            "updatedAt" to System.currentTimeMillis()
+        )
+        // Solo añadimos createdAt si es nuevo, para no perder la fecha original al editar
+        if (editingId == null) {
+            data["createdAt"] = System.currentTimeMillis()
+        }
+
+        if (editingId != null) {
+            // --- MODO EDICIÓN (Actualizar) ---
+            db.collection("frases").document(editingId!!)
+                .update(data) // Usamos update o set(data, SetOptions.merge())
+                .addOnSuccessListener {
+                    setLoading(false)
+                    Toast.makeText(this, "Frase actualizada", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                .addOnFailureListener {
+                    setLoading(false)
+                    Toast.makeText(this, "Error al actualizar", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            // --- MODO CREACIÓN (Nuevo) ---
+            // Usamos la función del repositorio que ya tenías
+            repository.savePhrase(fraseCompleta, urlImagen, dificultad, escuela) { success ->
+                setLoading(false)
+                if (success) {
+                    Toast.makeText(this, "¡Frase guardada!", Toast.LENGTH_SHORT).show()
+                    finish() // Cerramos para volver a la lista
+                } else {
+                    Toast.makeText(this, "Error al guardar", Toast.LENGTH_SHORT).show()
+                }
             }
         }
-    }
-
-    private fun limpiarCampos() {
-        etFrase.text?.clear()
-        etImageUrl.text?.clear()
-        sliderDifficulty.value = 1f
-        ivPreview.setImageResource(android.R.drawable.ic_menu_gallery)
     }
 
     private fun setLoading(isLoading: Boolean) {
         if (isLoading) {
             progressBar.visibility = View.VISIBLE
             btnSave.isEnabled = false
-            etFrase.isEnabled = false
-            etImageUrl.isEnabled = false
         } else {
             progressBar.visibility = View.GONE
             btnSave.isEnabled = true
-            etFrase.isEnabled = true
-            etImageUrl.isEnabled = true
         }
     }
 }
