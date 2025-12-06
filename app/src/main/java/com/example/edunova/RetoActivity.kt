@@ -157,7 +157,7 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val letraActual = abecedarioEspanol[indiceGrupoActual]
 
             lifecycleScope.launch {
-                var documentoPalabra: DocumentSnapshot? = obtenerPalabraPorLetra(letraActual)
+                var documentoPalabra: DocumentSnapshot? = obtenerPalabraPorLetra(letraActual, palabrasUsadasEnElRosco)
 
                 if (documentoPalabra == null) {
                     documentoPalabra =
@@ -244,7 +244,7 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         )
     }
 
-    private suspend fun obtenerPalabraPorLetra(letra: Char): DocumentSnapshot? {
+    private suspend fun obtenerPalabraPorLetra(letra: Char, palabrasExcluidas: List<String>): DocumentSnapshot? {
         val letraMayuscula = letra.uppercaseChar()
         try {
             val letraSiguiente = (letraMayuscula.code + 1).toChar().toString()
@@ -254,8 +254,23 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 .get().await()
 
             if (querySnapshot.isEmpty) return null
-            return querySnapshot.documents.random()
+
+            // --- INICIO DE LA MODIFICACIÓN ---
+            // 1. Filtramos los documentos para excluir las palabras ya usadas.
+            val documentosDisponibles = querySnapshot.documents.filter { documento ->
+                !palabrasExcluidas.contains(documento.getString("palabra"))
+            }
+
+            // 2. Si después de filtrar no queda ninguna palabra, retornamos null.
+            if (documentosDisponibles.isEmpty()) return null
+
+            // 3. Seleccionamos una palabra al azar de la lista filtrada.
+            return documentosDisponibles.random()
+            // --- FIN DE LA MODIFICACIÓN ---
+
         } catch (e: Exception) {
+            // Log del error para facilitar la depuración
+            Log.e("Firestore", "Error al obtener palabra por letra '$letra'", e)
             return null
         }
     }
@@ -498,11 +513,17 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         // Ancho total menos los espacios, dividido por el número de letras
         var boxSize = (containerWidth - (spaceBetweenBoxes * (letterCount - 1))) / letterCount
 
+        Log.d("ModoReto_Debug", "Ancho de la caja: $boxSize")
+
         // (Opcional) Establecer un tamaño máximo para palabras cortas para que no sean gigantes
         val maxBoxSize = (60 * resources.displayMetrics.density).toInt() // 60dp en píxeles
         if (boxSize > maxBoxSize) {
             boxSize = maxBoxSize
         }
+
+        boxSize = (boxSize * 0.60f).toInt()
+
+        Log.d("ModoReto_Debug", "Ancho de la cajadespues de la reduccion: $boxSize")
 
         // 4. Crear e inflar cada caja con el tamaño calculado
         if (palabra != null) {
@@ -555,8 +576,13 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             if (boxSize > maxBoxSize) {
                 boxSize = maxBoxSize
             }
-            // --- FIN DE LA LÓGICA DE CÁLCULO ---
 
+            boxSize = (boxSize * 0.80f).toInt()
+
+            val minBoxSize = (36 * resources.displayMetrics.density).toInt() // 36dp como mínimo, por ejemplo
+            if (boxSize < minBoxSize) {
+                boxSize = minBoxSize
+            }
 
             // 6. Crear e inflar cada caja y el separador
             for (i in 0 until letterCount) {
