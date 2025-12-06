@@ -1,181 +1,216 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:background="@color/beige"
+    android:focusable="false"
+    android:focusableInTouchMode="false"> <!-- Ponemos el color de fondo aquí -->
 
     <LinearLayout
-        android:id="@+id/mainContent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+        <requestFocus />
+    </LinearLayout>
+
+    <!-- 1. BARRA DE NAVEGACIÓN (TOOLBAR) -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="wrap_content"
+        android:background="#E35F72"
+        app:elevation="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:focusable="false"
+        android:focusableInTouchMode="false">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/appBarLayout"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#E35F72"
-            app:elevation="0dp"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="@color/white"
+            app:title="El Rosco"
+            app:titleTextColor="@color/white" />
 
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:title="El Rosco"
-                app:titleTextColor="@color/white"
-                app:navigationIcon="@drawable/ic_arrow_back"
-                app:navigationIconTint="@color/white" />
+    </com.google.android.material.appbar.AppBarLayout>
 
-        </com.google.android.material.appbar.AppBarLayout>
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/game_content_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:constraint_referenced_ids="lettersGrid, cardImagenReto, etHiddenInput, layoutLetterBoxes, tvPalabraAdivinar, botonConfirmar"
+        />
 
-        <androidx.constraintlayout.widget.Group
-            android:id="@+id/game_content_group"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="visible"
-            app:constraint_referenced_ids="lettersGrid,imagenReto, fabPlaySoundSilabas, respuesta_layout, respuesta"
-            />
+    <GridLayout
+        android:id="@+id/lettersGrid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:alignmentMode="alignMargins"
+        android:columnCount="7"
+        android:gravity="center"
+        android:padding="4dp"
+        android:rowCount="4"
+        android:rowOrderPreserved="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
+        app:layout_constraintBottom_toTopOf="@+id/cardImagenReto"
+        android:descendantFocusability="blocksDescendants"
+        android:focusable="false"
+        android:focusableInTouchMode="false">
 
-        <LinearLayout
+        <!-- AQUÍ ESTÁN TODAS LAS LETRAS QUE FALTABAN -->
+        <TextView android:id="@+id/A" style="@style/LetraReto" android:text="A" />
+        <TextView android:id="@+id/B" style="@style/LetraReto" android:text="B" />
+        <TextView android:id="@+id/C" style="@style/LetraReto" android:text="C" />
+        <TextView android:id="@+id/D" style="@style/LetraReto" android:text="D" />
+        <TextView android:id="@+id/E" style="@style/LetraReto" android:text="E" />
+        <TextView android:id="@+id/F" style="@style/LetraReto" android:text="F" />
+        <TextView android:id="@+id/G" style="@style/LetraReto" android:text="G" />
+
+        <TextView android:id="@+id/H" style="@style/LetraReto" android:text="H" />
+        <TextView android:id="@+id/I" style="@style/LetraReto" android:text="I" />
+        <TextView android:id="@+id/J" style="@style/LetraReto" android:text="J" />
+        <TextView android:id="@+id/K" style="@style/LetraReto" android:text="K" />
+        <TextView android:id="@+id/L" style="@style/LetraReto" android:text="L" />
+        <TextView android:id="@+id/M" style="@style/LetraReto" android:text="M" />
+        <TextView android:id="@+id/N" style="@style/LetraReto" android:text="N" />
+
+        <TextView android:id="@+id/N_ene" style="@style/LetraReto" android:text="Ñ" />
+        <TextView android:id="@+id/O" style="@style/LetraReto" android:text="O" />
+        <TextView android:id="@+id/P" style="@style/LetraReto" android:text="P" />
+        <TextView android:id="@+id/Q" style="@style/LetraReto" android:text="Q" />
+        <TextView android:id="@+id/letraR" style="@style/LetraReto" android:text="R" />
+        <TextView android:id="@+id/S" style="@style/LetraReto" android:text="S" />
+        <TextView android:id="@+id/T" style="@style/LetraReto" android:text="T" />
+
+        <TextView android:id="@+id/U" style="@style/LetraReto" android:text="U" />
+        <TextView android:id="@+id/V" style="@style/LetraReto" android:text="V" />
+        <TextView android:id="@+id/W" style="@style/LetraReto" android:text="W" />
+        <TextView android:id="@+id/X" style="@style/LetraReto" android:text="X" />
+        <TextView android:id="@+id/Y" style="@style/LetraReto" android:text="Y" />
+        <TextView android:id="@+id/Z" style="@style/LetraReto" android:text="Z" />
+
+    </GridLayout>
+
+    <!-- 3. IMAGEN DEL RETO (CARDVIEW) -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardImagenReto"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="25dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lettersGrid"
+        app:layout_constraintBottom_toTopOf="@+id/layoutLetterBoxes"
+        android:focusable="false"
+        android:focusableInTouchMode="false"> <!-- Se estira hasta la palabra -->
+
+        <ImageView
+
+            android:id="@+id/imagenReto"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/beige"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:contentDescription="Pictograma a completar"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_launcher_background" />
 
-            <GridLayout
-                android:id="@+id/lettersGrid"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:alignmentMode="alignMargins"
-                android:columnCount="7"
-                android:rowCount="4"
-                android:gravity="center"
-                android:padding="4dp"
-                android:rowOrderPreserved="false">
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabPlaySoundSilabas"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:contentDescription="Reproducir sonido de la palabra"
+            app:backgroundTint="@color/Mustard"
+            app:srcCompat="@drawable/ic_volume_up"
+            app:tint="@android:color/white" />
 
-                <TextView android:id="@+id/A" style="@style/LetraReto" android:text="A" />
-                <TextView android:id="@+id/B" style="@style/LetraReto" android:text="B" />
-                <TextView android:id="@+id/C" style="@style/LetraReto" android:text="C" />
-                <TextView android:id="@+id/D" style="@style/LetraReto" android:text="D" />
-                <TextView android:id="@+id/E" style="@style/LetraReto" android:text="E" />
-                <TextView android:id="@+id/F" style="@style/LetraReto" android:text="F" />
-                <TextView android:id="@+id/G" style="@style/LetraReto" android:text="G" />
+    </androidx.cardview.widget.CardView>
 
-                <TextView android:id="@+id/H" style="@style/LetraReto" android:text="H" />
-                <TextView android:id="@+id/I" style="@style/LetraReto" android:text="I" />
-                <TextView android:id="@+id/J" style="@style/LetraReto" android:text="J" />
-                <TextView android:id="@+id/K" style="@style/LetraReto" android:text="K" />
-                <TextView android:id="@+id/L" style="@style/LetraReto" android:text="L" />
-                <TextView android:id="@+id/M" style="@style/LetraReto" android:text="M" />
-                <TextView android:id="@+id/N" style="@style/LetraReto" android:text="N" />
 
-                <TextView android:id="@+id/N_ene" style="@style/LetraReto" android:text="Ñ" />
-                <TextView android:id="@+id/O" style="@style/LetraReto" android:text="O" />
-                <TextView android:id="@+id/P" style="@style/LetraReto" android:text="P" />
-                <TextView android:id="@+id/Q" style="@style/LetraReto" android:text="Q" />
-                <TextView android:id="@+id/letraR" style="@style/LetraReto" android:text="R" />
-                <TextView android:id="@+id/S" style="@style/LetraReto" android:text="S" />
-                <TextView android:id="@+id/T" style="@style/LetraReto" android:text="T" />
+    <!-- 4. BOTÓN DE CONFIRMAR (LO PONEMOS ABAJO DEL TODO) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/botonConfirmar"
+        style="?attr/materialButtonOutlinedStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:text="Confirmar"
+        android:textColor="#212121"
+        android:textSize="18sp"
+        app:backgroundTint="@color/option_button_background_color"
+        app:cornerRadius="16dp"
+        app:icon="@drawable/ic_check"
+        app:strokeColor="@color/option_button_stroke_color"
+        app:strokeWidth="2dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:focusable="false"
+        android:focusableInTouchMode="false"/>
 
-                <TextView android:id="@+id/U" style="@style/LetraReto" android:text="U" />
-                <TextView android:id="@+id/V" style="@style/LetraReto" android:text="V" />
-                <TextView android:id="@+id/W" style="@style/LetraReto" android:text="W" />
-                <TextView android:id="@+id/X" style="@style/LetraReto" android:text="X" />
-                <TextView android:id="@+id/Y" style="@style/LetraReto" android:text="Y" />
-                <TextView android:id="@+id/Z" style="@style/LetraReto" android:text="Z" />
+    <!-- 5. LAS CAJAS DE LETRAS (EL OBJETIVO) -->
+    <!-- Se posicionará encima del botón de confirmar -->
+    <com.google.android.flexbox.FlexboxLayout
+    android:id="@+id/layoutLetterBoxes"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginBottom="16dp"
+    android:clickable="true"
+    app:justifyContent="center"
+    app:alignItems="center"
+        app:layout_constrainedWidth="true"
+    app:flexWrap="wrap"
+    app:layout_constraintBottom_toTopOf="@+id/botonConfirmar"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/cardImagenReto" />
 
-            </GridLayout>
+    <!-- 6. TEXTVIEW DE LA PALABRA -->
+    <!-- Se posicionará encima de las cajas de letras -->
 
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_marginTop="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
+    <!-- 7. EL EDITTEXT INVISIBLE -->
+    <!-- Puede estar en cualquier sitio, no ocupa espacio visual -->
+    <EditText
+        android:id="@+id/etHiddenInput"
+        android:layout_width="1dp"
+        android:layout_height="1dp"
+        android:autofillHints=""
+        android:background="@android:color/transparent"
+        android:cursorVisible="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:inputType="textVisiblePassword"
+        android:maxLength="20"
+        android:textColor="@android:color/transparent"
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
 
-                    <ImageView
-                        android:id="@+id/imagenReto"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        android:contentDescription="Pictograma a completar"
-                        android:src="@drawable/ic_launcher_background" /> <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/fabPlaySoundSilabas"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    android:contentDescription="Reproducir sonido de la palabra"
-                    app:backgroundTint="@color/Mustard"
-                    app:srcCompat="@drawable/ic_volume_up"
-                    app:tint="@android:color/white" />
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintVertical_bias="0"
+        />
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
 
-            </androidx.cardview.widget.CardView>
-
-            <TextView
-                android:id="@+id/textoPista"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center"
-                android:padding="4dp"
-                android:textColor="@android:color/black"
-                android:textSize="30sp"
-                android:textStyle="bold"
-                tools:text="MA" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/respuesta_layout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/respuesta"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/white"
-                    android:hint="Escribe tu respuesta"
-                    android:inputType="text" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/botonConfirmar"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
-                android:text="Confirmar"
-                android:textColor="#212121"
-                android:textSize="18sp"
-                app:backgroundTint="@color/option_button_background_color"
-                app:cornerRadius="16dp"
-                app:icon="@drawable/ic_check"
-                app:strokeColor="@color/option_button_stroke_color"
-                app:strokeWidth="2dp" />
-        </LinearLayout>
-    </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/resumen_layout"
@@ -210,7 +245,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/textView_resumen_titulo"
-            app:tint="@color/rojoBoton"></ImageView>
+            app:tint="@color/rojoBoton" />
 
         <TextView
             android:id="@+id/textView_resumen_aciertos"
@@ -277,5 +312,6 @@
             app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+

@@ -70,6 +70,8 @@ dependencies {
     // Import de la librería de Glide
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
+
     // TODO: Add the dependencies for Firebase products you want to use
     // When using the BoM, don't specify versions in Firebase dependencies
     implementation("com.google.firebase:firebase-analytics")
