@@ -66,6 +66,7 @@
         <activity
             android:name=".AjustesActivity"
             android:exported="false"
+            android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait"/>
         <activity
             android:name=".AttemptActivity"
@@ -83,6 +84,12 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".AdminFrasesActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity android:name=".ManageCategoriesActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity android:name=".ManagePictogramsActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
     </application>
