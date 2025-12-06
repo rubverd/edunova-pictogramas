@@ -36,7 +36,18 @@ import android.view.ViewTreeObserver
 import kotlin.math.floor
 import android.os.Handler
 import android.os.Looper
+import androidx.compose.ui.graphics.colorspace.connect
+import androidx.compose.ui.unit.constrainHeight
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
+
 import com.google.android.flexbox.FlexboxLayout
+
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
+import androidx.transition.TransitionManager
 
 
 class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
@@ -120,7 +131,12 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         binding.buttonSalir.setOnClickListener {
             finish()
         }
+
     }
+
+    fun Int.dpToPx(): Int = (this * resources.displayMetrics.density).toInt()
+
+
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
@@ -169,12 +185,12 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     val urlImagen = documentoPalabra.getString("urlImagen")
 
                     if (!urlImagen.isNullOrEmpty()) {
-                        binding.imagenReto.visibility = View.VISIBLE
+                        binding.cardImagenReto.visibility = View.VISIBLE
                         Glide.with(this@RetoActivity)
                             .load(urlImagen)
                             .into(binding.imagenReto)
                     } else {
-                        binding.imagenReto.visibility = View.GONE
+                        binding.cardImagenReto.visibility = View.GONE
                     }
 
                     palabraActual = palabra
@@ -298,7 +314,7 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun finalizarReto() {
-        binding.gameContentGroup.visibility = View.GONE
+        //binding.gameContentGroup.visibility = View.GONE
         binding.resumenLayout.visibility = View.VISIBLE
 
         val tiempoFinalJuego = System.currentTimeMillis()
@@ -352,7 +368,7 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun reiniciarActividad() {
         // Resetear vista
         binding.resumenLayout.visibility = View.GONE
-        binding.gameContentGroup.visibility = View.VISIBLE
+       // binding.gameContentGroup.visibility = View.VISIBLE
 
         // Resetear colores de letras
         letterMap.values.forEach { textView ->
@@ -429,6 +445,8 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     if (palabraActual != null) {
                         verificarRespuesta(textoIngresado)
                     }
+                    val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(it.windowToken, 0)
                 }
             }
         })
