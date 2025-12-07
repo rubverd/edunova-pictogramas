@@ -1,7 +1,20 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Tema base para el Modo Oscuro -->
     <style name="Base.Theme.Edunova" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+
+        <!-- Colores de tu marca para el modo oscuro -->
+        <item name="colorPrimary">@color/rojoBoton</item> <!-- Mantenemos el rojo del botón -->
+        <!-- El color de fondo general ya lo gestiona el tema padre (será oscuro) -->
+
+        <!-- AQUÍ ASIGNAMOS LOS COLORES PARA MODO OSCURO A NUESTROS ATRIBUTOS -->
+        <item name="customCardBackgroundColor">#7A3232</item> <!-- Un gris oscuro para las tarjetas -->
+        <item name="customTextColor">#FFFFFF</item> <!-- Texto blanco -->
+        <item name="customTextSecondaryColor">#B0B0B0</item> <!-- Un gris claro para el texto secundario -->
+        <item name="customIconColor">#FFFFFF</item> <!-- Iconos blancos -->
+        <item name="colorOnBackground">#312C2C</item>
+
     </style>
+
+    <!-- No es necesario redefinir Theme.Edunova aquí si no cambia -->
+
 </resources>

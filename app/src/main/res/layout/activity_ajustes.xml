@@ -5,10 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#f8f5f3"
+    android:background="?attr/colorOnBackground"
     tools:context=".AjustesActivity">
 
-    <!-- 1. Toolbar para dar título y consistencia a la pantalla -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarAjustes"
         android:layout_width="match_parent"
@@ -18,7 +17,6 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:title="Ajustes" />
 
-    <!-- 2. Contenedor con Scroll por si en el futuro añadimos más opciones -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -30,11 +28,11 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- 3. Tarjeta para la configuración de Velocidad del Audio -->
+            <!-- 1. Tarjeta para la configuración de Velocidad del Audio -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/CherryBlossomPink"
+                app:cardBackgroundColor="?attr/customCardBackgroundColor"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp">
 
@@ -44,7 +42,7 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <!-- Título de la sección -->
+                    <!-- Título y descripción de Velocidad -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -56,28 +54,27 @@
                             android:layout_height="32dp"
                             android:importantForAccessibility="no"
                             android:src="@drawable/ic_volume_up"
-                            app:tint="@android:color/black" />
+                            app:tint="?attr/customIconColor" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="16dp"
                             android:text="Velocidad del Audio"
-                            android:textColor="@android:color/black"
+                            android:textColor="?attr/customTextSecondaryColor"
                             android:textSize="20sp"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold" />
                     </LinearLayout>
 
-                    <!-- Descripción -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="Elige qué tan rápido quieres que se reproduzcan los sonidos."
                         android:textColor="@android:color/darker_gray"
-                        android:textSize="14sp"/>
+                        android:textSize="14sp" />
 
-                    <!-- Grupo de botones para seleccionar la velocidad -->
+                    <!-- Grupo de botones para velocidad -->
                     <com.google.android.material.button.MaterialButtonToggleGroup
                         android:id="@+id/toggleButtonVelocidad"
                         android:layout_width="match_parent"
@@ -91,27 +88,82 @@
                             android:id="@+id/btnVelocidadLenta"
                             style="?attr/materialButtonOutlinedStyle"
                             android:layout_width="0dp"
-                            android:layout_weight="1"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="Lenta" />
 
                         <Button
                             android:id="@+id/btnVelocidadNormal"
                             style="?attr/materialButtonOutlinedStyle"
                             android:layout_width="0dp"
-                            android:layout_weight="1"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="Normal" />
 
                         <Button
                             android:id="@+id/btnVelocidadRapida"
                             style="?attr/materialButtonOutlinedStyle"
                             android:layout_width="0dp"
-                            android:layout_weight="1"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="Rápida" />
-
                     </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ======================================================= -->
+            <!--   NUEVA TARJETA PARA EL MODO OSCURO                   -->
+            <!-- ======================================================= -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="?attr/customCardBackgroundColor"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:importantForAccessibility="no"
+                        android:src="@android:drawable/alert_light_frame"
+                        app:tint="?attr/customIconColor" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Modo Oscuro"
+                            android:textColor="?attr/customTextColor"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Reduce el brillo para una vista más cómoda por la noche."
+                            android:textColor="?attr/customTextSecondaryColor"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchModoOscuro"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -119,3 +171,4 @@
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
+

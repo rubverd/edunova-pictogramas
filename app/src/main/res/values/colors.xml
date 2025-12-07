@@ -12,5 +12,8 @@
     <color name="rojo_incorrecto">#D32F2F</color>
     <color name="gris_contraste">#8C8181</color>
 
-    <color name="gris_contraste_oscuro">#666666</color>
+    <color name="gris_contraste_oscuro">#666666</color> <!-- Un gris oscuro para las tarjetas -->
+    <color name="background_color">#121212</color> <!-- Fondo principal de la app -->
+    <color name="text_color">#FFFFFF</color> <!-- Color del texto principal -->
+    <color name="text_color_secondary">#B3B3B3</color>
 </resources>

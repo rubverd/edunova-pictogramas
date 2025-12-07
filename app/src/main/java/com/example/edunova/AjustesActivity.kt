@@ -1,100 +1,99 @@
-package com.example.edunova
+package com.example.edunova // ¡Asegúrate de que este sea tu paquete correcto!
 
+import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.os.Bundle
-import android.util.Log // Importa la clase Log
-import android.view.MenuItem
+import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
-import com.example.edunova.databinding.ActivityAjustesBinding
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.media3.common.util.Log
+import androidx.media3.common.util.UnstableApi
+import com.example.edunova.databinding.ActivityAjustesBinding // Usa tu clase de ViewBinding
 
 class AjustesActivity : AppCompatActivity() {
 
-    // Companion object para constantes, similar a 'static final' en Java.
+    private lateinit var binding: ActivityAjustesBinding
+    private lateinit var sharedPreferences: SharedPreferences
+
+    // Claves para guardar y recuperar la preferencia del modo oscuro.
+    // Usar constantes evita errores de escritura.
     companion object {
-        const val PREFS_NAME = "AjustesPrefs"
-        const val KEY_VELOCIDAD = "velocidad_reproduccion"
-        const val VELOCIDAD_LENTA = 0.5f
-        const val VELOCIDAD_NORMAL = 1.0f
-        const val VELOCIDAD_RAPIDA = 1.5f
+        const val PREFS_NAME = "settings_prefs"
+        const val KEY_NIGHT_MODE = "night_mode_preference"
     }
 
-    // Usamos View Binding para acceder a las vistas de forma segura y eficiente.
-    private lateinit var binding: ActivityAjustesBinding
-
+    @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Infla el layout usando View Binding y lo establece como el contenido de la actividad.
+
+
+        val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        when (currentNightMode) {
+            Configuration.UI_MODE_NIGHT_NO -> {
+                Log.d("ModoOscuroCheck", "El modo actual es CLARO (NO)")
+            }
+            Configuration.UI_MODE_NIGHT_YES -> {
+                Log.d("ModoOscuroCheck", "El modo actual es OSCURO (YES)")
+            }
+            Configuration.UI_MODE_NIGHT_UNDEFINED -> {
+                Log.d("ModoOscuroCheck", "El modo actual es INDEFINIDO")
+            }
+        }
+
+
+
         binding = ActivityAjustesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 1. Configurar la Toolbar
+        // Inicializa SharedPreferences para poder guardar la configuración
+        sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+        // Configura la barra de herramientas (Toolbar)
         setSupportActionBar(binding.toolbarAjustes)
-        // Habilita el botón de "atrás" en la Toolbar.
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
+        binding.toolbarAjustes.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed() // Botón de volver
+        }
 
-        // 2. Cargar la configuración guardada y actualizar la UI
-        cargarPreferenciaVelocidad()
+        // Configura el switch del modo oscuro
+        setupDarkModeSwitch()
+    }
 
-        // 3. Configurar el listener para guardar la selección del usuario
-        binding.toggleButtonVelocidad.addOnButtonCheckedListener { group, checkedId, isChecked ->
-            // Solo reaccionamos cuando un botón es seleccionado (isChecked es true)
-            if (isChecked) {
-                val velocidadSeleccionada = when (checkedId) {
-                    R.id.btnVelocidadLenta -> VELOCIDAD_LENTA
-                    R.id.btnVelocidadNormal -> VELOCIDAD_NORMAL
-                    R.id.btnVelocidadRapida -> VELOCIDAD_RAPIDA
-                    else -> VELOCIDAD_NORMAL // Valor por defecto en caso de error
-                }
-                guardarPreferenciaVelocidad(velocidadSeleccionada)
+    private fun setupDarkModeSwitch() {
+        val switchModoOscuro = binding.switchModoOscuro
+
+        // Lee la preferencia guardada. El valor por defecto es 'seguir al sistema'.
+        val savedMode = sharedPreferences.getInt(KEY_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+
+        // Ajusta el estado del switch según la preferencia guardada
+        switchModoOscuro.isChecked = when (savedMode) {
+            AppCompatDelegate.MODE_NIGHT_YES -> true  // Si está forzado a oscuro, el switch está activado.
+            AppCompatDelegate.MODE_NIGHT_NO -> false // Si está forzado a claro, el switch está desactivado.
+            else -> {
+                // Si sigue al sistema, el estado del switch debe reflejar el estado actual del teléfono.
+                val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+                currentNightMode == Configuration.UI_MODE_NIGHT_YES
             }
         }
-    }
 
-    /**
-     * Lee la velocidad guardada en SharedPreferences y actualiza el botón que
-     * debe aparecer como seleccionado en la interfaz.
-     */
-    private fun cargarPreferenciaVelocidad() {
-        val prefs: SharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        // Por defecto, la velocidad será normal (1.0f) si no hay nada guardado.
-        val velocidadGuardada = prefs.getFloat(KEY_VELOCIDAD, VELOCIDAD_NORMAL)
+        // Añade el listener para reaccionar cuando el usuario pulsa el switch
+        switchModoOscuro.setOnCheckedChangeListener { _, isChecked ->
+            // Determina qué modo aplicar y guardar
+            val newMode = if (isChecked) {
+                // Si el switch se activa, forzamos el modo oscuro
+                AppCompatDelegate.MODE_NIGHT_YES
+            } else {
+                // Si se desactiva, forzamos el modo claro
+                AppCompatDelegate.MODE_NIGHT_NO
+            }
 
-        // --- LOG --- Añadimos un log para ver qué valor se está cargando.
-        Log.d("AjustesActivity", "Preferencia CARGADA - Velocidad: $velocidadGuardada")
+            // 1. Aplica el nuevo modo a toda la aplicación.
+            // Esto recreará la actividad para que los cambios de tema surtan efecto.
+            AppCompatDelegate.setDefaultNightMode(newMode)
 
-        // Usamos 'when' para una sintaxis más limpia.
-        val botonAChequear = when (velocidadGuardada) {
-            VELOCIDAD_LENTA -> R.id.btnVelocidadLenta
-            VELOCIDAD_RAPIDA -> R.id.btnVelocidadRapida
-            else -> R.id.btnVelocidadNormal // Cubre VELOCIDAD_NORMAL y casos inesperados.
+            // 2. Guarda la preferencia del usuario para que se recuerde en futuros inicios.
+            sharedPreferences.edit().putInt(KEY_NIGHT_MODE, newMode).apply()
         }
-        binding.toggleButtonVelocidad.check(botonAChequear)
-    }
-
-    /**
-     * Guarda el valor de la velocidad seleccionada en SharedPreferences.
-     * @param velocidad El valor float (0.5f, 1.0f, o 1.5f) a guardar.
-     */
-    private fun guardarPreferenciaVelocidad(velocidad: Float) {
-        // --- LOG --- Añadimos un log para ver qué valor se va a guardar.
-        Log.d("AjustesActivity", "Preferencia GUARDANDO - Velocidad: $velocidad")
-
-        val editor: SharedPreferences.Editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit()
-        editor.putFloat(KEY_VELOCIDAD, velocidad)
-        editor.apply() // apply() guarda los datos en segundo plano de forma asíncrona.
-    }
-
-    /**
-     * Maneja el evento de clic en los elementos de la Toolbar, como el botón "atrás".
-     */
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Si se pulsa el botón de "atrás" (home), finaliza la actividad.
-        if (item.itemId == android.R.id.home) {
-            finish() // Cierra la actividad actual y vuelve a la anterior.
-            return true
-        }
-        return super.onOptionsItemSelected(item)
     }
 }
-

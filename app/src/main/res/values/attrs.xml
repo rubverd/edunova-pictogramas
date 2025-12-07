@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Definimos nuestros propios atributos de color para poder personalizarlos en cada tema -->
+    <attr name="customCardBackgroundColor" format="color" />
+    <attr name="customTextColor" format="color" />
+    <attr name="customTextSecondaryColor" format="color" />
+    <attr name="customIconColor" format="color" />
+</resources>

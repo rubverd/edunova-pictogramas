@@ -1,8 +1,16 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Edunova" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Colores originales de tu marca para el modo claro -->
+        <item name="colorPrimary">@color/rojoBoton</item>
+        <item name="colorOnBackground">#f8f5f3</item> <!-- El fondo beige que tenías -->
+
+        <!-- AQUÍ ASIGNAMOS TUS COLORES ORIGINALES A NUESTROS ATRIBUTOS PERSONALIZADOS -->
+        <item name="customCardBackgroundColor">@color/CherryBlossomPink</item> <!-- Tu rosa claro original -->
+        <item name="customTextColor">@android:color/black</item> <!-- Texto negro -->
+        <item name="customTextSecondaryColor">@android:color/darker_gray</item> <!-- Texto gris oscuro -->
+        <item name="customIconColor">@android:color/black</item> <!-- Iconos negros -->
+
     </style>
 
 
