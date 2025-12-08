@@ -56,9 +56,10 @@ class HomeActivity : AppCompatActivity() {
 
     private fun setupClickListeners() {
 
-        // JUEGO VOCABULARIO (Palabras)
+        // JUEGO VOCABULARIO (Palabras) -> AHORA VA A SELECCIÓN
         binding.cardLearn.setOnClickListener {
-            val intent = Intent(this, JuegoPalabras::class.java)
+            // CAMBIO: Ahora vamos a CategorySelectionActivity
+            val intent = Intent(this, CategorySelectionActivity::class.java)
             startActivity(intent)
         }
 
