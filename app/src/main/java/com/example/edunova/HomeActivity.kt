@@ -38,10 +38,10 @@ class HomeActivity : AppCompatActivity() {
             // CONFIRMACIÓN DE PROFESOR
             Log.d("HomeActivity", ">> Configurando vista de PROFESOR")
 
-            binding.btnAdminPanel.visibility = android.view.View.VISIBLE
-            binding.badgeTeacher.visibility = android.view.View.VISIBLE
+            // Mostramos el botón unificado
+            binding.btnTeacherMode.visibility = android.view.View.VISIBLE
 
-            binding.btnAdminPanel.setOnClickListener {
+            binding.btnTeacherMode.setOnClickListener {
                 Log.d("HomeActivity", "Click en botón Admin -> Yendo a ProfesorActivity")
                 val intent = Intent(this, ProfesorActivity::class.java)
                 startActivity(intent)
@@ -49,8 +49,8 @@ class HomeActivity : AppCompatActivity() {
         } else {
             // CONFIRMACIÓN DE ALUMNO
             Log.d("HomeActivity", ">> Configurando vista de ALUMNO")
-            binding.btnAdminPanel.visibility = android.view.View.GONE
-            binding.badgeTeacher.visibility = android.view.View.GONE
+            // Ocultamos el botón unificado
+            binding.btnTeacherMode.visibility = android.view.View.GONE
         }
     }
 
