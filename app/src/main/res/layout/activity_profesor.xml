@@ -57,7 +57,7 @@
         android:text="Gestionar Categorías"
         android:textSize="16sp"
         app:cornerRadius="12dp"
-        app:backgroundTint="#FF9800"
+        app:backgroundTint="@color/rojoBoton"
         app:icon="@android:drawable/ic_menu_sort_by_size"
         app:iconGravity="textStart"
         app:layout_constraintEnd_toEndOf="parent"

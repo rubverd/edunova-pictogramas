@@ -56,17 +56,17 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Editar frase"
         android:src="@android:drawable/ic_menu_edit"
-        app:tint="#FF9800"
-        android:contentDescription="Editar frase" />
+        app:tint="@color/rojoBoton" />
 
     <ImageButton
         android:id="@+id/btnDelete"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Borrar frase"
         android:src="@android:drawable/ic_menu_delete"
-        app:tint="#F44336"
-        android:contentDescription="Borrar frase" />
+        app:tint="@color/rojoBoton" />
 
 </LinearLayout>

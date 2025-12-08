@@ -34,7 +34,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/CherryBlossomPink"
+                app:cardBackgroundColor="@color/rojoBoton"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp">
 
@@ -56,16 +56,16 @@
                             android:layout_height="32dp"
                             android:importantForAccessibility="no"
                             android:src="@drawable/ic_volume_up"
-                            app:tint="@android:color/black" />
+                            app:tint="@color/beige" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="16dp"
                             android:text="Velocidad del Audio"
-                            android:textColor="@android:color/black"
+                            android:textColor="@color/beige"
                             android:textSize="20sp"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold" />
                     </LinearLayout>
 
                     <!-- Descripción -->
@@ -74,8 +74,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="Elige qué tan rápido quieres que se reproduzcan los sonidos."
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="14sp"/>
+                        android:textColor="@color/beige"
+                        android:textSize="14sp" />
 
                     <!-- Grupo de botones para seleccionar la velocidad -->
                     <com.google.android.material.button.MaterialButtonToggleGroup
@@ -91,9 +91,10 @@
                             android:id="@+id/btnVelocidadLenta"
                             style="?attr/materialButtonOutlinedStyle"
                             android:layout_width="0dp"
-                            android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:text="Lenta" />
+                            android:layout_weight="1"
+                            android:text="Lenta"
+                            android:textColor="@color/beige" />
 
                         <Button
                             android:id="@+id/btnVelocidadNormal"
@@ -101,7 +102,8 @@
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:text="Normal" />
+                            android:text="Normal"
+                            android:textColor="@color/beige"/>
 
                         <Button
                             android:id="@+id/btnVelocidadRapida"
@@ -109,7 +111,8 @@
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:text="Rápida" />
+                            android:text="Rápida"
+                            android:textColor="@color/beige"/>
 
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 
