@@ -38,7 +38,7 @@
         android:layout_height="60dp"
         android:layout_margin="16dp"
         android:text="Crear Nuevo Pictograma"
-        android:textSize="24sp"
+        android:textSize="20sp"
         android:textStyle="bold"
         android:backgroundTint="#4CAF50"
         app:cornerRadius="8dp"

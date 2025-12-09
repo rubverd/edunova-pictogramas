@@ -6,15 +6,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
+    android:fitsSystemWindows="true"
     tools:context=".AttemptActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- =============================================================== -->
-        <!-- ======================= INICIO DEL HEADER ======================= -->
-        <!-- =============================================================== -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/header_view"
             android:layout_width="match_parent"
@@ -24,7 +22,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <!-- Puedes poner un título aquí si quieres, o dejarlo vacío -->
             <ImageButton
                 android:id="@+id/button_back"
                 android:layout_width="wrap_content"
@@ -52,13 +49,6 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-        <!-- =============================================================== -->
-        <!-- ======================== FIN DEL HEADER ========================= -->
-        <!-- =============================================================== -->
-
-
-        <!-- Tarjeta con la información general (SIN CAMBIOS) -->
-        <!-- Está anclada al header con un margen superior para que se vea por debajo -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardGeneralInfo"
             android:layout_width="match_parent"
@@ -120,7 +110,6 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Sección de Aciertos (SIN CAMBIOS) -->
         <TextView
             android:id="@+id/textViewAciertosTitle"
             android:layout_width="wrap_content"
@@ -147,7 +136,6 @@
             tools:itemCount="3"
             tools:listitem="@layout/item_word" />
 
-        <!-- Sección de Fallos (SIN CAMBIOS) -->
         <TextView
             android:id="@+id/textViewFallosTitle"
             android:layout_width="wrap_content"
@@ -174,7 +162,6 @@
             tools:itemCount="1"
             tools:listitem="@layout/item_word" />
 
-        <!-- ProgressBar y Group (SIN CAMBIOS) -->
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"
@@ -211,8 +198,3 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
-
-
-
-
-
