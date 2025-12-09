@@ -63,10 +63,11 @@
             android:paddingBottom="16dp"
             android:text="Confirmar"
             android:textColor="#212121"
-            android:textSize="18sp"
+            android:textSize="24sp"
             app:backgroundTint="@color/option_button_background_color"
             app:cornerRadius="16dp"
             app:icon="@drawable/ic_check"
+            app:iconSize="24sp"
             app:strokeColor="@color/option_button_stroke_color"
             app:strokeWidth="2dp"/>
     </LinearLayout>

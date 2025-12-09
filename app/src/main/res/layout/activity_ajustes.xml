@@ -64,7 +64,7 @@
                             android:layout_marginStart="16dp"
                             android:text="Velocidad del Audio"
                             android:textColor="@color/beige"
-                            android:textSize="20sp"
+                            android:textSize="22sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -75,7 +75,7 @@
                         android:layout_marginTop="8dp"
                         android:text="Elige qué tan rápido quieres que se reproduzcan los sonidos."
                         android:textColor="@color/beige"
-                        android:textSize="14sp" />
+                        android:textSize="20sp" />
 
                     <!-- Grupo de botones para seleccionar la velocidad -->
                     <com.google.android.material.button.MaterialButtonToggleGroup
@@ -94,7 +94,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Lenta"
-                            android:textColor="@color/beige" />
+                            android:textColor="@color/beige"
+                            android:textSize="20sp"/>
 
                         <Button
                             android:id="@+id/btnVelocidadNormal"
@@ -103,7 +104,8 @@
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:text="Normal"
-                            android:textColor="@color/beige"/>
+                            android:textColor="@color/beige"
+                            android:textSize="20sp"/>
 
                         <Button
                             android:id="@+id/btnVelocidadRapida"
@@ -112,7 +114,8 @@
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:text="Rápida"
-                            android:textColor="@color/beige"/>
+                            android:textColor="@color/beige"
+                            android:textSize="20sp"/>
 
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 

@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:text="Progreso de Alumno"
             android:textColor="#FFFFFF"
-            android:textSize="20sp"
+            android:textSize="28sp"
             android:textStyle="bold"
             android:gravity="center"/>
     </LinearLayout>

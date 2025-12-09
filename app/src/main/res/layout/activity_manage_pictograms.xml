@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:text="Gestionar Pictogramas"
             android:textColor="#FFFFFF"
-            android:textSize="20sp"
+            android:textSize="24sp"
             android:textStyle="bold"
             android:layout_marginStart="16dp"/>
     </LinearLayout>
@@ -38,12 +38,13 @@
         android:layout_height="60dp"
         android:layout_margin="16dp"
         android:text="Crear Nuevo Pictograma"
-        android:textSize="16sp"
+        android:textSize="24sp"
         android:textStyle="bold"
         android:backgroundTint="#4CAF50"
         app:cornerRadius="8dp"
         app:icon="@android:drawable/ic_input_add"
-        app:iconGravity="textStart"/>
+        app:iconGravity="textStart"
+        app:iconSize="24sp"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvPictograms"

@@ -82,7 +82,7 @@
                     android:id="@+id/textViewDetailStudentName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     tools:text="Estudiante: Alejandro Martínez" />
 
                 <TextView
@@ -90,7 +90,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     tools:text="Puntuación: 8/10" />
 
                 <TextView
@@ -98,7 +98,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     tools:text="Tipo: Vocabulario" />
 
                 <TextView
@@ -106,7 +106,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     tools:text="Fecha: 25 Diciembre 2023" />
 
                 <TextView
@@ -114,7 +114,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     tools:text="Duración: 2m 15s" />
 
             </LinearLayout>
@@ -131,6 +131,7 @@
             android:drawablePadding="8dp"
             android:text="Aciertos"
             android:textAppearance="?attr/textAppearanceHeadline6"
+            android:textSize="20sp"
             app:drawableTint="@color/design_default_color_primary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/cardGeneralInfo" />
@@ -157,6 +158,7 @@
             android:drawablePadding="8dp"
             android:text="Fallos"
             android:textAppearance="?attr/textAppearanceHeadline6"
+            android:textSize="20sp"
             app:drawableTint="@color/design_default_color_error"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/recyclerViewAciertos" />

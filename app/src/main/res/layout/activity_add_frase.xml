@@ -107,7 +107,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
                 android:text="Introduzca la frase:"
-                android:textSize="20sp"
+                android:textSize="22sp"
                 android:textStyle="bold"/>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -144,7 +144,8 @@
                 android:layout_height="60dp"
                 android:layout_marginTop="32dp"
                 android:backgroundTint="#4CAF50"
-                android:text="Guardar frase" />
+                android:text="Guardar frase"
+                android:textSize="22sp"/>
 
             <ProgressBar
                 android:id="@+id/progressBar"
