@@ -131,17 +131,40 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         lifecycleScope.launch {
             try {
-                val snapshot = db.collection("frases")
+                // 1. Intentamos buscar las frases del colegio
+                var snapshot = db.collection("frases")
                     .whereEqualTo("school", school)
                     .get()
                     .await()
 
+                // 2. Si la consulta específica está vacía, buscamos las generales
+                if (snapshot.isEmpty) {
+                    Toast.makeText(this@JuegoFrasesActivity, "Cargando frases generales...", Toast.LENGTH_SHORT).show()
+
+                    // Consulta de respaldo (según tu petición)
+                    snapshot = db.collection("frases")
+                        .get()
+                        .await()
+                    //TODO:
+                    // Opcional: Si quieres asegurarte de que SOLO coges las que no tienen colegio
+                    // o cuyo campo school está vacío, podrías filtrar aquí en memoria:
+                    // val docsFiltrados = snapshot.documents.filter {
+                    //     it.getString("school").isNullOrEmpty()
+                    // }
+                    // Y usar docsFiltrados abajo.
+                }
+
+                // 3. Verificamos si tenemos datos (ya sea del colegio o generales)
                 if (!snapshot.isEmpty) {
+                    // Convertimos a lista de IDs y mezclamos
                     listaIdsFrases = snapshot.documents.map { it.id }.shuffled()
+
+                    // Iniciamos la primera frase
                     cargarFrase(listaIdsFrases[indiceActual])
                 } else {
-                    Toast.makeText(this@JuegoFrasesActivity, "No hay frases en tu centro ($school)", Toast.LENGTH_LONG).show()
-                    finish()
+                    // Si incluso la búsqueda general falla
+                    Toast.makeText(this@JuegoFrasesActivity, "No se encontraron frases disponibles.", Toast.LENGTH_LONG).show()
+                    finish() // Opcional: cerrar si no hay nada que jugar
                 }
             } catch (e: Exception) {
                 Log.e("JuegoFrases", "Error cargando frases", e)
@@ -149,6 +172,7 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
         }
     }
+
 
     private fun cargarFrase(idFrase: String) {
         lifecycleScope.launch {

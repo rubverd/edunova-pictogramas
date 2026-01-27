@@ -10,6 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import android.content.Context
 import com.example.edunova.databinding.SilabasBinding
 import com.example.edunova.db.FirebaseConnection
 import com.google.android.material.appbar.MaterialToolbar
@@ -126,6 +127,13 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun reproducirSonido(texto: String) {
+        // 1. Obtener las preferencias de velocidad guardadas
+        val prefs = getSharedPreferences("AudioSettings", Context.MODE_PRIVATE)
+        val speed = prefs.getFloat("speech_speed", 1.0f) // 1.0f es la velocidad normal por defecto
+
+        // 2. Configurar la velocidad en el motor TTS
+        tts.setSpeechRate(speed)
+
         if (::tts.isInitialized && texto.isNotBlank()) {
             if (tts.voice.locale.toLanguageTag().startsWith("es")) {
                 tts.speak(texto, TextToSpeech.QUEUE_FLUSH, null, null)

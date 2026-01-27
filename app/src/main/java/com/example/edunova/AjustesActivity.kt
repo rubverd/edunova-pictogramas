@@ -1,5 +1,6 @@
 package com.example.edunova
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log // Importa la clase Log
@@ -48,6 +49,11 @@ class AjustesActivity : AppCompatActivity() {
                 }
                 guardarPreferenciaVelocidad(velocidadSeleccionada)
             }
+        }
+        binding.btnCreditos.setOnClickListener {
+
+
+            startActivity(Intent(this, AjustesActivity::class.java))
         }
     }
 

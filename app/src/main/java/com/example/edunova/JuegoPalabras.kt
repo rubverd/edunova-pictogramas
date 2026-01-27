@@ -151,8 +151,15 @@ class JuegoPalabras : AppCompatActivity(), TextToSpeech.OnInitListener {
                 query = query.whereEqualTo("categoria", category)
             }
 
-            val snapshot = query.get().await()
+            var snapshot = query.get().await()
 
+            if (snapshot.isEmpty) {
+
+                // Consulta de la base de datos que no pertenece a ningun colegio
+                snapshot = db.collection("palabras")
+                    .get()
+                    .await()
+            }
             // Barajamos y cogemos máximo 10
             snapshot.documents.map { it.id }.shuffled().take(10)
 
