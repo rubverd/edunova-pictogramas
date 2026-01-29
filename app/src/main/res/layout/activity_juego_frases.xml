@@ -135,7 +135,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
     </com.google.android.material.chip.ChipGroup>
-
+    <TextView
+        android:id="@+id/textViewFeedback"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_rounded_border_grey"
+        android:backgroundTint="#E8F5E9"
+        android:gravity="center"
+        android:padding="12dp"
+        android:textColor="@color/verde_correcto"
+        android:textSize="18sp"
+        android:textStyle="bold|italic"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/chipGroupOpciones"
+        tools:text="Respuesta correcta: El niño come manzana"
+        tools:visibility="visible" />
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonConfirm"
         style="?attr/materialButtonOutlinedStyle"

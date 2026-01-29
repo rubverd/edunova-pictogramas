@@ -297,6 +297,11 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
             Toast.makeText(this, "Hay errores. Fíjate en los colores.", Toast.LENGTH_SHORT).show()
         }
+        // Supongamos que tienes la frase correcta guardada en una variable 'fraseCorrecta'
+
+        // Mostrar el feedback
+        binding.textViewFeedback.text = "Respuesta: ${palabrasCorrectas.toString()}"
+        binding.textViewFeedback.visibility = View.VISIBLE
 
         binding.buttonConfirm.visibility = View.INVISIBLE
         binding.buttonNext.visibility = View.VISIBLE
