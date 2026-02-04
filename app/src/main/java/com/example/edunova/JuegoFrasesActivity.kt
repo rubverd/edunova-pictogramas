@@ -197,6 +197,7 @@ class JuegoFrasesActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             binding.buttonConfirm.visibility = View.INVISIBLE
             binding.buttonNext.visibility = View.INVISIBLE
+            binding.textViewFeedback.visibility = View.INVISIBLE
         }
     }
 

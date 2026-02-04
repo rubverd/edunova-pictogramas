@@ -53,7 +53,7 @@ class AjustesActivity : AppCompatActivity() {
         binding.btnCreditos.setOnClickListener {
 
 
-            startActivity(Intent(this, AjustesActivity::class.java))
+            startActivity(Intent(this, CreditsActivity::class.java))
         }
     }
 
