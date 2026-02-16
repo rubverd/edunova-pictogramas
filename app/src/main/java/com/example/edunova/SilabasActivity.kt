@@ -83,11 +83,13 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         val botonVolver = findViewById<MaterialToolbar>(R.id.toolbar)
         botonVolver.setOnClickListener { finish() }
 
-        binding.buttonOption3.setOnClickListener {
+        binding.buttonConfirmar.setOnClickListener {
             val respuestaUsuario = binding.respuesta.text.toString().trim()
             if (silabaActual != null) {
                 verificarRespuesta(respuestaUsuario)
             }
+        binding.buttonNext.setOnClickListener{
+            comprobarFin()}
         }
 
         // --- LÓGICA DEL BOTÓN DE ESCUCHAR ---
@@ -143,7 +145,9 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun iniciarRecorrido() {
         indiceGrupoActual = -1
-        binding.buttonOption3.isEnabled = true
+        binding.buttonConfirmar.isEnabled = true
+        binding.buttonConfirmar.visibility = View.VISIBLE
+        binding.buttonNext.visibility = View.INVISIBLE
         // Bloqueamos escritura al inicio
         binding.respuesta.isEnabled = false
         tiempoInicioJuego = System.currentTimeMillis()
@@ -188,14 +192,28 @@ class SilabasActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             textViewDeLetra?.backgroundTintList = ContextCompat.getColorStateList(this, R.color.design_default_color_error)
         }
 
-        binding.respuesta.text?.clear()
+        binding.TextoSilabas.text = silabaActual ?: "Error" //se vuelve a mostrar la silaba al usuario
         binding.respuesta.isEnabled = false
 
+        binding.buttonConfirmar.visibility = View.INVISIBLE
+        binding.buttonNext.visibility = View.VISIBLE
+
+        binding.buttonNext.setOnClickListener {
+
+            comprobarFin()
+        }
+
+    }
+
+    private fun comprobarFin(){
+        binding.buttonConfirmar.visibility = View.VISIBLE
+        binding.buttonNext.visibility = View.INVISIBLE
         if (indiceGrupoActual >= gruposDeSilabasOrdenados.size - 1) {
             finalizarJuego()
         } else {
             avanzarAlSiguienteGrupo()
         }
+
     }
 
     private fun initializeLetterMap() {

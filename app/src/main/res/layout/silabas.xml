@@ -32,7 +32,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="visible"
-        app:constraint_referenced_ids="consonantsGrid,silabas_container,respuesta_layout,buttonOption3" />
+        app:constraint_referenced_ids="consonantsGrid,silabas_container,respuesta_layout,buttonConfirmar,buttonNext" />
 
     <GridLayout
         android:id="@+id/consonantsGrid"
@@ -131,7 +131,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonOption3"
+        android:id="@+id/buttonConfirmar"
         style="?attr/materialButtonOutlinedStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -149,6 +149,27 @@
         app:layout_constraintTop_toBottomOf="@id/respuesta_layout"
         app:layout_constraintStart_toStartOf="@id/respuesta_layout"
         app:layout_constraintEnd_toEndOf="@id/respuesta_layout"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonNext"
+        style="?attr/materialButtonOutlinedStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:text="SIGUIENTE"
+        android:textColor="#212121"
+        android:textSize="24sp"
+        android:visibility="invisible"
+        app:backgroundTint="@color/option_button_background_color"
+        app:cornerRadius="16dp"
+        app:icon="@drawable/ic_check"
+        app:layout_constraintEnd_toEndOf="@id/respuesta_layout"
+        app:layout_constraintStart_toStartOf="@id/respuesta_layout"
+        app:layout_constraintTop_toBottomOf="@id/respuesta_layout"
+        app:strokeColor="@color/option_button_stroke_color"
+        app:strokeWidth="2dp" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/resumen_layout"
