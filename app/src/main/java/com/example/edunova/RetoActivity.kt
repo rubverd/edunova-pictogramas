@@ -48,10 +48,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.transition.TransitionManager
+import com.google.firebase.firestore.Query
 
 
 class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
-
     private lateinit var binding: JuegoRetoBinding
     private lateinit var letterMap: Map<Char, TextView>
     private lateinit var tts: TextToSpeech
@@ -62,20 +62,16 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var aciertos = 0
     private var fallos = 0
     private var palabraActual: String? = null
-
     // --- VARIABLES DE SEGUIMIENTO ---
     private var tiempoInicioJuego: Long = 0L
     private val repository = FirebaseConnection()
     private var datosAlumno: Map<String, Any>? = null
-
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private var schoolAlumno: String? = null
     private val palabrasUsadasEnElRosco = mutableListOf<String>()
-
     private val listaAciertos = mutableListOf<String>()
-
     private val listaFallos = mutableListOf<String>()
     private var abecedarioEspanol: MutableList<Char> = mutableListOf()
-
     // --- VARIABLES PARA SONIDOS ---
     private lateinit var soundPool: SoundPool
     private var sonidoAciertoId: Int = 0
@@ -97,27 +93,21 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             repository.getUserData(currentUser.uid) { data ->
                 datosAlumno = data
                 Log.d("RetoActivity", "Datos alumno cargados: ${datosAlumno?.get("displayName")}")
+                val schoolAlumno = datosAlumno?.get("school") as? String
             }
         }
-
         initializeLetterMap()
         inicializarAbecedario()
         inicializarSoundPool() // Iniciamos sonidos
         setupInputListener() // Esta se queda igual
         setupInteraction()
-
-
-
         setupLetterBoxes(palabraActual)
 
         // 2. Configurar el listener para el EditText invisible
         setupInputListener()
 
-
         val botonVolver = findViewById<MaterialToolbar>(R.id.toolbar)
         botonVolver.setOnClickListener { finish() }
-
-
 
         binding.fabPlaySoundSilabas.setOnClickListener {
             reproducirSonido(palabraActual.toString())
@@ -131,12 +121,9 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         binding.buttonSalir.setOnClickListener {
             finish()
         }
-
     }
 
     fun Int.dpToPx(): Int = (this * resources.displayMetrics.density).toInt()
-
-
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
@@ -262,18 +249,16 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private suspend fun obtenerPalabraPorLetra(letra: Char, palabrasExcluidas: List<String>): DocumentSnapshot? {
         val letraMayuscula = letra.uppercaseChar()
+//        val letraSiguiente = (letraMayuscula.code + 1).toChar().toString()
         try {
             val letraSiguiente = (letraMayuscula.code + 1).toChar().toString()
-            val querySnapshot = db.collection("palabras")
-                .whereGreaterThanOrEqualTo("palabra", letraMayuscula.toString())
-                .whereLessThan("palabra", letraSiguiente)
-                .get().await()
-
-            if (querySnapshot.isEmpty) return null
-
+            val documentos = realizarConsultaConFallback { query ->
+               query.whereGreaterThanOrEqualTo("palabra", letraMayuscula)
+                   .whereLessThan("palabra", letraSiguiente)
+           }
             // --- INICIO DE LA MODIFICACIÓN ---
             // 1. Filtramos los documentos para excluir las palabras ya usadas.
-            val documentosDisponibles = querySnapshot.documents.filter { documento ->
+            val documentosDisponibles = documentos.filter { documento ->
                 !palabrasExcluidas.contains(documento.getString("palabra"))
             }
 
@@ -294,10 +279,9 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private suspend fun obtenerPalabraQueContengaLetra(letra: Char, palabrasExcluidas: List<String>): DocumentSnapshot? {
         val letraMayuscula = letra.uppercaseChar()
         try {
-            val querySnapshot = db.collection("palabras").get().await()
-            if (querySnapshot.isEmpty) return null
+            val documentos = realizarConsultaConFallback { it }
 
-            val resultadosValidos = querySnapshot.documents.filter { doc ->
+            val resultadosValidos = documentos.filter { doc ->
                 val palabraActual = doc.getString("palabra") ?: ""
                 val noExcluida = !palabrasExcluidas.contains(palabraActual)
                 if (!noExcluida) return@filter false
@@ -309,8 +293,27 @@ class RetoActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             if (resultadosValidos.isEmpty()) return null
             return resultadosValidos.random()
         } catch (e: Exception) {
+            Log.e("Firestore", "Error al obtener palabra por letra '$letra'", e)
             return null
         }
+    }
+
+    private suspend fun realizarConsultaConFallback(
+        aplicarFiltros: (Query) -> Query): List<DocumentSnapshot> {
+        val coleccion = db.collection("palabras")
+        // 1. Intentar con el colegio del alumno
+        var query = aplicarFiltros(coleccion.whereEqualTo("school", schoolAlumno))
+        var snapshot = query.get().await()
+        // 2. Si no hay, intentar con las generales (school == null)
+        if (snapshot.isEmpty) {
+            query = aplicarFiltros(coleccion.whereEqualTo("school", null))
+            snapshot = query.get().await()
+        }
+        // 3. Si sigue vacío, traer cualquier palabra que cumpla el filtro (sin importar el colegio)
+        if (snapshot.isEmpty) {
+            return emptyList()
+        }
+        return snapshot.documents
     }
 
     private fun finalizarReto() {
